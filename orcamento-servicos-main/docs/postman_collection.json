@@ -1,0 +1,118 @@
+{
+  "info": {
+    "name": "Orcamento Servicos - QA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção Postman para testar autenticação, clientes, serviços e orçamentos (inclui PDF e atualização de status)."
+  },
+  "item": [
+    {
+      "name": "Auth - Registrar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"]},
+        "body": {"mode": "raw", "raw": "{\n  \"nome\": \"Admin\",\n  \"email\": \"admin@teste.com\",\n  \"senha\": \"123456\"\n}"}
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"]},
+        "body": {"mode": "raw", "raw": "{\n  \"email\": \"admin@teste.com\",\n  \"senha\": \"123456\"\n}"}
+      }
+    },
+    {
+      "name": "Auth - Verificar login",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{baseUrl}}/api/auth/verificar", "host": ["{{baseUrl}}"], "path": ["api","auth","verificar"]}
+      }
+    },
+    {
+      "name": "Clientes - Criar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/clientes/", "host": ["{{baseUrl}}"], "path": ["api","clientes",""]},
+        "body": {"mode": "raw", "raw": "{\n  \"nome\": \"Cliente X\",\n  \"telefone\": \"11999999999\",\n  \"email\": \"cliente@x.com\",\n  \"endereco\": \"Rua A, 123\"\n}"}
+      }
+    },
+    {
+      "name": "Serviços - Criar 1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/servicos/", "host": ["{{baseUrl}}"], "path": ["api","servicos",""]},
+        "body": {"mode": "raw", "raw": "{\n  \"nome\": \"Pintura\",\n  \"descricao\": \"Pintura de sala\",\n  \"valor\": 250\n}"}
+      }
+    },
+    {
+      "name": "Serviços - Criar 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/servicos/", "host": ["{{baseUrl}}"], "path": ["api","servicos",""]},
+        "body": {"mode": "raw", "raw": "{\n  \"nome\": \"Limpeza\",\n  \"descricao\": \"Limpeza pós-obra\",\n  \"valor\": 150\n}"}
+      }
+    },
+    {
+      "name": "Orçamentos - Criar (com duplicados)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/orcamentos/", "host": ["{{baseUrl}}"], "path": ["api","orcamentos",""]},
+        "body": {"mode": "raw", "raw": "{\n  \"id_cliente\": 1,\n  \"itens\": [\n    { \"id_servico\": 1, \"quantidade\": 1 },\n    { \"id_servico\": 1, \"quantidade\": 3 },\n    { \"id_servico\": 2, \"quantidade\": 2 }\n  ]\n}"}
+      }
+    },
+    {
+      "name": "Orçamentos - Listar",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{baseUrl}}/api/orcamentos/", "host": ["{{baseUrl}}"], "path": ["api","orcamentos",""]}
+      }
+    },
+    {
+      "name": "Orçamentos - Detalhar",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{baseUrl}}/api/orcamentos/1", "host": ["{{baseUrl}}"], "path": ["api","orcamentos","1"]}
+      }
+    },
+    {
+      "name": "Orçamentos - Atualizar Status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{baseUrl}}/api/orcamentos/1/status", "host": ["{{baseUrl}}"], "path": ["api","orcamentos","1","status"]},
+        "body": {"mode": "raw", "raw": "{\n  \"status\": \"Aprovado\"\n}"}
+      }
+    },
+    {
+      "name": "Orçamentos - PDF",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{baseUrl}}/api/orcamentos/1/pdf", "host": ["{{baseUrl}}"], "path": ["api","orcamentos","1","pdf"]}
+      }
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:5000"}
+  ]
+}
+

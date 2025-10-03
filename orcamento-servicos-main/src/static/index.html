@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Teste da API</title>
+    <style>
+        :root {
+            --cor-primaria: #007bff;
+            --cor-secundaria: #6c757d;
+            --cor-sucesso: #28a745;
+            --cor-perigo: #dc3545;
+            --cor-fundo: #f8f9fa;
+            --cor-borda: #dee2e6;
+            --cor-texto: #212529;
+            --sombra: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 2em;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: white;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: var(--sombra);
+        }
+        .secao {
+            border: 1px solid var(--cor-borda);
+            border-radius: 8px;
+            padding: 1.5em;
+            margin-bottom: 2em;
+        }
+        h1, h2 {
+            color: #333;
+            border-bottom: 2px solid var(--cor-primaria);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.85; }
+        .btn-principal { background-color: var(--cor-primaria); }
+        .btn-sucesso { background-color: var(--cor-sucesso); }
+        .btn-perigo { background-color: var(--cor-perigo); }
+        .btn-secundario { background-color: var(--cor-secundaria); }
+        .lista-clientes-item {
+            list-style-type: none;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .botoes-acao button {
+            font-size: 0.9em;
+            padding: 8px 12px;
+            margin-left: 10px;
+        }
+        .mensagem {
+            padding: 1em;
+            border-radius: 4px;
+            margin: 1em 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .sucesso { background-color: #d4edda; color: #155724; }
+        .erro { background-color: #f8d7da; color: #721c24; }
+        /* Esconde seções que só aparecem depois do login */
+        .escondido { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Painel de Teste - API Clientes</h1>
+
+        <div id="area-login" class="secao">
+            <h2>1. Autenticação</h2>
+            <form id="form-login">
+                <input type="email" id="login-email" placeholder="Email do usuário" required>
+                <input type="password" id="login-senha" placeholder="Senha" required>
+                <button type="submit" class="btn-principal">Entrar</button>
+            </form>
+        </div>
+
+        <div id="area-mensagens"></div>
+
+        <div id="area-geral" class="escondido">
+            
+            <div class="secao">
+                <h2 id="form-titulo">Adicionar Novo Cliente</h2>
+                <form id="form-cliente">
+                    <input type="hidden" id="cliente-id">
+                    
+                    <input type="text" id="cliente-nome" placeholder="Nome completo" required>
+                    <input type="text" id="cliente-telefone" placeholder="Telefone (opcional)">
+                    <input type="email" id="cliente-email" placeholder="Email (opcional)">
+                    <input type="text" id="cliente-endereco" placeholder="Endereço (opcional)">
+                    
+                    <button type="submit" class="btn-sucesso">Salvar Cliente</button>
+                    <button type="button" id="btn-cancelar" class="btn-secundario escondido">Cancelar Edição</button>
+                </form>
+            </div>
+
+            <div class="secao">
+                <h2>Clientes Cadastrados</h2>
+                <button id="btn-recarregar" class="btn-principal" style="margin-bottom: 1em;">Recarregar Lista</button>
+                <ul id="lista-clientes">
+                    </ul>
+            </div>
+
+            <div class="secao">
+                <h2>Orçamentos</h2>
+                <form id="form-orcamento" style="margin-bottom: 1em;">
+                    <input type="number" id="orc-id-cliente" placeholder="ID do cliente" required>
+                    <textarea id="orc-itens" placeholder='Itens em JSON, ex.: [{"id_servico":1,"quantidade":2}]' rows="4" style="padding:10px;border:1px solid var(--cor-borda);border-radius:4px;"></textarea>
+                    <button type="submit" class="btn-sucesso">Criar Orçamento</button>
+                </form>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                    <button id="btn-listar-orc" class="btn-principal">Listar Orçamentos</button>
+                    <input type="number" id="orc-id-detalhe" placeholder="ID orçamento p/ detalhar" style="width:200px;">
+                    <button id="btn-detalhar-orc" class="btn-secundario">Detalhar</button>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                    <input type="number" id="orc-id-status" placeholder="ID orçamento" style="width:160px;">
+                    <select id="orc-status" style="padding:10px;border:1px solid var(--cor-borda);border-radius:4px;">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Aprovado">Aprovado</option>
+                        <option value="Recusado">Recusado</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                    <button id="btn-atualizar-status" class="btn-principal">Atualizar Status</button>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <input type="number" id="orc-id-pdf" placeholder="ID orçamento" style="width:160px;">
+                    <button id="btn-pdf" class="btn-secundario">Baixar PDF</button>
+                </div>
+
+                <pre id="saida-orc" style="background:#f7f7f7;border:1px solid #eee;border-radius:6px;padding:12px;margin-top:12px;max-height:300px;overflow:auto;"></pre>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Bloco de código que espera o HTML ser totalmente carregado para rodar
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- MAPEAMENTO DOS ELEMENTOS DO HTML ---
+            // Pegamos todos os elementos que vamos precisar manipular
+            const formLogin = document.getElementById('form-login');
+            const areaLogin = document.getElementById('area-login');
+            const areaGeral = document.getElementById('area-geral');
+            const areaMensagens = document.getElementById('area-mensagens');
+            const listaClientes = document.getElementById('lista-clientes');
+            const btnRecarregar = document.getElementById('btn-recarregar');
+            
+            const formCliente = document.getElementById('form-cliente');
+            const formTitulo = document.getElementById('form-titulo');
+            const clienteIdInput = document.getElementById('cliente-id');
+            const clienteNomeInput = document.getElementById('cliente-nome');
+            const clienteTelefoneInput = document.getElementById('cliente-telefone');
+            const clienteEmailInput = document.getElementById('cliente-email');
+            const clienteEnderecoInput = document.getElementById('cliente-endereco');
+            const btnCancelar = document.getElementById('btn-cancelar');
+
+            // --- DEFINIÇÃO DAS URLs DA API ---
+            const URL_BASE = '/api/clientes/';
+            const URL_LOGIN = '/api/auth/login';
+            const URL_ORC = '/api/orcamentos/';
+
+            // --- FUNÇÕES AUXILIARES ---
+
+            // Função para mostrar mensagens de sucesso ou erro
+            function mostrarMensagem(texto, tipo = 'sucesso') {
+                areaMensagens.innerHTML = `<div class="mensagem ${tipo}">${texto}</div>`;
+                // Limpa a mensagem após 5 segundos
+                setTimeout(() => { areaMensagens.innerHTML = ''; }, 5000);
+            }
+
+            // --- FUNÇÕES PRINCIPAIS (LÓGICA DA API) ---
+
+            /**
+             * 1. LOGIN
+             * Envia email e senha para a API. Se der certo, esconde a área de login
+             * e mostra a área de gerenciamento de clientes.
+             */
+            async function fazerLogin(event) {
+                event.preventDefault(); // Impede que o formulário recarregue a página
+                
+                const email = document.getElementById('login-email').value;
+                const senha = document.getElementById('login-senha').value;
+                
+                try {
+                    const resposta = await fetch(URL_LOGIN, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, senha })
+                    });
+                    const dados = await resposta.json();
+
+                    if (!resposta.ok) throw new Error(dados.erro || 'Erro desconhecido');
+
+                    // Se o login deu certo:
+                    mostrarMensagem('Login bem-sucedido!');
+                    areaLogin.classList.add('escondido'); // Esconde a área de login
+                    areaGeral.classList.remove('escondido'); // Mostra a área principal
+                    
+                    // Busca a lista de clientes pela primeira vez
+                    buscarEListarClientes();
+
+                } catch (erro) {
+                    mostrarMensagem(`Erro no login: ${erro.message}`, 'erro');
+                }
+            }
+            
+            /**
+             * 2. BUSCAR E LISTAR CLIENTES (READ)
+             * Faz uma requisição GET para a API e monta a lista de clientes no HTML.
+             * Para cada cliente, cria os botões de Editar e Excluir.
+             */
+            async function buscarEListarClientes() {
+                listaClientes.innerHTML = '<li>Carregando...</li>';
+                try {
+                    const resposta = await fetch(URL_BASE);
+                    if (resposta.status === 401) { // Se a sessão expirar
+                         mostrarMensagem('Sessão expirada. Faça login novamente.', 'erro');
+                         areaLogin.classList.remove('escondido');
+                         areaGeral.classList.add('escondido');
+                         return;
+                    }
+                    const dados = await resposta.json();
+                    if (!resposta.ok) throw new Error(dados.erro || 'Erro desconhecido');
+
+                    listaClientes.innerHTML = ''; // Limpa a lista
+                    
+                    if (dados.clientes && dados.clientes.length > 0) {
+                        dados.clientes.forEach(cliente => {
+                            const item = document.createElement('li');
+                            item.className = 'lista-clientes-item';
+                            item.innerHTML = `
+                                <div>
+                                    <strong>${cliente.nome}</strong><br>
+                                    <small>Tel: ${cliente.telefone || 'N/A'} | Email: ${cliente.email || 'N/A'}</small>
+                                </div>
+                                <div class="botoes-acao">
+                                    <button class="btn-secundario btn-editar" data-id="${cliente.id_cliente}">Editar</button>
+                                    <button class="btn-perigo btn-excluir" data-id="${cliente.id_cliente}">Excluir</button>
+                                </div>
+                            `;
+                            listaClientes.appendChild(item);
+                        });
+                    } else {
+                        listaClientes.innerHTML = '<li>Nenhum cliente cadastrado.</li>';
+                    }
+                } catch (erro) {
+                    mostrarMensagem(`Erro ao buscar clientes: ${erro.message}`, 'erro');
+                }
+            }
+
+            /**
+             * 3. SALVAR CLIENTE (CREATE / UPDATE)
+             * Esta função serve tanto para criar quanto para atualizar um cliente.
+             * Ela verifica se existe um ID no campo escondido 'cliente-id'.
+             * - Se NÃO houver ID, faz um POST (criar).
+             * - Se HOUVER ID, faz um PUT (atualizar).
+             */
+            async function salvarCliente(event) {
+                event.preventDefault();
+                
+                const id = clienteIdInput.value;
+                const dadosCliente = {
+                    nome: clienteNomeInput.value,
+                    telefone: clienteTelefoneInput.value,
+                    email: clienteEmailInput.value,
+                    endereco: clienteEnderecoInput.value,
+                };
+
+                const ehEdicao = !!id; // Converte o ID para true (se existir) ou false (se for vazio)
+                const url = ehEdicao ? `${URL_BASE}${id}` : URL_BASE;
+                const method = ehEdicao ? 'PUT' : 'POST';
+
+                try {
+                    const resposta = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dadosCliente)
+                    });
+                    const dados = await resposta.json();
+
+                    if (!resposta.ok) throw new Error(dados.erro || 'Erro ao salvar');
+
+                    mostrarMensagem(dados.mensagem || 'Operação realizada com sucesso!');
+                    resetarFormulario(); // Limpa o formulário
+                    buscarEListarClientes(); // Atualiza a lista
+
+                } catch(erro) {
+                    mostrarMensagem(`Erro ao salvar cliente: ${erro.message}`, 'erro');
+                }
+            }
+
+            /**
+             * 4. EXCLUIR CLIENTE (DELETE)
+             * Pede confirmação e, se o usuário confirmar, envia uma requisição DELETE
+             * para a API usando o ID do cliente.
+             */
+            async function excluirCliente(id) {
+                if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+
+                try {
+                    const resposta = await fetch(`${URL_BASE}${id}`, { method: 'DELETE' });
+                    const dados = await resposta.json();
+
+                    if (!resposta.ok) throw new Error(dados.erro || 'Erro ao excluir');
+
+                    mostrarMensagem(dados.mensagem || 'Cliente excluído com sucesso!');
+                    buscarEListarClientes(); // Atualiza a lista
+
+                } catch(erro) {
+                    mostrarMensagem(`Erro ao excluir cliente: ${erro.message}`, 'erro');
+                }
+            }
+            
+            /**
+             * 5. PREPARAR PARA EDIÇÃO
+             * Quando o botão "Editar" de um cliente é clicado, esta função pega os
+             * dados daquele cliente e preenche o formulário com eles.
+             */
+            function prepararParaEdicao(id) {
+                // Busca o cliente na lista já carregada para não precisar de outra requisição
+                fetch(`${URL_BASE}${id}`)
+                    .then(res => res.json())
+                    .then(dados => {
+                        const cliente = dados.cliente;
+                        formTitulo.innerText = 'Editando Cliente';
+                        clienteIdInput.value = cliente.id_cliente;
+                        clienteNomeInput.value = cliente.nome;
+                        clienteTelefoneInput.value = cliente.telefone || '';
+                        clienteEmailInput.value = cliente.email || '';
+                        clienteEnderecoInput.value = cliente.endereco || '';
+                        btnCancelar.classList.remove('escondido');
+                        window.scrollTo(0, 0); // Rola a página para o topo
+                    })
+                    .catch(err => mostrarMensagem('Erro ao carregar dados para edição', 'erro'));
+            }
+
+            /**
+             * 6. RESETAR FORMULÁRIO
+             * Limpa todos os campos do formulário e o restaura para o modo "Adicionar".
+             */
+            function resetarFormulario() {
+                formCliente.reset(); // Limpa os campos do formulário
+                clienteIdInput.value = ''; // Garante que o ID oculto está limpo
+                formTitulo.innerText = 'Adicionar Novo Cliente';
+                btnCancelar.classList.add('escondido');
+            }
+
+            // --- MAPEAMENTO DOS EVENTOS ---
+
+            // Quando o formulário de login for enviado, chama a função `fazerLogin`
+            formLogin.addEventListener('submit', fazerLogin);
+            
+            // Quando o formulário de cliente for enviado, chama a função `salvarCliente`
+            formCliente.addEventListener('submit', salvarCliente);
+            
+            // Quando o botão de recarregar for clicado, busca a lista novamente
+            btnRecarregar.addEventListener('click', buscarEListarClientes);
+            
+            // Quando o botão de cancelar edição for clicado, limpa o formulário
+            btnCancelar.addEventListener('click', resetarFormulario);
+
+            // Delegação de eventos para os botões de editar e excluir
+            // Isso funciona mesmo para botões que são criados dinamicamente
+            listaClientes.addEventListener('click', (event) => {
+                const target = event.target;
+                const id = target.getAttribute('data-id');
+
+                if (target.classList.contains('btn-editar')) {
+                    prepararParaEdicao(id);
+                }
+                if (target.classList.contains('btn-excluir')) {
+                    excluirCliente(id);
+                }
+            });
+
+            // ============================
+            // ORÇAMENTOS - NOVAS FUNÇÕES
+            // ============================
+            const formOrcamento = document.getElementById('form-orcamento');
+            const saidaOrc = document.getElementById('saida-orc');
+            const btnListarOrc = document.getElementById('btn-listar-orc');
+            const btnDetalharOrc = document.getElementById('btn-detalhar-orc');
+            const btnAtualizarStatus = document.getElementById('btn-atualizar-status');
+            const btnPdf = document.getElementById('btn-pdf');
+
+            async function criarOrcamento(event) {
+                event.preventDefault();
+                const idCliente = Number(document.getElementById('orc-id-cliente').value);
+                let itens = [];
+                try {
+                    const txt = document.getElementById('orc-itens').value.trim();
+                    itens = txt ? JSON.parse(txt) : [];
+                } catch(e) {
+                    mostrarMensagem('Itens inválidos (JSON).', 'erro');
+                    return;
+                }
+
+                try {
+                    const resp = await fetch(URL_ORC, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id_cliente: idCliente, itens })
+                    });
+                    const dados = await resp.json();
+                    if (!resp.ok) throw new Error(dados.erro || 'Erro ao criar orçamento');
+                    mostrarMensagem(dados.mensagem || 'Orçamento criado com sucesso!');
+                    saidaOrc.textContent = JSON.stringify(dados, null, 2);
+                } catch (erro) {
+                    mostrarMensagem(erro.message, 'erro');
+                }
+            }
+
+            async function listarOrcamentos() {
+                try {
+                    const resp = await fetch(URL_ORC);
+                    const dados = await resp.json();
+                    if (!resp.ok) throw new Error(dados.erro || 'Erro ao listar');
+                    saidaOrc.textContent = JSON.stringify(dados, null, 2);
+                } catch (erro) {
+                    mostrarMensagem(erro.message, 'erro');
+                }
+            }
+
+            async function detalharOrcamento() {
+                const id = Number(document.getElementById('orc-id-detalhe').value);
+                if (!id) { mostrarMensagem('Informe o ID do orçamento.', 'erro'); return; }
+                try {
+                    const resp = await fetch(`${URL_ORC}${id}`);
+                    const dados = await resp.json();
+                    if (!resp.ok) throw new Error(dados.erro || 'Erro ao detalhar');
+                    saidaOrc.textContent = JSON.stringify(dados, null, 2);
+                } catch (erro) {
+                    mostrarMensagem(erro.message, 'erro');
+                }
+            }
+
+            async function atualizarStatus() {
+                const id = Number(document.getElementById('orc-id-status').value);
+                const status = document.getElementById('orc-status').value;
+                if (!id) { mostrarMensagem('Informe o ID do orçamento.', 'erro'); return; }
+                try {
+                    const resp = await fetch(`${URL_ORC}${id}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    const dados = await resp.json();
+                    if (!resp.ok) throw new Error(dados.erro || 'Erro ao atualizar status');
+                    mostrarMensagem(dados.mensagem || 'Status atualizado!');
+                    saidaOrc.textContent = JSON.stringify(dados, null, 2);
+                } catch (erro) {
+                    mostrarMensagem(erro.message, 'erro');
+                }
+            }
+
+            async function baixarPdf() {
+                const id = Number(document.getElementById('orc-id-pdf').value);
+                if (!id) { mostrarMensagem('Informe o ID do orçamento.', 'erro'); return; }
+                try {
+                    const resp = await fetch(`${URL_ORC}${id}/pdf`);
+                    if (!resp.ok) {
+                        const dados = await resp.json().catch(() => ({}));
+                        throw new Error(dados.erro || 'Erro ao gerar PDF');
+                    }
+                    const blob = await resp.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `orcamento_${id}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    mostrarMensagem('PDF baixado com sucesso!');
+                } catch (erro) {
+                    mostrarMensagem(erro.message, 'erro');
+                }
+            }
+
+            formOrcamento.addEventListener('submit', criarOrcamento);
+            btnListarOrc.addEventListener('click', listarOrcamentos);
+            btnDetalharOrc.addEventListener('click', detalharOrcamento);
+            btnAtualizarStatus.addEventListener('click', atualizarStatus);
+            btnPdf.addEventListener('click', baixarPdf);
+        });
+    </script>
+</body>
+</html>

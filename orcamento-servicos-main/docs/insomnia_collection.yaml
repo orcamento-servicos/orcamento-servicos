@@ -1,0 +1,154 @@
+_type: export
+__export_format: 4
+__export_date: 2025-10-01T00:00:00.000Z
+__export_source: insomnia.desktop.app
+resources:
+  - _id: wrk_orcamento_servicos
+    _type: workspace
+    name: Orcamento Servicos - QA
+  - _id: env_base
+    _type: environment
+    parentId: wrk_orcamento_servicos
+    name: Base Environment
+    data:
+      baseUrl: http://localhost:5000
+  - _id: fld_auth
+    _type: request_group
+    parentId: wrk_orcamento_servicos
+    name: Auth
+  - _id: req_auth_register
+    _type: request
+    parentId: fld_auth
+    name: Auth - Registrar
+    method: POST
+    url: "{{ baseUrl }}/api/auth/register"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "nome": "Admin",
+          "email": "admin@teste.com",
+          "senha": "123456"
+        }
+  - _id: req_auth_login
+    _type: request
+    parentId: fld_auth
+    name: Auth - Login
+    method: POST
+    url: "{{ baseUrl }}/api/auth/login"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "admin@teste.com",
+          "senha": "123456"
+        }
+  - _id: req_auth_verificar
+    _type: request
+    parentId: fld_auth
+    name: Auth - Verificar
+    method: GET
+    url: "{{ baseUrl }}/api/auth/verificar"
+  - _id: fld_clientes
+    _type: request_group
+    parentId: wrk_orcamento_servicos
+    name: Clientes
+  - _id: req_cliente_criar
+    _type: request
+    parentId: fld_clientes
+    name: Clientes - Criar
+    method: POST
+    url: "{{ baseUrl }}/api/clientes/"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "nome": "Cliente X",
+          "telefone": "11999999999",
+          "email": "cliente@x.com",
+          "endereco": "Rua A, 123"
+        }
+  - _id: fld_servicos
+    _type: request_group
+    parentId: wrk_orcamento_servicos
+    name: Serviços
+  - _id: req_servico1
+    _type: request
+    parentId: fld_servicos
+    name: Serviços - Criar 1
+    method: POST
+    url: "{{ baseUrl }}/api/servicos/"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "nome": "Pintura",
+          "descricao": "Pintura de sala",
+          "valor": 250
+        }
+  - _id: req_servico2
+    _type: request
+    parentId: fld_servicos
+    name: Serviços - Criar 2
+    method: POST
+    url: "{{ baseUrl }}/api/servicos/"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "nome": "Limpeza",
+          "descricao": "Limpeza pós-obra",
+          "valor": 150
+        }
+  - _id: fld_orcamentos
+    _type: request_group
+    parentId: wrk_orcamento_servicos
+    name: Orçamentos
+  - _id: req_orc_criar
+    _type: request
+    parentId: fld_orcamentos
+    name: Orçamentos - Criar (com duplicados)
+    method: POST
+    url: "{{ baseUrl }}/api/orcamentos/"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "id_cliente": 1,
+          "itens": [
+            { "id_servico": 1, "quantidade": 1 },
+            { "id_servico": 1, "quantidade": 3 },
+            { "id_servico": 2, "quantidade": 2 }
+          ]
+        }
+  - _id: req_orc_listar
+    _type: request
+    parentId: fld_orcamentos
+    name: Orçamentos - Listar
+    method: GET
+    url: "{{ baseUrl }}/api/orcamentos/"
+  - _id: req_orc_detalhar
+    _type: request
+    parentId: fld_orcamentos
+    name: Orçamentos - Detalhar
+    method: GET
+    url: "{{ baseUrl }}/api/orcamentos/1"
+  - _id: req_orc_status
+    _type: request
+    parentId: fld_orcamentos
+    name: Orçamentos - Atualizar Status
+    method: PUT
+    url: "{{ baseUrl }}/api/orcamentos/1/status"
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "status": "Aprovado"
+        }
+  - _id: req_orc_pdf
+    _type: request
+    parentId: fld_orcamentos
+    name: Orçamentos - PDF
+    method: GET
+    url: "{{ baseUrl }}/api/orcamentos/1/pdf"
+
