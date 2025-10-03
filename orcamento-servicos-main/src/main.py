@@ -19,6 +19,7 @@ from src.routes.auth import auth_bp
 from src.routes.clientes import clientes_bp
 from src.routes.servicos import servicos_bp
 from src.routes.orcamentos import orcamentos_bp
+from src.routes.vendas import vendas_bp
 
 # ========================================
 # CONFIGURAÇÃO DO FLASK
@@ -27,8 +28,8 @@ from src.routes.orcamentos import orcamentos_bp
 # Cria a aplicação Flask
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
-# Chave secreta para sessões (IMPORTANTE: mude em produção!)
-app.config['SECRET_KEY'] = 'sua-chave-secreta-aqui-mude-em-producao'
+# Chave secreta para sessões (lida do ambiente; define padrão apenas em dev)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-nao-usar-em-producao')
 
 # ========================================
 # CONFIGURAÇÃO DO LOGIN
@@ -58,6 +59,7 @@ app.register_blueprint(auth_bp, url_prefix='/api/auth')        # Rotas de login/
 app.register_blueprint(clientes_bp, url_prefix='/api/clientes') # Rotas de clientes
 app.register_blueprint(servicos_bp, url_prefix='/api/servicos') # Rotas de serviços
 app.register_blueprint(orcamentos_bp, url_prefix='/api/orcamentos') # Rotas de orçamentos
+app.register_blueprint(vendas_bp, url_prefix='/api/vendas') # Rotas de vendas
 
 # ========================================
 # CONFIGURAÇÃO DO BANCO DE DADOS

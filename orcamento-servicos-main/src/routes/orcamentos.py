@@ -10,6 +10,9 @@ from datetime import datetime
 from decimal import Decimal
 import os
 import base64
+import secrets
+import smtplib
+from email.message import EmailMessage
 
 from src.models.models import (
     db,
@@ -18,6 +21,8 @@ from src.models.models import (
     Orcamento,
     OrcamentoServicos,
     LogsAcesso,
+    Venda,
+    VendaItem,
 )
 
 try:
@@ -234,6 +239,71 @@ def atualizar_status_orcamento(id_orcamento):
 
 
 # ========================================
+# ROTA: CONVERTER ORÇAMENTO EM VENDA
+# POST /api/orcamentos/<id_orcamento>/converter-venda
+# ========================================
+@orcamentos_bp.route('/<int:id_orcamento>/converter-venda', methods=['POST'])
+@login_required
+def converter_em_venda(id_orcamento):
+    try:
+        orcamento = Orcamento.query.get_or_404(id_orcamento)
+
+        if orcamento.status != 'Aprovado':
+            return jsonify({'erro': 'Apenas orçamentos Aprovados podem ser convertidos em venda'}), 400
+
+        # Evita conversão duplicada
+        existente = Venda.query.filter_by(id_orcamento=orcamento.id_orcamento).first()
+        if existente:
+            return jsonify({'erro': 'Este orçamento já foi convertido em venda', 'venda': existente.para_dict()}), 409
+
+        # Gera código de venda curto e único
+        codigo = secrets.token_hex(6)
+
+        venda = Venda(
+            id_orcamento=orcamento.id_orcamento,
+            id_cliente=orcamento.id_cliente,
+            id_usuario=current_user.id_usuario,
+            data_venda=datetime.utcnow(),
+            codigo_venda=codigo,
+            valor_total=orcamento.valor_total,
+        )
+        db.session.add(venda)
+        db.session.flush()
+
+        # Copia snapshot dos itens
+        relacoes = OrcamentoServicos.query.filter_by(id_orcamento=orcamento.id_orcamento).all()
+        for rel in relacoes:
+            vi = VendaItem(
+                id_venda=venda.id_venda,
+                id_servico=rel.id_servico,
+                quantidade=rel.quantidade,
+                valor_unitario=rel.valor_unitario,
+                subtotal=rel.subtotal,
+            )
+            db.session.add(vi)
+
+        db.session.commit()
+
+        # Log
+        try:
+            log = LogsAcesso(
+                id_usuario=current_user.id_usuario,
+                acao=f'Orçamento {orcamento.id_orcamento} convertido em venda {venda.codigo_venda}',
+                data_hora=datetime.utcnow()
+            )
+            db.session.add(log)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+        itens = [i.para_dict() for i in venda.itens]
+        return jsonify({'mensagem': 'Conversão realizada com sucesso!', 'venda': venda.para_dict(), 'itens': itens}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+# ========================================
 # ROTA: GERAR PDF DO ORÇAMENTO
 # GET /api/orcamentos/<id_orcamento>/pdf
 # RF006: Geração de PDF
@@ -382,4 +452,122 @@ def gerar_pdf_orcamento(id_orcamento):
 
 
 
+
+
+# ========================================
+# ROTA: ENVIAR PDF POR E-MAIL
+# POST /api/orcamentos/<id_orcamento>/enviar-email
+# body: { "emails": ["a@b.com"], "mensagem": "..." }
+# Requer configuração SMTP via variáveis de ambiente
+# ========================================
+@orcamentos_bp.route('/<int:id_orcamento>/enviar-email', methods=['POST'])
+@login_required
+def enviar_email_orcamento(id_orcamento):
+    try:
+        dados = request.get_json() or {}
+        emails = dados.get('emails') or []
+        mensagem = dados.get('mensagem') or ''
+        if not isinstance(emails, list) or len(emails) == 0:
+            return jsonify({'erro': 'Informe uma lista de emails'}), 400
+
+        if not WEASYPRINT_AVAILABLE:
+            return jsonify({'erro': 'Geração de PDF indisponível: WeasyPrint não instalado'}), 503
+
+        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        # Reusa o HTML da função anterior para gerar o PDF
+        cliente = orcamento.cliente
+        itens = orcamento.orcamento_servicos
+
+        def formatar_brl(valor_decimal):
+            valor = float(valor_decimal)
+            txt = f"{valor:,.2f}"
+            txt = txt.replace(',', 'X').replace('.', ',').replace('X', '.')
+            return f"R$ {txt}"
+
+        logo_data_uri = ''
+        try:
+            base_dir = os.path.dirname(os.path.dirname(__file__))
+            logo_path = os.path.join(base_dir, 'static', 'logo.png')
+            if os.path.exists(logo_path):
+                with open(logo_path, 'rb') as f:
+                    b64 = base64.b64encode(f.read()).decode('utf-8')
+                    logo_data_uri = f"data:image/png;base64,{b64}"
+        except Exception:
+            logo_data_uri = ''
+
+        EMPRESA_NOME = 'Sua Empresa Ltda.'
+        EMPRESA_ENDERECO = 'Rua Exemplo, 123 - Cidade/UF'
+        EMPRESA_CONTATO = 'contato@empresa.com | (11) 0000-0000'
+
+        html_conteudo = f"""
+        <html>
+        <head>
+            <meta charset='utf-8'>
+            <style>
+                @page {{ size: A4; margin: 20mm 15mm 20mm 15mm; }}
+                body {{ font-family: Arial, sans-serif; font-size: 12px; color: #222; }}
+                header.header {{ padding-bottom: 8px; border-bottom: 2px solid #333; }}
+            </style>
+        </head>
+        <body>
+            <header class="header">
+                {f'<img style="height:40px" src="{logo_data_uri}">' if logo_data_uri else ''}
+                <div><div style="font-weight:bold">{EMPRESA_NOME}</div><div>{EMPRESA_ENDERECO}</div><div>{EMPRESA_CONTATO}</div></div>
+            </header>
+            <h1>Orçamento #{orcamento.id_orcamento}</h1>
+            <p><strong>Cliente:</strong> {cliente.nome}</p>
+            <table style="width:100%; border-collapse:collapse" border="1" cellpadding="6">
+                <tr><th>Serviço</th><th>Descrição</th><th>Qtd</th><th>Unitário</th><th>Subtotal</th></tr>
+                {''.join([
+                    f"<tr><td>{rel.servico.nome}</td><td>{rel.servico.descricao or '-'}</td><td>{rel.quantidade}</td><td>{formatar_brl(rel.valor_unitario)}</td><td>{formatar_brl(rel.subtotal)}</td></tr>"
+                    for rel in itens
+                ])}
+            </table>
+            <p style="text-align:right; font-weight:bold">Valor Total: {formatar_brl(orcamento.valor_total)}</p>
+        </body>
+        </html>
+        """
+
+        pdf_bytes = HTML(string=html_conteudo).write_pdf()
+
+        # Config SMTP
+        smtp_host = os.environ.get('SMTP_HOST')
+        smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+        smtp_user = os.environ.get('SMTP_USER')
+        smtp_pass = os.environ.get('SMTP_PASS')
+        smtp_tls = os.environ.get('SMTP_TLS', 'true').lower() == 'true'
+        remetente = os.environ.get('SMTP_FROM', smtp_user)
+        if not (smtp_host and smtp_user and smtp_pass and remetente):
+            return jsonify({'erro': 'SMTP não configurado (defina SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM)'}), 500
+
+        msg = EmailMessage()
+        msg['From'] = remetente
+        msg['To'] = ', '.join(emails)
+        msg['Subject'] = f'Orçamento #{orcamento.id_orcamento}'
+        corpo = mensagem or f'Segue em anexo o orçamento #{orcamento.id_orcamento}.'
+        msg.set_content(corpo)
+        msg.add_attachment(pdf_bytes, maintype='application', subtype='pdf', filename=f'orcamento_{orcamento.id_orcamento}.pdf')
+
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
+            if smtp_tls:
+                server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+
+        # Log
+        try:
+            log = LogsAcesso(
+                id_usuario=current_user.id_usuario,
+                acao=f'E-mail enviado com orçamento {orcamento.id_orcamento} para {len(emails)} destinatário(s)',
+                data_hora=datetime.utcnow()
+            )
+            db.session.add(log)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+        return jsonify({'mensagem': 'E-mail enviado com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro ao enviar e-mail: {str(e)}'}), 500
 

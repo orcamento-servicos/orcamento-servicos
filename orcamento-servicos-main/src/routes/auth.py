@@ -6,8 +6,9 @@
 # Importações necessárias
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from src.models.models import db, Usuario, LogsAcesso
-from datetime import datetime
+from src.models.models import db, Usuario, LogsAcesso, PasswordResetToken
+from datetime import datetime, timedelta
+import secrets
 
 # Cria um blueprint (grupo de rotas) para autenticação
 auth_bp = Blueprint('auth', __name__)
@@ -193,5 +194,94 @@ def verificar_login():
             return jsonify({'logado': False}), 200
             
     except Exception as e:
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+# ========================================
+# ROTA: SOLICITAR RECUPERAÇÃO DE SENHA
+# POST /api/auth/forgot-password
+# ========================================
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    try:
+        dados = request.get_json() or {}
+        email = (dados.get('email') or '').strip()
+        # Resposta idempotente: sempre 200
+        usuario = Usuario.query.filter_by(email=email).first()
+        if usuario:
+            # Gera token seguro e registra com expiração de 1h
+            token = secrets.token_urlsafe(32)
+            expires = datetime.utcnow() + timedelta(hours=1)
+            prt = PasswordResetToken(
+                id_usuario=usuario.id_usuario,
+                token=token,
+                expires_at=expires
+            )
+            db.session.add(prt)
+            db.session.commit()
+
+            # Log
+            try:
+                log = LogsAcesso(
+                    id_usuario=usuario.id_usuario,
+                    acao='Solicitação de recuperação de senha',
+                    data_hora=datetime.utcnow()
+                )
+                db.session.add(log)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
+            # Aqui apenas retornamos o token no corpo para facilitar testes localmente.
+            # Em produção, o token deve ser enviado por e-mail com link seguro.
+            return jsonify({'mensagem': 'Se o email existir, enviaremos instruções.', 'token_teste': token}), 200
+
+        return jsonify({'mensagem': 'Se o email existir, enviaremos instruções.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+# ========================================
+# ROTA: RESET DE SENHA
+# POST /api/auth/reset-password
+# body: { token, nova_senha }
+# ========================================
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    try:
+        dados = request.get_json() or {}
+        token = (dados.get('token') or '').strip()
+        nova = (dados.get('nova_senha') or '').strip()
+        if not token or not nova:
+            return jsonify({'erro': 'token e nova_senha são obrigatórios'}), 400
+        if len(nova) < 6:
+            return jsonify({'erro': 'Senha deve ter pelo menos 6 caracteres'}), 400
+
+        prt = PasswordResetToken.query.filter_by(token=token).first()
+        if not prt or prt.used_at is not None or prt.expires_at < datetime.utcnow():
+            return jsonify({'erro': 'Token inválido ou expirado'}), 400
+
+        usuario = Usuario.query.get_or_404(prt.id_usuario)
+        usuario.definir_senha(nova)
+        prt.used_at = datetime.utcnow()
+
+        db.session.commit()
+
+        # Log
+        try:
+            log = LogsAcesso(
+                id_usuario=usuario.id_usuario,
+                acao='Senha redefinida por token',
+                data_hora=datetime.utcnow()
+            )
+            db.session.add(log)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+        return jsonify({'mensagem': 'Senha redefinida com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
 

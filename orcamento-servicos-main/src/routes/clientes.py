@@ -6,7 +6,7 @@
 # Importações necessárias
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from src.models.models import db, Cliente, LogsAcesso
+from src.models.models import db, Cliente, LogsAcesso, Endereco
 from datetime import datetime
 
 # Cria um blueprint para as rotas de clientes
@@ -243,6 +243,157 @@ def excluir_cliente(id_cliente):
             'mensagem': f'Cliente "{nome_cliente}" excluído com sucesso!'
         }), 200
         
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+# ========================================
+# ENDEREÇOS DO CLIENTE (múltiplos endereços)
+# ========================================
+
+@clientes_bp.route('/<int:id_cliente>/enderecos', methods=['GET'])
+@login_required
+def listar_enderecos(id_cliente):
+    try:
+        cliente = Cliente.query.get_or_404(id_cliente)
+        enderecos = [e.para_dict() for e in cliente.enderecos]
+        return jsonify({'enderecos': enderecos, 'total': len(enderecos)}), 200
+    except Exception as e:
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+@clientes_bp.route('/<int:id_cliente>/enderecos', methods=['POST'])
+@login_required
+def criar_endereco(id_cliente):
+    try:
+        Cliente.query.get_or_404(id_cliente)
+        dados = request.get_json() or {}
+
+        logradouro = (dados.get('logradouro') or '').strip()
+        if not logradouro:
+            return jsonify({'erro': 'logradouro é obrigatório'}), 400
+
+        end = Endereco(
+            id_cliente=id_cliente,
+            logradouro=logradouro,
+            numero=dados.get('numero'),
+            complemento=dados.get('complemento'),
+            bairro=dados.get('bairro'),
+            cidade=dados.get('cidade'),
+            uf=dados.get('uf'),
+            cep=dados.get('cep'),
+            apelido=dados.get('apelido'),
+            is_padrao=bool(dados.get('is_padrao', False)),
+        )
+        if end.is_padrao:
+            Endereco.query.filter_by(id_cliente=id_cliente, is_padrao=True).update({'is_padrao': False})
+        db.session.add(end)
+        db.session.commit()
+
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Endereço criado para cliente {id_cliente}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'mensagem': 'Endereço criado com sucesso!', 'endereco': end.para_dict()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+@clientes_bp.route('/<int:id_cliente>/enderecos/<int:id_endereco>', methods=['PUT'])
+@login_required
+def atualizar_endereco(id_cliente, id_endereco):
+    try:
+        end = Endereco.query.filter_by(id_cliente=id_cliente, id_endereco=id_endereco).first_or_404()
+        dados = request.get_json() or {}
+
+        if 'logradouro' in dados:
+            logradouro = (dados.get('logradouro') or '').strip()
+            if not logradouro:
+                return jsonify({'erro': 'logradouro não pode ser vazio'}), 400
+            end.logradouro = logradouro
+        if 'numero' in dados:
+            end.numero = dados.get('numero')
+        if 'complemento' in dados:
+            end.complemento = dados.get('complemento')
+        if 'bairro' in dados:
+            end.bairro = dados.get('bairro')
+        if 'cidade' in dados:
+            end.cidade = dados.get('cidade')
+        if 'uf' in dados:
+            uf = dados.get('uf')
+            end.uf = uf[:2] if uf else None
+        if 'cep' in dados:
+            end.cep = dados.get('cep')
+        if 'apelido' in dados:
+            end.apelido = dados.get('apelido')
+        if 'is_padrao' in dados:
+            is_padrao = bool(dados.get('is_padrao'))
+            if is_padrao:
+                Endereco.query.filter_by(id_cliente=id_cliente, is_padrao=True).update({'is_padrao': False})
+            end.is_padrao = is_padrao
+
+        db.session.commit()
+
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Endereço atualizado {id_endereco} do cliente {id_cliente}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'mensagem': 'Endereço atualizado com sucesso!', 'endereco': end.para_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+@clientes_bp.route('/<int:id_cliente>/enderecos/<int:id_endereco>', methods=['DELETE'])
+@login_required
+def excluir_endereco(id_cliente, id_endereco):
+    try:
+        end = Endereco.query.filter_by(id_cliente=id_cliente, id_endereco=id_endereco).first_or_404()
+        db.session.delete(end)
+        db.session.commit()
+
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Endereço excluído {id_endereco} do cliente {id_cliente}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'mensagem': 'Endereço excluído com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+@clientes_bp.route('/<int:id_cliente>/enderecos/<int:id_endereco>/definir-padrao', methods=['PUT'])
+@login_required
+def definir_endereco_padrao(id_cliente, id_endereco):
+    try:
+        Endereco.query.filter_by(id_cliente=id_cliente, is_padrao=True).update({'is_padrao': False})
+        end = Endereco.query.filter_by(id_cliente=id_cliente, id_endereco=id_endereco).first_or_404()
+        end.is_padrao = True
+        db.session.commit()
+
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Endereço {id_endereco} definido como padrão do cliente {id_cliente}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'mensagem': 'Endereço definido como padrão com sucesso!', 'endereco': end.para_dict()}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
