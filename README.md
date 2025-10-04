@@ -57,23 +57,31 @@ Um sistema completo para gerenciamento de orçamentos de serviços, desenvolvido
 - **Autenticação**: Flask-Login
 - **API**: REST com JSON
 - **PDF**: WeasyPrint (opcional)
+- **Containerização**: Docker com Gunicorn
 
 ### Estrutura de Pastas
 ```
-src/
-├── main.py              # Aplicação principal
-├── models/
-│   └── models.py        # Modelos do banco de dados
-├── routes/
-│   ├── auth.py          # Autenticação
-│   ├── clientes.py      # Gestão de clientes
-│   ├── servicos.py      # Gestão de serviços
-│   ├── orcamentos.py    # Gestão de orçamentos
-│   └── vendas.py        # Gestão de vendas
-└── static/              # Interface temporária (testes)
-    ├── index.html
-    ├── styles.css
-    └── app.js
+orcamento-servicos-main/
+├── src/                 # Código fonte da aplicação
+│   ├── main.py          # Aplicação principal
+│   ├── models/
+│   │   └── models.py    # Modelos do banco de dados
+│   ├── routes/
+│   │   ├── auth.py      # Autenticação
+│   │   ├── clientes.py  # Gestão de clientes
+│   │   ├── servicos.py  # Gestão de serviços
+│   │   ├── orcamentos.py # Gestão de orçamentos
+│   │   └── vendas.py    # Gestão de vendas
+│   ├── static/          # Interface temporária (testes)
+│   │   ├── index.html
+│   │   ├── styles.css
+│   │   └── app.js
+│   └── database/        # Banco SQLite (criado automaticamente)
+├── Dockerfile           # Configuração do container
+├── docker-entrypoint.sh # Script de inicialização
+├── .dockerignore        # Arquivos ignorados no build
+├── requirements.txt     # Dependências Python
+└── README.md           # Documentação
 ```
 
 ### Modelos de Dados
@@ -90,21 +98,42 @@ src/
 
 ## 🚀 Como Executar
 
-### Pré-requisitos
-- Python 3.7+
+### **Opção 1: Docker (Recomendado)**
+
+#### Pré-requisitos
+- Docker instalado
+- Docker Compose (opcional)
+
+#### 1. Construir e Executar com Docker
+```bash
+# Construir a imagem
+docker build -t orcamento-servicos .
+
+# Executar o container
+docker run -p 5000:5000 orcamento-servicos
+```
+
+#### 2. Acessar o Sistema
+- **Interface web**: http://localhost:5000
+- **API**: http://localhost:5000/api/
+
+### **Opção 2: Execução Local**
+
+#### Pré-requisitos
+- Python 3.11+
 - pip (gerenciador de pacotes Python)
 
-### 1. Instalar Dependências
+#### 1. Instalar Dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Executar o Sistema
+#### 2. Executar o Sistema
 ```bash
 python src/main.py
 ```
 
-### 3. Acessar o Sistema
+#### 3. Acessar o Sistema
 - **Interface web**: http://localhost:5000
 - **API**: http://localhost:5000/api/
 
@@ -203,6 +232,50 @@ python src/main.py
 - `GET /` - Listar vendas (com filtros)
 - `GET /<id>` - Detalhar venda
 
+## 🐳 Docker
+
+### **Configuração do Container**
+- **Imagem base**: Python 3.11-slim
+- **Servidor**: Gunicorn (produção)
+- **Porta**: 5000
+- **Dependências**: WeasyPrint com bibliotecas do sistema
+
+### **Arquivos Docker**
+- `Dockerfile`: Configuração da imagem
+- `docker-entrypoint.sh`: Script de inicialização
+- `.dockerignore`: Arquivos ignorados no build
+
+### **Vantagens do Docker**
+- ✅ **Isolamento**: Ambiente consistente
+- ✅ **Portabilidade**: Funciona em qualquer sistema
+- ✅ **Dependências**: Instalação automática do WeasyPrint
+- ✅ **Produção**: Gunicorn para melhor performance
+- ✅ **Simplicidade**: Um comando para executar
+
+### **Comandos Docker Úteis**
+```bash
+# Construir a imagem
+docker build -t orcamento-servicos .
+
+# Executar o container
+docker run -p 5000:5000 orcamento-servicos
+
+# Executar em background
+docker run -d -p 5000:5000 --name orcamento-app orcamento-servicos
+
+# Ver logs do container
+docker logs orcamento-app
+
+# Parar o container
+docker stop orcamento-app
+
+# Remover o container
+docker rm orcamento-app
+
+# Remover a imagem
+docker rmi orcamento-servicos
+```
+
 ## 🔧 Configurações
 
 ### Variáveis de Ambiente (Opcionais)
@@ -240,28 +313,62 @@ Os arquivos na pasta `static/` são apenas para testes locais e podem ser removi
 
 ## 🐛 Solução de Problemas
 
-### Erro de Dependências
+### **Docker**
+
+#### Erro ao construir a imagem
+```bash
+# Limpar cache do Docker
+docker system prune -a
+
+# Reconstruir sem cache
+docker build --no-cache -t orcamento-servicos .
+```
+
+#### Erro de permissão no script
+```bash
+# Verificar se o script está executável
+chmod +x docker-entrypoint.sh
+```
+
+#### Container não inicia
+```bash
+# Verificar logs
+docker logs orcamento-app
+
+# Verificar se a porta está em uso
+netstat -tulpn | grep :5000
+```
+
+### **Execução Local**
+
+#### Erro de Dependências
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Erro de Banco de Dados
+#### Erro de Banco de Dados
 - Verifique se a pasta `src/database/` existe
 - O banco SQLite é criado automaticamente
 
-### Erro de PDF
+#### Erro de PDF
 - Instale o WeasyPrint: `pip install WeasyPrint`
 - Ou use apenas as funcionalidades de API
 
 ## 📈 Próximos Passos
 
-- [ ] Interface web completa
+### **Em Desenvolvimento**
+- [ ] Interface web completa (Roberto)
+- [ ] Agendamento de Serviços
+- [ ] Relatórios e Estatísticas
+- [ ] Configuração completa de email
+
+### **Melhorias Técnicas**
 - [ ] Migração para PostgreSQL
-- [ ] Relatórios e estatísticas
-- [ ] Configuração de email em produção
 - [ ] Testes automatizados
 - [ ] Documentação da API (Swagger)
+- [ ] Docker Compose para desenvolvimento
+- [ ] CI/CD pipeline
 
 ## 👥 Desenvolvimento
 
