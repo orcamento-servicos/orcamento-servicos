@@ -40,6 +40,15 @@
     });
   });
 
+  // Atalhos de mudança de aba
+  $$('[data-tab-target]').forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+      const target = trigger.dataset.tabTarget;
+      const tabBtn = $(`.tab[data-tab="${target}"]`);
+      if (tabBtn) tabBtn.click();
+    });
+  });
+
   // Sessão
   async function refreshSession() {
     try {

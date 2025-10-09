@@ -3,248 +3,395 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistema de Orçamentos - Página de Testes</title>
+    <title>Sistema de Orçamentos</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <header class="topbar">
-        <div class="brand">
-            <div class="logo" aria-hidden="true"></div>
-            <div>
-                <h1>Sistema de Orçamentos</h1>
-                <p class="subtitle">Página de Testes (Dev)</p>
-            </div>
-        </div>
-        <div class="userbox">
-            <span id="userStatus">Verificando...</span>
-            <button id="btnLogout" class="btn btn-secondary" disabled>Sair</button>
-        </div>
-    </header>
-
-    <main class="container">
-        <nav class="tabs" role="tablist">
-            <button class="tab active" data-tab="auth">Autenticação</button>
-            <button class="tab" data-tab="clientes">Clientes</button>
-            <button class="tab" data-tab="enderecos">Endereços</button>
-            <button class="tab" data-tab="servicos">Serviços</button>
-            <button class="tab" data-tab="orcamentos">Orçamentos</button>
-            <button class="tab" data-tab="vendas">Vendas</button>
-            <button class="tab" data-tab="senha">Recuperação de Senha</button>
-        </nav>
-
-        <section id="auth" class="tabpane active">
-            <div class="card">
-                <h2>Registrar novo usuário</h2>
-                <div class="grid">
-                    <div class="form-group"><label for="regNome">Nome</label><input id="regNome" /></div>
-                    <div class="form-group"><label for="regEmail">Email</label><input id="regEmail" type="email" /></div>
-                    <div class="form-group"><label for="regSenha">Senha</label><input id="regSenha" type="password" /></div>
-                </div>
-                <div class="actions">
-                    <button id="btnRegistrar" class="btn">Registrar</button>
+    <div class="app-shell">
+        <aside class="sidebar" aria-label="Navegação principal">
+            <div class="sidebar__brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div class="sidebar__brand-text">
+                    <span class="sidebar__brand-title">Orçamentos &amp; Serviços</span>
+                    <span class="sidebar__brand-sub">Ambiente de gestão</span>
                 </div>
             </div>
-
-            <div class="card">
-                <h2>Login</h2>
-                <div class="grid">
-                    <div class="form-group"><label for="loginEmail">Email</label><input id="loginEmail" type="email" /></div>
-                    <div class="form-group"><label for="loginSenha">Senha</label><input id="loginSenha" type="password" /></div>
-                </div>
-                <div class="actions">
-                    <button id="btnLogin" class="btn">Entrar</button>
-                    <button id="btnVerificar" class="btn btn-secondary">Verificar sessão</button>
-                </div>
+            <nav class="sidebar__nav tabs" role="tablist">
+                <button class="nav-link tab active" data-tab="dashboard">Visão Geral</button>
+                <span class="sidebar__section">Processos</span>
+                <button class="nav-link tab" data-tab="auth">Autenticação</button>
+                <button class="nav-link tab" data-tab="clientes">Clientes</button>
+                <button class="nav-link tab" data-tab="enderecos">Endereços</button>
+                <button class="nav-link tab" data-tab="servicos">Serviços</button>
+                <button class="nav-link tab" data-tab="orcamentos">Orçamentos</button>
+                <button class="nav-link tab" data-tab="vendas">Vendas</button>
+                <span class="sidebar__section">Suporte</span>
+                <button class="nav-link tab" data-tab="senha">Recuperar Senha</button>
+            </nav>
+            <div class="sidebar__footer">
+                <p>Precisa de ajuda? Consulte a documentação ou fale com a equipe de suporte interno.</p>
             </div>
-            <h3>Saída da API</h3>
-            <pre id="authOutput" class="output"></pre>
-        </section>
+        </aside>
 
-        <section id="clientes" class="tabpane">
-            <div class="card">
-                <h2>Novo Cliente</h2>
-                <div class="grid">
-                    <div class="form-group"><label for="cliNome">Nome</label><input id="cliNome" /></div>
-                    <div class="form-group"><label for="cliTelefone">Telefone</label><input id="cliTelefone" /></div>
-                    <div class="form-group"><label for="cliEmail">Email</label><input id="cliEmail" type="email" /></div>
-                    <div class="form-group"><label for="cliEndereco">Endereço (simples)</label><input id="cliEndereco" /></div>
+        <div class="main-area">
+            <header class="topbar">
+                <div>
+                    <h1>Central de Orçamentos</h1>
+                    <p class="subtitle">Gerencie clientes, serviços, orçamentos e vendas em um único painel.</p>
                 </div>
-                <div class="actions">
-                    <button id="btnCriarCliente" class="btn">Criar</button>
+                <div class="userbox">
+                    <span id="userStatus">Verificando...</span>
+                    <button id="btnLogout" class="btn btn-secondary" disabled>Sair</button>
                 </div>
-            </div>
-            <div class="card">
-                <h2>Consultar Clientes</h2>
-                <div class="actions">
-                    <button id="btnListarClientes" class="btn">Listar Todos</button>
-                </div>
-                <div class="grid" style="grid-template-columns: 1fr auto; max-width: 400px; margin-top: 1rem;">
-                    <div class="form-group"><label for="cliIdBusca">ID do cliente</label><input id="cliIdBusca" type="number" /></div>
-                    <button id="btnBuscarCliente" class="btn btn-secondary" style="align-self: end;">Buscar por ID</button>
-                </div>
-                <h3 style="margin-top: 2rem;">Saída da API</h3>
-                <pre id="clientesOutput" class="output"></pre>
-            </div>
-        </section>
+            </header>
 
-        <section id="enderecos" class="tabpane">
-            <div class="card">
-                <h2>Gerenciar Endereços do Cliente</h2>
-                <div class="form-group" style="max-width: 200px; margin-bottom: 1rem;">
-                    <label for="endCliId">ID do Cliente (Obrigatório)</label>
-                    <input id="endCliId" type="number" />
-                </div>
-                <hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 1.5rem 0;" />
-                <div class="grid">
-                    <div class="form-group"><label for="endLogradouro">Logradouro</label><input id="endLogradouro" /></div>
-                    <div class="form-group"><label for="endNumero">Número</label><input id="endNumero" /></div>
-                    <div class="form-group"><label for="endComplemento">Complemento</label><input id="endComplemento" /></div>
-                    <div class="form-group"><label for="endBairro">Bairro</label><input id="endBairro" /></div>
-                    <div class="form-group"><label for="endCidade">Cidade</label><input id="endCidade" /></div>
-                    <div class="form-group"><label for="endUf">UF</label><input id="endUf" maxlength="2" /></div>
-                    <div class="form-group"><label for="endCep">CEP</label><input id="endCep" /></div>
-                    <div class="form-group"><label for="endApelido">Apelido (ex: Casa)</label><input id="endApelido" /></div>
-                    <div class="form-group" style="align-items: center; justify-content: center; flex-direction: row; gap: 8px;">
-                        <input id="endPadrao" type="checkbox" style="width: auto;" /> <label for="endPadrao">Endereço Padrão</label>
+            <main class="content">
+                <section id="dashboard" class="tabpane active" aria-labelledby="Dashboard">
+                    <div class="page-header">
+                        <div>
+                            <h2>Visão Geral</h2>
+                            <p class="page-description">Acompanhe os principais indicadores e próximos passos para manter o fluxo de trabalho em dia.</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn" data-tab-target="clientes">Novo cliente</button>
+                            <button class="btn btn-secondary" data-tab-target="orcamentos">Criar orçamento</button>
+                        </div>
                     </div>
-                </div>
-                <div class="actions">
-                    <button id="btnCriarEndereco" class="btn">Criar Novo Endereço</button>
-                    <button id="btnListarEnderecos" class="btn btn-secondary">Listar Endereços do Cliente</button>
-                </div>
-                <hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 1.5rem 0;" />
-                <div class="grid" style="grid-template-columns: 1fr auto auto auto; max-width: 700px;">
-                    <div class="form-group"><label for="endId">ID do Endereço (para Ações)</label><input id="endId" type="number" /></div>
-                    <button id="btnAtualizarEndereco" class="btn btn-secondary" style="align-self: end;">Atualizar</button>
-                    <button id="btnExcluirEndereco" class="btn btn-danger" style="align-self: end;">Excluir</button>
-                    <button id="btnDefinirPadrao" class="btn" style="align-self: end;">Definir Padrão</button>
-                </div>
-                <h3 style="margin-top: 2rem;">Saída da API</h3>
-                <pre id="enderecosOutput" class="output"></pre>
-            </div>
-        </section>
 
-        <section id="servicos" class="tabpane">
-             <div class="card">
-                <h2>Novo Serviço</h2>
-                <div class="grid">
-                    <div class="form-group"><label for="srvNome">Nome</label><input id="srvNome" /></div>
-                    <div class="form-group"><label for="srvDescricao">Descrição</label><input id="srvDescricao" /></div>
-                    <div class="form-group"><label for="srvValor">Valor (ex: 150.50)</label><input id="srvValor" type="number" step="0.01" /></div>
-                </div>
-                 <div class="actions">
-                    <button id="btnCriarServico" class="btn">Criar</button>
-                 </div>
-            </div>
-            <div class="card">
-                <h2>Consultar Serviços</h2>
-                <div class="actions">
-                    <button id="btnListarServicos" class="btn">Listar Todos</button>
-                </div>
-                <div class="grid" style="grid-template-columns: 1fr auto; max-width: 400px; margin-top: 1rem;">
-                    <div class="form-group"><label for="srvIdBusca">ID do Serviço</label><input id="srvIdBusca" type="number" /></div>
-                    <button id="btnBuscarServico" class="btn btn-secondary" style="align-self: end;">Buscar por ID</button>
-                </div>
-                <h3 style="margin-top: 2rem;">Saída da API</h3>
-                <pre id="servicosOutput" class="output"></pre>
-            </div>
-        </section>
+                    <div class="summary-grid">
+                        <article class="summary-card">
+                            <h3>Clientes ativos</h3>
+                            <p class="summary-value">—</p>
+                            <p class="summary-note">Cadastre clientes para organizar os projetos e endereços.</p>
+                        </article>
+                        <article class="summary-card">
+                            <h3>Serviços cadastrados</h3>
+                            <p class="summary-value">—</p>
+                            <p class="summary-note">Inclua seus serviços com valores atualizados.</p>
+                        </article>
+                        <article class="summary-card">
+                            <h3>Orçamentos em andamento</h3>
+                            <p class="summary-value">—</p>
+                            <p class="summary-note">Crie e acompanhe os orçamentos antes de enviar ao cliente.</p>
+                        </article>
+                        <article class="summary-card">
+                            <h3>Vendas concluídas</h3>
+                            <p class="summary-value">—</p>
+                            <p class="summary-note">Converta orçamentos aprovados em vendas finalizadas.</p>
+                        </article>
+                    </div>
 
-        <section id="orcamentos" class="tabpane">
-            <div class="card">
-                <h2>Novo Orçamento</h2>
-                <div class="grid">
-                    <div class="form-group"><label for="orcIdCliente">ID do Cliente</label><input id="orcIdCliente" type="number" /></div>
-                    <div class="form-group"><label for="orcIdEndereco">ID do Endereço (opcional)</label><input id="orcIdEndereco" type="number" /></div>
-                </div>
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label for="orcItens">Itens em JSON</label>
-                    <textarea id="orcItens" placeholder='[{"id_servico": 1, "quantidade": 2}, {"id_servico": 3, "quantidade": 1}]'></textarea>
-                </div>
-                <div class="actions">
-                    <button id="btnCriarOrcamento" class="btn">Criar Orçamento</button>
-                </div>
-            </div>
-            <div class="card">
-                <h2>Consultar e Gerenciar Orçamentos</h2>
-                <div class="actions">
-                    <button id="btnListarOrcamentos" class="btn">Listar Todos</button>
-                </div>
-                <div class="grid" style="grid-template-columns: 1fr auto; max-width: 400px; margin-top: 1rem;">
-                    <div class="form-group"><label for="orcIdBusca">ID do Orçamento (para Ações)</label><input id="orcIdBusca" placeholder="ID do Orçamento" type="number" /></div>
-                    <button id="btnDetalharOrcamento" class="btn btn-secondary" style="align-self: end;">Detalhar</button>
-                </div>
-                 <hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 1.5rem 0;" />
-                <div class="actions">
-                    <div class="form-group"><label for="orcStatusNovo">Novo Status</label><input id="orcStatusNovo" placeholder="Pendente, Aprovado..." /></div>
-                    <button id="btnAtualizarStatus" class="btn btn-secondary">Atualizar Status</button>
-                </div>
-                <div class="actions">
-                    <div class="form-group"><label for="orcEmails">Emails (separados por vírgula)</label><input id="orcEmails" /></div>
-                    <div class="form-group"><label for="orcMensagem">Mensagem do e-mail (opcional)</label><input id="orcMensagem" /></div>
-                    <button id="btnEnviarEmail" class="btn btn-secondary">Enviar Email</button>
-                    <button id="btnBaixarPDF" class="btn">Baixar PDF</button>
-                </div>
-                <div class="actions">
-                    <button id="btnConverterVenda" class="btn btn-success">Converter em Venda</button>
-                </div>
-                <h3 style="margin-top: 2rem;">Saída da API</h3>
-                <pre id="orcamentosOutput" class="output"></pre>
-            </div>
-        </section>
+                    <div class="dashboard-panels">
+                        <article class="card">
+                            <h2>Fluxo recomendado</h2>
+                            <ol class="steps">
+                                <li><strong>Crie um usuário</strong> na aba <em>Autenticação</em> e faça login.</li>
+                                <li><strong>Cadastre clientes e endereços</strong> utilizando as abas específicas.</li>
+                                <li><strong>Configure os serviços</strong> com valores e descrições claras.</li>
+                                <li><strong>Monte o orçamento</strong>, envie por e-mail, gere o PDF e acompanhe o status.</li>
+                                <li><strong>Converta em venda</strong> quando o cliente aprovar e acompanhe no painel.</li>
+                            </ol>
+                        </article>
+                        <article class="card">
+                            <h2>Dicas rápidas</h2>
+                            <ul class="tips">
+                                <li>Use o campo de JSON de itens com o formato <code>{"id_servico": 1, "quantidade": 2}</code>.</li>
+                                <li>Ao definir um endereço como padrão, ele será sugerido automaticamente nos orçamentos.</li>
+                                <li>Envie o orçamento por e-mail diretamente do sistema e acompanhe o retorno no status.</li>
+                                <li>Utilize os filtros de vendas para analisar resultados por período ou cliente.</li>
+                            </ul>
+                        </article>
+                    </div>
+                </section>
 
-        <section id="vendas" class="tabpane">
-            <div class="card">
-                <h2>Consultar Vendas</h2>
-                <p>Use os campos abaixo para filtrar a lista de vendas.</p>
-                <div class="grid">
-                    <div class="form-group"><label for="vIdCliente">ID Cliente</label><input id="vIdCliente" type="number" /></div>
-                    <div class="form-group"><label for="vIdOrcamento">ID Orçamento</label><input id="vIdOrcamento" type="number" /></div>
-                    <div class="form-group"><label for="vDataIni">Data início (YYYY-MM-DD)</label><input id="vDataIni" /></div>
-                    <div class="form-group"><label for="vDataFim">Data fim (YYYY-MM-DD)</label><input id="vDataFim" /></div>
-                </div>
-                <div class="actions">
-                    <button id="btnListarVendas" class="btn">Listar Vendas</button>
-                </div>
-                 <hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 1.5rem 0;" />
-                <div class="grid" style="grid-template-columns: 1fr auto; max-width: 400px;">
-                    <div class="form-group"><label for="vIdVenda">ID da Venda</label><input id="vIdVenda" type="number" /></div>
-                    <button id="btnDetalharVenda" class="btn btn-secondary" style="align-self: end;">Detalhar Venda</button>
-                </div>
-                <h3 style="margin-top: 2rem;">Saída da API</h3>
-                <pre id="vendasOutput" class="output"></pre>
-            </div>
-        </section>
+                <section id="auth" class="tabpane" aria-labelledby="Autenticação">
+                    <div class="page-header">
+                        <div>
+                            <h2>Gestão de usuários</h2>
+                            <p class="page-description">Cadastre administradores e faça login para liberar as demais funcionalidades.</p>
+                        </div>
+                    </div>
 
-        <section id="senha" class="tabpane">
-            <div class="card">
-                <h2>Solicitar Recuperação de Senha</h2>
-                <div class="grid" style="max-width: 400px;">
-                    <div class="form-group"><label for="recEmail">Email</label><input id="recEmail" type="email" /></div>
-                </div>
-                <div class="actions">
-                    <button id="btnForgot" class="btn">Solicitar recuperação</button>
-                </div>
-            </div>
-            <div class="card">
-                <h2>Resetar Senha</h2>
-                <div class="grid">
-                    <div class="form-group"><label for="recToken">Token de Recuperação</label><input id="recToken" /></div>
-                    <div class="form-group"><label for="recNovaSenha">Nova Senha</label><input id="recNovaSenha" type="password" /></div>
-                </div>
-                 <div class="actions">
-                    <button id="btnReset" class="btn">Resetar</button>
-                 </div>
-            </div>
-            <h3 style="margin-top: 2rem;">Saída da API</h3>
-            <pre id="senhaOutput" class="output"></pre>
-        </section>
-    </main>
+                    <div class="split-grid">
+                        <article class="card">
+                            <h2>Registrar novo usuário</h2>
+                            <div class="grid">
+                                <div class="form-group"><label for="regNome">Nome</label><input id="regNome" /></div>
+                                <div class="form-group"><label for="regEmail">Email</label><input id="regEmail" type="email" /></div>
+                                <div class="form-group"><label for="regSenha">Senha</label><input id="regSenha" type="password" /></div>
+                            </div>
+                            <div class="actions">
+                                <button id="btnRegistrar" class="btn">Registrar</button>
+                            </div>
+                        </article>
 
-    <footer class="footer">Ambiente de desenvolvimento — utilize apenas para testes internos.</footer>
+                        <article class="card">
+                            <h2>Login</h2>
+                            <div class="grid">
+                                <div class="form-group"><label for="loginEmail">Email</label><input id="loginEmail" type="email" /></div>
+                                <div class="form-group"><label for="loginSenha">Senha</label><input id="loginSenha" type="password" /></div>
+                            </div>
+                            <div class="actions">
+                                <button id="btnLogin" class="btn">Entrar</button>
+                                <button id="btnVerificar" class="btn btn-secondary">Verificar sessão</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="card">
+                        <h3>Saída da API</h3>
+                        <pre id="authOutput" class="output" aria-live="polite"></pre>
+                    </div>
+                </section>
+
+                <section id="clientes" class="tabpane" aria-labelledby="Clientes">
+                    <div class="page-header">
+                        <div>
+                            <h2>Clientes</h2>
+                            <p class="page-description">Cadastre clientes e acompanhe todos em uma única lista.</p>
+                        </div>
+                    </div>
+
+                    <article class="card">
+                        <h2>Novo cliente</h2>
+                        <div class="grid">
+                            <div class="form-group"><label for="cliNome">Nome</label><input id="cliNome" /></div>
+                            <div class="form-group"><label for="cliTelefone">Telefone</label><input id="cliTelefone" /></div>
+                            <div class="form-group"><label for="cliEmail">Email</label><input id="cliEmail" type="email" /></div>
+                            <div class="form-group"><label for="cliEndereco">Endereço (simples)</label><input id="cliEndereco" /></div>
+                        </div>
+                        <div class="actions">
+                            <button id="btnCriarCliente" class="btn">Salvar cliente</button>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h2>Consultar clientes</h2>
+                        <div class="actions">
+                            <button id="btnListarClientes" class="btn">Listar todos</button>
+                        </div>
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="cliIdBusca">ID do cliente</label><input id="cliIdBusca" type="number" /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnBuscarCliente" class="btn btn-secondary">Buscar por ID</button>
+                            </div>
+                        </div>
+                        <h3>Saída da API</h3>
+                        <pre id="clientesOutput" class="output" aria-live="polite"></pre>
+                    </article>
+                </section>
+
+                <section id="enderecos" class="tabpane" aria-labelledby="Endereços">
+                    <div class="page-header">
+                        <div>
+                            <h2>Endereços</h2>
+                            <p class="page-description">Gerencie múltiplos endereços por cliente e defina um padrão.</p>
+                        </div>
+                    </div>
+
+                    <article class="card">
+                        <h2>Gerenciar endereços do cliente</h2>
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="endCliId">ID do Cliente (obrigatório)</label><input id="endCliId" type="number" /></div>
+                        </div>
+                        <hr class="divider" />
+                        <div class="grid">
+                            <div class="form-group"><label for="endLogradouro">Logradouro</label><input id="endLogradouro" /></div>
+                            <div class="form-group"><label for="endNumero">Número</label><input id="endNumero" /></div>
+                            <div class="form-group"><label for="endComplemento">Complemento</label><input id="endComplemento" /></div>
+                            <div class="form-group"><label for="endBairro">Bairro</label><input id="endBairro" /></div>
+                            <div class="form-group"><label for="endCidade">Cidade</label><input id="endCidade" /></div>
+                            <div class="form-group"><label for="endUf">UF</label><input id="endUf" maxlength="2" /></div>
+                            <div class="form-group"><label for="endCep">CEP</label><input id="endCep" /></div>
+                            <div class="form-group"><label for="endApelido">Apelido</label><input id="endApelido" /></div>
+                            <div class="form-group checkbox-group"><input id="endPadrao" type="checkbox" /><label for="endPadrao">Endereço padrão</label></div>
+                        </div>
+                        <div class="actions">
+                            <button id="btnCriarEndereco" class="btn">Criar endereço</button>
+                            <button id="btnListarEnderecos" class="btn btn-secondary">Listar endereços</button>
+                        </div>
+                        <hr class="divider" />
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="endId">ID do endereço</label><input id="endId" type="number" /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnAtualizarEndereco" class="btn btn-secondary">Atualizar</button>
+                                <button id="btnExcluirEndereco" class="btn btn-danger">Excluir</button>
+                                <button id="btnDefinirPadrao" class="btn">Definir padrão</button>
+                            </div>
+                        </div>
+                        <h3>Saída da API</h3>
+                        <pre id="enderecosOutput" class="output" aria-live="polite"></pre>
+                    </article>
+                </section>
+
+                <section id="servicos" class="tabpane" aria-labelledby="Serviços">
+                    <div class="page-header">
+                        <div>
+                            <h2>Serviços</h2>
+                            <p class="page-description">Cadastre serviços com valores e descrições para montar orçamentos rapidamente.</p>
+                        </div>
+                    </div>
+
+                    <article class="card">
+                        <h2>Novo serviço</h2>
+                        <div class="grid">
+                            <div class="form-group"><label for="srvNome">Nome</label><input id="srvNome" /></div>
+                            <div class="form-group"><label for="srvDescricao">Descrição</label><input id="srvDescricao" /></div>
+                            <div class="form-group"><label for="srvValor">Valor (ex: 150.50)</label><input id="srvValor" type="number" step="0.01" /></div>
+                        </div>
+                        <div class="actions">
+                            <button id="btnCriarServico" class="btn">Salvar serviço</button>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h2>Consultar serviços</h2>
+                        <div class="actions">
+                            <button id="btnListarServicos" class="btn">Listar todos</button>
+                        </div>
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="srvIdBusca">ID do serviço</label><input id="srvIdBusca" type="number" /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnBuscarServico" class="btn btn-secondary">Buscar por ID</button>
+                            </div>
+                        </div>
+                        <h3>Saída da API</h3>
+                        <pre id="servicosOutput" class="output" aria-live="polite"></pre>
+                    </article>
+                </section>
+
+                <section id="orcamentos" class="tabpane" aria-labelledby="Orçamentos">
+                    <div class="page-header">
+                        <div>
+                            <h2>Orçamentos</h2>
+                            <p class="page-description">Crie propostas detalhadas, acompanhe o status e envie aos clientes.</p>
+                        </div>
+                    </div>
+
+                    <article class="card">
+                        <h2>Novo orçamento</h2>
+                        <div class="grid">
+                            <div class="form-group"><label for="orcIdCliente">ID do cliente</label><input id="orcIdCliente" type="number" /></div>
+                            <div class="form-group"><label for="orcIdEndereco">ID do endereço (opcional)</label><input id="orcIdEndereco" type="number" /></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="orcItens">Itens em JSON</label>
+                            <textarea id="orcItens" placeholder='[{"id_servico": 1, "quantidade": 2}]'></textarea>
+                        </div>
+                        <div class="actions">
+                            <button id="btnCriarOrcamento" class="btn">Criar orçamento</button>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <h2>Gerenciar orçamentos</h2>
+                        <div class="actions">
+                            <button id="btnListarOrcamentos" class="btn">Listar todos</button>
+                        </div>
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="orcIdBusca">ID do orçamento</label><input id="orcIdBusca" type="number" placeholder="Informe o ID" /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnDetalharOrcamento" class="btn btn-secondary">Detalhar</button>
+                            </div>
+                        </div>
+                        <hr class="divider" />
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="orcStatusNovo">Novo status</label><input id="orcStatusNovo" placeholder="Pendente, Aprovado..." /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnAtualizarStatus" class="btn btn-secondary">Atualizar status</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="orcEmails">Emails (separados por vírgula)</label><input id="orcEmails" /></div>
+                            <div class="form-group"><label for="orcMensagem">Mensagem do e-mail</label><input id="orcMensagem" /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnEnviarEmail" class="btn btn-secondary">Enviar e-mail</button>
+                                <button id="btnBaixarPDF" class="btn">Baixar PDF</button>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button id="btnConverterVenda" class="btn btn-success">Converter em venda</button>
+                        </div>
+                        <h3>Saída da API</h3>
+                        <pre id="orcamentosOutput" class="output" aria-live="polite"></pre>
+                    </article>
+                </section>
+
+                <section id="vendas" class="tabpane" aria-labelledby="Vendas">
+                    <div class="page-header">
+                        <div>
+                            <h2>Vendas</h2>
+                            <p class="page-description">Analise resultados, filtre por cliente e acompanhe as conversões.</p>
+                        </div>
+                    </div>
+
+                    <article class="card">
+                        <h2>Consultar vendas</h2>
+                        <p>Use os filtros para encontrar uma venda específica ou gerar relatórios.</p>
+                        <div class="grid">
+                            <div class="form-group"><label for="vIdCliente">ID do cliente</label><input id="vIdCliente" type="number" /></div>
+                            <div class="form-group"><label for="vIdOrcamento">ID do orçamento</label><input id="vIdOrcamento" type="number" /></div>
+                            <div class="form-group"><label for="vDataIni">Data início (YYYY-MM-DD)</label><input id="vDataIni" /></div>
+                            <div class="form-group"><label for="vDataFim">Data fim (YYYY-MM-DD)</label><input id="vDataFim" /></div>
+                        </div>
+                        <div class="actions">
+                            <button id="btnListarVendas" class="btn">Listar vendas</button>
+                        </div>
+                        <hr class="divider" />
+                        <div class="grid grid-inline">
+                            <div class="form-group"><label for="vIdVenda">ID da venda</label><input id="vIdVenda" type="number" /></div>
+                            <div class="actions actions-inline">
+                                <button id="btnDetalharVenda" class="btn btn-secondary">Detalhar venda</button>
+                            </div>
+                        </div>
+                        <h3>Saída da API</h3>
+                        <pre id="vendasOutput" class="output" aria-live="polite"></pre>
+                    </article>
+                </section>
+
+                <section id="senha" class="tabpane" aria-labelledby="Recuperação de senha">
+                    <div class="page-header">
+                        <div>
+                            <h2>Recuperação de senha</h2>
+                            <p class="page-description">Automatize o envio de tokens e a redefinição de credenciais de acesso.</p>
+                        </div>
+                    </div>
+
+                    <div class="split-grid">
+                        <article class="card">
+                            <h2>Solicitar recuperação</h2>
+                            <div class="grid">
+                                <div class="form-group"><label for="recEmail">Email</label><input id="recEmail" type="email" /></div>
+                            </div>
+                            <div class="actions">
+                                <button id="btnForgot" class="btn">Solicitar recuperação</button>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <h2>Resetar senha</h2>
+                            <div class="grid">
+                                <div class="form-group"><label for="recToken">Token de recuperação</label><input id="recToken" /></div>
+                                <div class="form-group"><label for="recNovaSenha">Nova senha</label><input id="recNovaSenha" type="password" /></div>
+                            </div>
+                            <div class="actions">
+                                <button id="btnReset" class="btn">Resetar</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <article class="card">
+                        <h3>Saída da API</h3>
+                        <pre id="senhaOutput" class="output" aria-live="polite"></pre>
+                    </article>
+                </section>
+            </main>
+
+            <footer class="footer">Ambiente de desenvolvimento — utilize apenas para testes internos.</footer>
+        </div>
+    </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
     <script src="/app.js"></script>
 </body>
 </html>

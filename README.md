@@ -59,6 +59,11 @@ Um sistema completo para gerenciamento de orçamentos de serviços, desenvolvido
 - **PDF**: WeasyPrint (opcional)
 - **Containerização**: Docker com Gunicorn
 
+### Frontend estático
+- **Framework**: Nenhum — interface construída com HTML, CSS e JavaScript puros
+- **Finalidade**: prototipação visual até a implementação das telas dinâmicas
+- **Localização**: arquivos em `src/static/`
+
 ### Estrutura de Pastas
 ```
 orcamento-servicos-main/
