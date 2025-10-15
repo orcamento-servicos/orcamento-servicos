@@ -9,9 +9,21 @@ import sys
 # Configuração necessária para importar os módulos
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+# Carrega variáveis de ambiente do arquivo .env (se existir)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("Arquivo .env carregado com sucesso!")
+except ImportError:
+    print("python-dotenv não instalado. Instale com: pip install python-dotenv")
+    print("   Usando variáveis de ambiente do sistema...")
+except Exception as e:
+    print(f"Erro ao carregar .env: {e}")
+
 # Importações do Flask e extensões
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify
 from flask_login import LoginManager
+from flask_cors import CORS
 
 # Importações dos nossos módulos
 from src.models.models import db, Usuario
@@ -26,7 +38,10 @@ from src.routes.vendas import vendas_bp
 # ========================================
 
 # Cria a aplicação Flask
-app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+app = Flask(__name__)
+
+# Configura CORS para permitir requisições do frontend
+CORS(app, origins=["http://localhost:3000"])
 
 # Chave secreta para sessões (lida do ambiente; define padrão apenas em dev)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-nao-usar-em-producao')
@@ -76,46 +91,39 @@ db.init_app(app)
 # Cria as tabelas se não existirem
 with app.app_context():
     db.create_all()
-    print("✅ Banco de dados inicializado!")
+    print("Banco de dados inicializado!")
 
 # ========================================
-# ROTAS PARA SERVIR ARQUIVOS ESTÁTICOS
+# ROTA PRINCIPAL DA API
 # ========================================
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def servir_arquivos(path):
+@app.route('/')
+def api_info():
     """
-    Serve os arquivos estáticos (HTML, CSS, JS)
-    Se não encontrar o arquivo, serve o index.html (para SPAs)
+    Informações sobre a API
     """
-    pasta_estaticos = app.static_folder
-    
-    if pasta_estaticos is None:
-        return "Pasta de arquivos estáticos não configurada", 404
-
-    # Se o arquivo existe, serve ele
-    if path != "" and os.path.exists(os.path.join(pasta_estaticos, path)):
-        return send_from_directory(pasta_estaticos, path)
-    else:
-        # Se não existe, tenta servir o index.html
-        index_path = os.path.join(pasta_estaticos, 'index.html')
-        if os.path.exists(index_path):
-            return send_from_directory(pasta_estaticos, 'index.html')
-        else:
-            return "Arquivo index.html não encontrado", 404
+    return jsonify({
+        'mensagem': 'Sistema de Orçamentos de Serviços - API',
+        'versao': '1.0.0',
+        'endpoints': {
+            'auth': '/api/auth/',
+            'clientes': '/api/clientes/',
+            'servicos': '/api/servicos/',
+            'orcamentos': '/api/orcamentos/',
+            'vendas': '/api/vendas/'
+        }
+    })
 
 # ========================================
 # INICIALIZAÇÃO DO SERVIDOR
 # ========================================
 
 if __name__ == '__main__':
-    print("🚀 Iniciando o Sistema de Orçamentos de Serviços...")
-    print("📍 Acesse: http://localhost:5000")
-    print("🛑 Para parar: Ctrl+C")
+    print("Iniciando o Sistema de Orçamentos de Serviços...")
+    print("Acesse: http://localhost:5000")
+    print("Para parar: Ctrl+C")
     
     # Inicia o servidor Flask
     # host='0.0.0.0' permite acesso de outros computadores na rede
     # debug=True reinicia automaticamente quando o código muda
     app.run(host='0.0.0.0', port=5000, debug=True)
-

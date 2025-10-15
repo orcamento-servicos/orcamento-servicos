@@ -786,27 +786,45 @@ def finalizar_orcamento(id_orcamento):
 @orcamentos_bp.route('/<int:id_orcamento>/enviar-email', methods=['POST'])
 @login_required
 def enviar_email_orcamento(id_orcamento):
+    """
+    Envia orçamento por e-mail com PDF em anexo.
+    Valida configuração SMTP, trata erros específicos e registra logs detalhados.
+    """
     try:
+        # Validação dos dados de entrada
         dados = request.get_json() or {}
         emails = dados.get('emails') or []
         mensagem = dados.get('mensagem') or ''
+        
         if not isinstance(emails, list) or len(emails) == 0:
-            return jsonify({'erro': 'Informe uma lista de emails'}), 400
+            return jsonify({'erro': 'Informe uma lista de emails válida'}), 400
 
+        # Validação da disponibilidade do WeasyPrint
         if not WEASYPRINT_AVAILABLE:
             return jsonify({'erro': 'Geração de PDF indisponível: WeasyPrint não instalado'}), 503
 
+        # Validação da configuração SMTP
+        smtp_host = os.environ.get('SMTP_HOST')
+        smtp_user = os.environ.get('SMTP_USER')
+        smtp_pass = os.environ.get('SMTP_PASS')
+        smtp_from = os.environ.get('SMTP_FROM')
+        
+        if not all([smtp_host, smtp_user, smtp_pass, smtp_from]):
+            return jsonify({'erro': 'Serviço de e-mail não configurado no servidor'}), 503
+
+        # Busca o orçamento
         orcamento = Orcamento.query.get_or_404(id_orcamento)
-        # Reusa o HTML da função anterior para gerar o PDF
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
 
+        # Função auxiliar para formatar valores em BRL
         def formatar_brl(valor_decimal):
             valor = float(valor_decimal)
             txt = f"{valor:,.2f}"
             txt = txt.replace(',', 'X').replace('.', ',').replace('X', '.')
             return f"R$ {txt}"
 
+        # Tenta carregar logo da empresa
         logo_data_uri = ''
         try:
             base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -818,10 +836,12 @@ def enviar_email_orcamento(id_orcamento):
         except Exception:
             logo_data_uri = ''
 
-        EMPRESA_NOME = 'Sua Empresa Ltda.'
-        EMPRESA_ENDERECO = 'Rua Exemplo, 123 - Cidade/UF'
-        EMPRESA_CONTATO = 'contato@empresa.com | (11) 0000-0000'
+        # Dados da empresa (configuráveis via variáveis de ambiente)
+        EMPRESA_NOME = os.environ.get('EMPRESA_NOME', 'Sua Empresa Ltda.')
+        EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', 'Rua Exemplo, 123 - Cidade/UF')
+        EMPRESA_CONTATO = os.environ.get('EMPRESA_CONTATO', 'contato@empresa.com | (11) 0000-0000')
 
+        # Gera HTML do orçamento
         html_conteudo = f"""
         <html>
         <head>
@@ -851,18 +871,15 @@ def enviar_email_orcamento(id_orcamento):
         </html>
         """
 
+        # Gera PDF
         pdf_bytes = HTML(string=html_conteudo).write_pdf()
 
-        # Config SMTP
-        smtp_host = os.environ.get('SMTP_HOST')
+        # Configuração SMTP
         smtp_port = int(os.environ.get('SMTP_PORT', '587'))
-        smtp_user = os.environ.get('SMTP_USER')
-        smtp_pass = os.environ.get('SMTP_PASS')
         smtp_tls = os.environ.get('SMTP_TLS', 'true').lower() == 'true'
-        remetente = os.environ.get('SMTP_FROM', smtp_user)
-        if not (smtp_host and smtp_user and smtp_pass and remetente):
-            return jsonify({'erro': 'SMTP não configurado (defina SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM)'}), 500
+        remetente = smtp_from
 
+        # Monta mensagem de e-mail
         msg = EmailMessage()
         msg['From'] = remetente
         msg['To'] = ', '.join(emails)
@@ -871,17 +888,65 @@ def enviar_email_orcamento(id_orcamento):
         msg.set_content(corpo)
         msg.add_attachment(pdf_bytes, maintype='application', subtype='pdf', filename=f'orcamento_{orcamento.id_orcamento}.pdf')
 
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
-            if smtp_tls:
-                server.starttls()
-            server.login(smtp_user, smtp_pass)
-            server.send_message(msg)
-
-        # Log
+        # Envia e-mail com tratamento específico de erros SMTP
         try:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
+                if smtp_tls:
+                    server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+                
+        except smtplib.SMTPAuthenticationError as e:
+            # Log de erro de autenticação
+            try:
+                log = LogsAcesso(
+                    id_usuario=current_user.id_usuario,
+                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: Erro de autenticação SMTP - {str(e)}',
+                    data_hora=datetime.utcnow()
+                )
+                db.session.add(log)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            
+            return jsonify({'erro': 'Falha na autenticação do servidor de e-mail. Verifique as credenciais SMTP.'}), 401
+            
+        except smtplib.SMTPConnectError as e:
+            # Log de erro de conexão
+            try:
+                log = LogsAcesso(
+                    id_usuario=current_user.id_usuario,
+                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: Erro de conexão SMTP - {str(e)}',
+                    data_hora=datetime.utcnow()
+                )
+                db.session.add(log)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            
+            return jsonify({'erro': 'Não foi possível conectar ao servidor de e-mail. Verifique as configurações SMTP.'}), 503
+            
+        except smtplib.SMTPException as e:
+            # Log de outros erros SMTP
+            try:
+                log = LogsAcesso(
+                    id_usuario=current_user.id_usuario,
+                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: Erro SMTP - {str(e)}',
+                    data_hora=datetime.utcnow()
+                )
+                db.session.add(log)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            
+            return jsonify({'erro': f'Erro no servidor de e-mail: {str(e)}'}), 502
+
+        # Log de sucesso com detalhes dos destinatários
+        try:
+            emails_str = ', '.join(emails)
             log = LogsAcesso(
                 id_usuario=current_user.id_usuario,
-                acao=f'E-mail enviado com orçamento {orcamento.id_orcamento} para {len(emails)} destinatário(s)',
+                acao=f'E-mail enviado com sucesso: orçamento {orcamento.id_orcamento} para {len(emails)} destinatário(s) - {emails_str}',
                 data_hora=datetime.utcnow()
             )
             db.session.add(log)
@@ -889,8 +954,24 @@ def enviar_email_orcamento(id_orcamento):
         except Exception:
             db.session.rollback()
 
-        return jsonify({'mensagem': 'E-mail enviado com sucesso!'}), 200
+        return jsonify({
+            'mensagem': 'E-mail enviado com sucesso!',
+            'destinatarios': emails,
+            'total_destinatarios': len(emails)
+        }), 200
+
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'erro': f'Erro ao enviar e-mail: {str(e)}'}), 500
+        # Log de erro geral
+        try:
+            log = LogsAcesso(
+                id_usuario=current_user.id_usuario,
+                acao=f'Erro geral ao enviar e-mail do orçamento {id_orcamento}: {str(e)}',
+                data_hora=datetime.utcnow()
+            )
+            db.session.add(log)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+        
+        return jsonify({'erro': f'Erro interno do servidor: {str(e)}'}), 500
 
