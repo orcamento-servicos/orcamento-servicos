@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planejador de Orçamento — Criar Plano</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- jsPDF + autoTable (para gerar PDF) -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+  </head>
+
+  <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
+    <div class="relative flex min-h-screen w-full overflow-x-hidden">
+      <!-- Sidebar -->
+      <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+        <div class="p-5 flex flex-col h-full">
+          <div class="flex flex-col items-center gap-3">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10"
+                 style='background-image:url("../Imagens/usuario.jpg");'></div>
+            <div class="text-center">
+              <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm">Online</p>
+            </div>
+            <a href="TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
+          </div>
+
+          <div class="mt-6">
+            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+          </div>
+
+          <nav class="mt-4 grid gap-1" id="sidebar">
+            <!-- HOME -->
+            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- ícone: casa -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                  <path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Home</span>
+            </a>
+
+            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- prédios -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar empresa</span>
+            </a>
+
+            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- arquivo -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar serviço</span>
+            </a>
+
+            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- calendário -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Agendar serviço</span>
+            </a>
+
+            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- relógio sólido (branco) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Ver histórico</span>
+            </a>
+
+            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg bg-[#243647] ring-1 ring-white/10">
+              <span class="text-white">
+                <!-- plus -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+            </a>
+          </nav>
+
+          <!-- Sair -->
+          <div class="mt-auto pt-4">
+            <a
+              href="../TelaLogin.html"
+              class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+            >
+              Sair
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Conteúdo -->
+      <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
+        <h2 class="text-white text-2xl font-bold">Criar Plano de Orçamento</h2>
+        <p class="text-[#93adc8] mt-1">Selecione empresa, serviços e os dados do cliente para gerar um PDF.</p>
+
+        <!-- SELEÇÃO DE EMPRESA -->
+        <section class="mt-6 grid gap-3 max-w-4xl">
+          <h3 class="text-white font-semibold">Empresa</h3>
+          <select id="sel-empresa" class="form-select h-11 rounded-lg border-none bg-[#243647] text-white">
+            <option value="">Selecione uma empresa...</option>
+          </select>
+          <p id="warn-emp" class="text-amber-300 text-sm hidden">⚠️ Nenhuma empresa cadastrada. Cadastre em “Registrar empresa”.</p>
+        </section>
+
+        <!-- SELEÇÃO DE SERVIÇOS -->
+        <section class="mt-8 grid gap-3 max-w-4xl">
+          <div class="flex items-center justify-between">
+            <h3 class="text-white font-semibold">Serviços</h3>
+            <input id="inp-busca-serv" placeholder="Pesquisar serviços..." class="form-input h-10 w-64 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+          </div>
+          <div id="lista-servicos" class="grid md:grid-cols-2 gap-3">
+            <!-- checkboxes via JS -->
+          </div>
+          <p id="warn-serv" class="text-amber-300 text-sm hidden">⚠️ Nenhum serviço cadastrado. Cadastre em “Registrar serviço”.</p>
+        </section>
+
+        <!-- DADOS DO CLIENTE -->
+        <section class="mt-8 grid md:grid-cols-2 gap-6 max-w-4xl">
+          <div class="grid gap-3">
+            <h3 class="text-white font-semibold">Cliente</h3>
+            <input id="inp-cliente" placeholder="Nome do cliente" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+            <input id="inp-endereco-cliente" placeholder="Endereço do cliente" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+            <input id="inp-email" type="email" placeholder="Email do cliente (para enviar)" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+          </div>
+          <div class="grid gap-3">
+            <h3 class="text-white font-semibold">Resumo rápido</h3>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
+              <p class="text-[#b9cee3] text-sm">Empresa: <span id="prev-empresa" class="text-white/90">—</span></p>
+              <p class="text-[#b9cee3] text-sm">Cliente: <span id="prev-cliente" class="text-white/90">—</span></p>
+              <p class="text-[#b9cee3] text-sm">Endereço: <span id="prev-endereco" class="text-white/90">—</span></p>
+              <p class="text-[#b9cee3] text-sm">Serviços selecionados: <span id="prev-qtd" class="text-white/90">0</span></p>
+              <p class="text-[#b9cee3] text-sm">Total estimado: <span id="prev-total" class="text-white font-semibold">R$ 0,00</span></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- AÇÕES -->
+        <section class="mt-6 flex flex-wrap items-center justify-between gap-3 max-w-4xl">
+          <p id="msg" class="text-sm text-white/70"></p>
+          <div class="flex gap-2">
+            <button id="btn-pdf" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Gerar PDF</button>
+            <div class="flex items-center gap-2">
+              <label for="inp-email" class="text-[#b9cee3] text-sm">Enviar Para:</label>
+              <input id="inp-email-inline" type="email" class="form-input h-10 w-64 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" placeholder="email@cliente.com" />
+              <button id="btn-mailto" class="h-10 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold">Enviar</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- PREVIEW TABELA DOS SERVIÇOS -->
+        <section class="mt-6 rounded-xl border border-white/10 bg-white/5 p-5 max-w-4xl">
+          <h4 class="text-white font-semibold mb-3">Serviços selecionados</h4>
+          <div class="overflow-auto">
+            <table class="min-w-full divide-y divide-white/10">
+              <thead class="bg-white/5">
+                <tr class="text-[#b9cee3] text-sm">
+                  <th class="px-4 py-2 text-left font-medium">Serviço</th>
+                  <th class="px-4 py-2 text-left font-medium">Descrição</th>
+                  <th class="px-4 py-2 text-right font-medium">Preço</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-preview" class="divide-y divide-white/5 text-white/90">
+                <!-- via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // ====== CHAVES DE STORAGE ======
+      const KEY_EMP = 'empresasRegistradas:v1';
+      const KEY_SRV = 'servicosRegistrados:v1';
+
+      // ====== ELEMENTOS ======
+      const $selEmpresa = document.getElementById('sel-empresa');
+      const $listaServ = document.getElementById('lista-servicos');
+      const $buscaServ = document.getElementById('inp-busca-serv');
+      const $warnEmp = document.getElementById('warn-emp');
+      const $warnSrv = document.getElementById('warn-serv');
+
+      const $cliente = document.getElementById('inp-cliente');
+      const $endCliente = document.getElementById('inp-endereco-cliente');
+      const $email = document.getElementById('inp-email');
+      const $emailInline = document.getElementById('inp-email-inline');
+
+      const $prevEmpresa = document.getElementById('prev-empresa');
+      const $prevCliente = document.getElementById('prev-cliente');
+      const $prevEndereco = document.getElementById('prev-endereco');
+      const $prevQtd = document.getElementById('prev-qtd');
+      const $prevTotal = document.getElementById('prev-total');
+      const $tbodyPrev = document.getElementById('tbody-preview');
+
+      const $btnPDF = document.getElementById('btn-pdf');
+      const $btnMail = document.getElementById('btn-mailto');
+      const $msg = document.getElementById('msg');
+
+      // ====== UTILS ======
+      function load(key){ try{ return JSON.parse(localStorage.getItem(key))||[] } catch{ return [] } }
+      function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)) }
+      function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+      function showMsg(text, ok=true){ $msg.textContent=text; $msg.className='text-sm ' + (ok?'text-emerald-300':'text-red-300'); setTimeout(()=>{$msg.textContent='';$msg.className='text-sm text-white/70'},2200) }
+
+      function syncPreview(){
+        // Empresa
+        const emp = getEmpresaSelecionada();
+        $prevEmpresa.textContent = emp ? emp.nome : '—';
+
+        // Cliente
+        $prevCliente.textContent = $cliente.value.trim() || '—';
+        $prevEndereco.textContent = $endCliente.value.trim() || '—';
+
+        // Serviços selecionados
+        const selecionados = getServicosSelecionados();
+        $prevQtd.textContent = selecionados.length;
+        const total = selecionados.reduce((acc,s)=> acc + Number(s.preco||0), 0);
+        $prevTotal.textContent = moeda(total);
+
+        // Tabela preview
+        $tbodyPrev.innerHTML = '';
+        selecionados.forEach(s=>{
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-2">${escapeHtml(s.nome)}</td>
+            <td class="px-4 py-2">${escapeHtml(s.descricao||'-')}</td>
+            <td class="px-4 py-2 text-right">${moeda(s.preco)}</td>
+          `;
+          $tbodyPrev.appendChild(tr);
+        });
+      }
+
+      // ====== EMPRESAS ======
+      function preencherEmpresas(){
+        const empresas = load(KEY_EMP);
+        $selEmpresa.innerHTML = '<option value="">Selecione uma empresa...</option>';
+        empresas.forEach(e=>{
+          const opt = document.createElement('option');
+          opt.value = e.id;
+          opt.textContent = `${e.nome} ${e.endereco? '— '+e.endereco : ''}`;
+          $selEmpresa.appendChild(opt);
+        });
+        $warnEmp.classList.toggle('hidden', empresas.length>0);
+      }
+      function getEmpresaSelecionada(){
+        const id = $selEmpresa.value;
+        if (!id) return null;
+        return load(KEY_EMP).find(e=>e.id===id) || null;
+      }
+
+      // ====== SERVIÇOS ======
+      let cacheServicos = [];
+      function preencherServicos(){
+        cacheServicos = load(KEY_SRV);
+        renderServicos();
+        $warnSrv.classList.toggle('hidden', cacheServicos.length>0);
+      }
+      function renderServicos(){
+        const q = ($buscaServ.value||'').trim().toLowerCase();
+        const data = cacheServicos.filter(s =>
+          !q || s.nome.toLowerCase().includes(q) || (s.descricao||'').toLowerCase().includes(q)
+        );
+        $listaServ.innerHTML = '';
+        data.forEach(s=>{
+          const id = `srv-${s.id}`;
+          const card = document.createElement('label');
+          card.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 hover:bg-white/[0.07]';
+          card.innerHTML = `
+            <input type="checkbox" class="form-checkbox rounded" data-id="${s.id}" />
+            <div class="flex-1">
+              <p class="text-white font-medium leading-tight">${escapeHtml(s.nome)}</p>
+              <p class="text-white/70 text-sm line-clamp-2">${escapeHtml(s.descricao||'Sem descrição')}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-white font-semibold">${moeda(s.preco)}</p>
+            </div>
+          `;
+          $listaServ.appendChild(card);
+        });
+      }
+      function getServicosSelecionados(){
+        const ids = Array.from($listaServ.querySelectorAll('input[type="checkbox"]:checked')).map(i=>i.getAttribute('data-id'));
+        const all = cacheServicos.length ? cacheServicos : load(KEY_SRV);
+        return all.filter(s=> ids.includes(s.id));
+      }
+
+      // ====== PDF ======
+      async function gerarPDF(){
+        const emp = getEmpresaSelecionada();
+        const clienteNome = $cliente.value.trim();
+        const clienteEnd = $endCliente.value.trim();
+        const selecionados = getServicosSelecionados();
+
+        if (!emp){ showMsg('Selecione uma empresa.', false); $selEmpresa.focus(); return; }
+        if (!clienteNome){ showMsg('Informe o nome do cliente.', false); $cliente.focus(); return; }
+        if (selecionados.length===0){ showMsg('Selecione ao menos um serviço.', false); return; }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+        const agora = new Date();
+        const dataBR = agora.toLocaleDateString('pt-BR');
+        const horaBR = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+        // Cabeçalho
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(18);
+        doc.text('Orçamento de Serviços', 40, 50);
+        doc.setFontSize(10);
+        doc.setFont('helvetica','normal');
+        doc.text(`Data: ${dataBR} ${horaBR}`, 40, 68);
+
+        // Empresa
+        doc.setFont('helvetica','bold'); doc.setFontSize(12);
+        doc.text('Empresa', 40, 100);
+        doc.setFont('helvetica','normal');
+        const empresaBloco = [
+          emp.nome || '',
+          emp.endereco || '',
+          emp.contato ? `Contato: ${emp.contato}` : ''
+        ].filter(Boolean).join('\n');
+        doc.text(empresaBloco, 40, 118);
+
+        // Cliente
+        doc.setFont('helvetica','bold'); doc.text('Cliente', 320, 100);
+        doc.setFont('helvetica','normal');
+        const clienteBloco = [
+          clienteNome,
+          clienteEnd || ''
+        ].filter(Boolean).join('\n');
+        doc.text(clienteBloco, 320, 118);
+
+        // Tabela de serviços
+        const body = selecionados.map(s=> [s.nome || '-', s.descricao || '-', moeda(s.preco || 0)]);
+        const total = selecionados.reduce((acc,s)=> acc + Number(s.preco||0), 0);
+
+        doc.autoTable({
+          startY: 170,
+          head: [['Serviço', 'Descrição', 'Preço']],
+          body,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: [23,115,207] },
+          columnStyles: { 2: { halign: 'right' } }
+        });
+
+        // Total
+        const yAfter = doc.lastAutoTable.finalY || 170;
+        doc.setFont('helvetica','bold'); doc.setFontSize(12);
+        doc.text(`Total: ${moeda(total)}`, 40, yAfter + 30);
+
+        // Observações
+        doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        doc.text('Observações: Este orçamento é válido por 15 dias a partir da data de emissão.', 40, yAfter + 50);
+
+        const filename = `Orcamento_${(emp.nome||'Empresa').replace(/\s+/g,'_')}_${agora.toISOString().slice(0,10)}.pdf`;
+        doc.save(filename);
+
+        showMsg('PDF gerado com sucesso!');
+        // guarda nome do arquivo para usar no email
+        window._orc_lastPdfName = filename;
+        window._orc_lastResumo = {
+          empresa: emp.nome,
+          cliente: clienteNome,
+          total: moeda(total),
+          itens: selecionados.map(s=> `${s.nome} (${moeda(s.preco)})`).join(', ')
+        };
+      }
+
+      // ====== EMAIL (mailto) ======
+      function enviarEmail(){
+        const to = ($emailInline.value || $email.value || '').trim();
+        if (!to){ showMsg('Informe o e-mail do cliente.', false); $emailInline.focus(); return; }
+
+        const resumo = window._orc_lastResumo || null;
+        const assunto = encodeURIComponent('Orçamento de Serviços');
+        let corpo = 'Olá,\n\nSegue o orçamento conforme solicitado.\n\n';
+        if (resumo){
+          corpo += `Empresa: ${resumo.empresa}\nCliente: ${resumo.cliente}\nItens: ${resumo.itens}\nTotal: ${resumo.total}\n\n`;
+        } else {
+          corpo += '(Gere o PDF para incluir um resumo automático no corpo do e-mail)\n\n';
+        }
+        corpo += 'Anexe ao e-mail o PDF baixado pelo sistema.\n\nAtenciosamente,\n';
+
+        const href = `mailto:${encodeURIComponent(to)}?subject=${assunto}&body=${encodeURIComponent(corpo)}`;
+        window.location.href = href;
+      }
+
+      // ====== EVENTOS ======
+      document.getElementById('sidebar')?.querySelectorAll('.menu-item').forEach(a=>{
+        const href = a.getAttribute('href')||'';
+        if (href === (location.pathname.split('/').pop()||'')) a.classList.add("bg-[#243647]","ring-1","ring-white/10");
+      });
+
+      $selEmpresa.addEventListener('change', syncPreview);
+      $cliente.addEventListener('input', syncPreview);
+      $endCliente.addEventListener('input', syncPreview);
+      $buscaServ.addEventListener('input', ()=>{ renderServicos(); bindServicoChecks(); syncPreview(); });
+
+      function bindServicoChecks(){
+        $listaServ.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+          cb.addEventListener('change', syncPreview);
+        });
+      }
+
+      $btnPDF.addEventListener('click', gerarPDF);
+      $btnMail.addEventListener('click', enviarEmail);
+
+      // ====== INIT ======
+      preencherEmpresas();
+      preencherServicos();
+      bindServicoChecks();
+      syncPreview();
+
+      // Prefill do e-mail com o campo de cliente, se existir no cadastro
+      $email.addEventListener('input', ()=>{ if(!$emailInline.value) $emailInline.value = $email.value; });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planejador de Orçamento — Agendar Serviço</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+
+  <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
+    <div class="relative flex min-h-screen w-full overflow-x-hidden">
+      <!-- Sidebar (mesma estrutura) -->
+      <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+        <div class="p-5 flex flex-col h-full">
+          <div class="flex flex-col items-center gap-3">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10"
+                 style='background-image:url("../Imagens/usuario.jpg");'></div>
+            <div class="text-center">
+              <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm">Online</p>
+            </div>
+            <a href="TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
+          </div>
+
+          <div class="mt-6">
+            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+          </div>
+
+          <nav class="mt-4 grid gap-1" id="sidebar">
+            <!-- HOME -->
+            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- ícone: casa -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                  <path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Home</span>
+            </a>
+
+            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- prédios -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar empresa</span>
+            </a>
+
+            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- arquivo -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar serviço</span>
+            </a>
+
+            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- calendário -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Agendar serviço</span>
+            </a>
+
+            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- relógio sólido (branco) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Ver histórico</span>
+            </a>
+
+            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- plus -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+            </a>
+          </nav>
+
+          <!-- Sair -->
+          <div class="mt-auto pt-4">
+            <a
+              href="../TelaLogin.html"
+              class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+            >
+              Sair
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Conteúdo -->
+<!-- ... cabeçalho e sidebar iguais ... -->
+
+<main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
+  <h2 class="text-white text-2xl font-bold">Agendar Serviço</h2>
+  <p class="text-[#93adc8] mt-1">Escolha uma data e horário.</p>
+
+  <!-- FORMULÁRIO -->
+  <div class="mt-6 grid max-w-xl gap-4">
+    <input id="inp-data" type="date" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" />
+    <input id="inp-hora" type="time" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" />
+    <select id="sel-servico" class="form-select h-12 rounded-lg border-none bg-[#243647] text-white">
+      <option value="">Selecione um serviço...</option>
+    </select>
+    <input id="inp-usuario" placeholder="Adicionado por (usuário)" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+    <div class="flex items-center justify-between">
+      <p id="msg" class="text-sm text-white/70"></p>
+      <button id="btn-agendar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Agendar</button>
+    </div>
+    <p id="warn-sem-servicos" class="text-amber-300 text-sm hidden">⚠️ Nenhum serviço cadastrado. Cadastre em “Registrar serviço”.</p>
+  </div>
+
+  <!-- LISTA -->
+  <div class="mt-10">
+    <div class="flex flex-wrap gap-3 items-end justify-between">
+      <div>
+        <h3 class="text-white text-xl font-semibold">Agendamentos</h3>
+        <p class="text-[#93adc8] text-sm mt-1">Gerencie seus horários.</p>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <label class="text-[#b9cee3] text-sm">Ordenar por</label>
+        <select id="sel-ordenacao" class="form-select h-10 rounded-lg border-none bg-[#243647] text-white">
+          <option value="proximo">Mais próximo</option>
+          <option value="caro">Mais caro</option>
+        </select>
+        <input id="inp-busca" placeholder="Pesquisar..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+      </div>
+    </div>
+
+    <div class="mt-4 overflow-hidden rounded-xl border border-white/10">
+      <table class="min-w-full divide-y divide-white/10">
+        <thead class="bg-white/5">
+          <tr class="text-[#b9cee3] text-sm">
+            <th class="px-4 py-3 text-left font-medium">Data/Hora</th>
+            <th class="px-4 py-3 text-left font-medium">Serviço</th>
+            <th class="px-4 py-3 text-right font-medium">Preço</th>
+            <th class="px-4 py-3 text-left font-medium">Adicionado por</th>
+            <th class="px-4 py-3 text-left font-medium">Adicionado em</th>
+            <th class="px-4 py-3 text-left font-medium">Status</th>
+            <th class="px-4 py-3 text-right font-medium">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-agend" class="divide-y divide-white/5 text-white/90"></tbody>
+      </table>
+    </div>
+
+    <div id="empty-state" class="mt-4 hidden">
+      <p class="text-white/70">Nenhum agendamento ainda.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ====== MENU ATIVO + prefill usuário ======
+  (function () {
+    const path = location.pathname.split('/').pop() || '';
+    document.querySelectorAll('#sidebar .menu-item').forEach(a => {
+      const href = a.getAttribute('href') || '';
+      if (href === path) a.classList.add("bg-[#243647]", "ring-1", "ring-white/10");
+    });
+    const nomeSidebar = document.querySelector('.text-center > p.text-white.text-lg')?.textContent?.trim();
+    const $usuario = document.getElementById('inp-usuario');
+    if ($usuario && nomeSidebar) $usuario.value = nomeSidebar;
+  })();
+
+  // ====== STORAGE KEYS ======
+  const KEY_SERVICOS = 'servicosRegistrados:v1';
+  const KEY_AGEND = 'agendamentos:v1';
+
+  // ====== ELEMENTOS ======
+  const $data = document.getElementById('inp-data');
+  const $hora = document.getElementById('inp-hora');
+  const $selServico = document.getElementById('sel-servico');
+  const $usuario = document.getElementById('inp-usuario');
+  const $btnAgendar = document.getElementById('btn-agendar');
+  const $tbody = document.getElementById('tbody-agend');
+  const $ordenacao = document.getElementById('sel-ordenacao');
+  const $busca = document.getElementById('inp-busca');
+  const $msg = document.getElementById('msg');
+  const $empty = document.getElementById('empty-state');
+  const $warn = document.getElementById('warn-sem-servicos');
+
+  // ====== UTILS ======
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function load(key){ try{ return JSON.parse(localStorage.getItem(key))||[] } catch{ return [] } }
+  function save(key, list){ localStorage.setItem(key, JSON.stringify(list)); }
+  function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDataHoraISO(iso){
+    const d = new Date(iso);
+    if (isNaN(d)) return '-';
+    const dd = d.toLocaleDateString('pt-BR');
+    const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    return dd+' '+hh;
+  }
+  function fmtDataHora(ms){
+    const d = new Date(ms);
+    if (isNaN(d)) return '-';
+    const dd = d.toLocaleDateString('pt-BR');
+    const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    return dd+' '+hh;
+  }
+
+  // ====== PREENCHE SELECT DE SERVIÇOS ======
+  function preencherServicos(){
+    const servs = load(KEY_SERVICOS);
+    $selServico.innerHTML = '<option value="">Selecione um serviço...</option>';
+    servs.forEach(s=>{
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `${s.nome} — ${moeda(s.preco)}`;
+      $selServico.appendChild(opt);
+    });
+    $warn.classList.toggle('hidden', servs.length>0);
+  }
+
+  // ====== ORDENADORES ======
+  function compareMaisProximo(a, b){
+    const now = Date.now();
+    const ta = new Date(a.dataHora).getTime();
+    const tb = new Date(b.dataHora).getTime();
+    const aFuture = ta >= now, bFuture = tb >= now;
+
+    if (aFuture && !bFuture) return -1;         // futuros primeiro
+    if (!aFuture && bFuture) return  1;
+
+    if (aFuture && bFuture) return ta - tb;     // ambos futuros -> mais próximo (asc)
+    return tb - ta;                              // ambos passados -> mais recente primeiro (desc)
+  }
+  function compareMaisCaro(a, b){
+    return Number(b.preco) - Number(a.preco) || compareMaisProximo(a,b);
+  }
+
+  // ====== RENDER ======
+  function render(){
+    const ag = load(KEY_AGEND);
+    const q = ($busca.value||'').trim().toLowerCase();
+
+    let rows = ag.filter(a =>
+      !q ||
+      a.servicoNome.toLowerCase().includes(q) ||
+      (a.usuario||'').toLowerCase().includes(q)
+    );
+
+    const ord = $ordenacao.value;
+    rows.sort(ord === 'caro' ? compareMaisCaro : compareMaisProximo);
+
+    $tbody.innerHTML = '';
+    rows.forEach(a=>{
+      const cancelado = !!a.canceledAt;
+      const concluido = !!a.completedAt;
+
+      let statusHtml = '<span class="text-emerald-300">Agendado</span>';
+      if (cancelado) statusHtml = '<span class="text-red-300 font-semibold">CANCELADO</span>';
+      else if (concluido) statusHtml = '<span class="text-green-300 font-semibold">CONCLUÍDO</span>';
+
+      const tr = document.createElement('tr');
+      if (cancelado) tr.classList.add('opacity-60');
+
+      const concluirDisabled = cancelado ? 'opacity-50 pointer-events-none' : '';
+
+      tr.innerHTML = `
+        <td class="px-4 py-3">${fmtDataHoraISO(a.dataHora)}</td>
+        <td class="px-4 py-3">${escapeHtml(a.servicoNome)}</td>
+        <td class="px-4 py-3 text-right">${moeda(a.preco)}</td>
+        <td class="px-4 py-3">${escapeHtml(a.usuario||'-')}</td>
+        <td class="px-4 py-3">${fmtDataHora(a.createdAt)}</td>
+        <td class="px-4 py-3">${statusHtml}</td>
+        <td class="px-4 py-3 text-right flex gap-2 justify-end">
+          <!-- Toggle concluir -->
+          ${
+            concluido
+              ? `<button data-complete="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm ${concluirDisabled}">
+                   <!-- reabrir (desfazer concluído) -->
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M176,40a8,8,0,0,1,8,8V80a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h12.69A72,72,0,1,0,208,128a8,8,0,0,1,16,0,88,88,0,1,1-88-88Z"/></svg>
+                   Reabrir
+                 </button>`
+              : `<button data-complete="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm ${concluirDisabled}">
+                   <!-- check -->
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,1,1,11.32,11.32Z"/></svg>
+                   Concluir
+                 </button>`
+          }
+          <!-- Toggle cancelar -->
+          ${
+            cancelado
+              ? `<button data-cancel="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+                   <!-- reativar -->
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M176,40a8,8,0,0,1,8,8V80a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h12.69A72,72,0,1,0,208,128a8,8,0,0,1,16,0,88,88,0,1,1-88-88Z"/></svg>
+                   Reativar
+                 </button>`
+              : `<button data-cancel="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+                   <!-- lixeira -->
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
+                   Cancelar
+                 </button>`
+          }
+        </td>
+      `;
+      $tbody.appendChild(tr);
+    });
+
+    const hasData = ag.length>0;
+    $empty.classList.toggle('hidden', hasData);
+    if (rows.length===0 && hasData){
+      $empty.classList.add('hidden');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="7">Nenhum resultado para “${escapeHtml($busca.value||'')}”.</td>`;
+      $tbody.appendChild(tr);
+    }
+  }
+
+  // ====== CRIAR AGENDAMENTO ======
+  $btnAgendar.addEventListener('click', ()=>{
+    const data = $data.value;
+    const hora = $hora.value;
+    const servId = $selServico.value;
+    const usuario = ($usuario.value||'').trim();
+
+    if (!data){ showMsg('Informe a data.', false); $data.focus(); return; }
+    if (!hora){ showMsg('Informe a hora.', false); $hora.focus(); return; }
+    if (!servId){ showMsg('Selecione um serviço.', false); $selServico.focus(); return; }
+
+    const servs = load(KEY_SERVICOS);
+    const s = servs.find(x=>x.id===servId);
+    const preco = s ? Number(s.preco) : 0;
+    const nome = s ? s.nome : 'Serviço';
+
+    const dataHoraISO = `${data}T${hora}:00`;
+
+    const list = load(KEY_AGEND);
+    list.push({
+      id: uid(),
+      servicoId: servId,
+      servicoNome: nome,
+      preco: preco,
+      dataHora: dataHoraISO,
+      usuario: usuario || 'Usuário',
+      createdAt: Date.now(),
+      canceledAt: null,
+      completedAt: null
+    });
+    save(KEY_AGEND, list);
+
+    $data.value = '';
+    $hora.value = '';
+    $selServico.value = '';
+
+    showMsg('Agendamento criado com sucesso!');
+    render();
+  });
+
+  // ====== TOGGLES: CONCLUIR / CANCELAR ======
+  $tbody.addEventListener('click', (e)=>{
+    const btnComplete = e.target.closest('button[data-complete]');
+    const btnCancel = e.target.closest('button[data-cancel]');
+    if (!btnComplete && !btnCancel) return;
+
+    const id = (btnComplete || btnCancel).getAttribute('data-complete') || (btnCancel && btnCancel.getAttribute('data-cancel'));
+
+    const list = load(KEY_AGEND).map(a=>{
+      if (a.id !== id) return a;
+
+      if (btnComplete){
+        // não permite concluir se estiver cancelado
+        if (a.canceledAt) { alert('Não é possível concluir um agendamento cancelado. Reative-o primeiro.'); return a; }
+        const isDone = !!a.completedAt;
+        const ok = confirm(isDone ? 'Reabrir este agendamento (desfazer concluído)?' : 'Marcar como CONCLUÍDO?');
+        if (!ok) return a;
+        return { ...a, completedAt: isDone ? null : Date.now() };
+      }
+
+      if (btnCancel){
+        const isCanceled = !!a.canceledAt;
+        const ok = confirm(isCanceled ? 'Reativar este agendamento?' : 'Cancelar este agendamento?');
+        if (!ok) return a;
+        // ao cancelar, também desfaz concluído
+        return { ...a, canceledAt: isCanceled ? null : Date.now(), completedAt: isCanceled ? a.completedAt : null };
+      }
+
+      return a;
+    });
+
+    save(KEY_AGEND, list);
+    render();
+  });
+
+  // ====== BUSCA + ORDENAÇÃO ======
+  $busca.addEventListener('input', render);
+  $ordenacao.addEventListener('change', render);
+
+  // ====== MENSAGENS ======
+  function showMsg(text, ok = true){
+    $msg.textContent = text;
+    $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
+    setTimeout(()=>{ $msg.textContent=''; $msg.className='text-sm text-white/70'; }, 2200);
+  }
+
+  // init
+  preencherServicos();
+  render();
+</script>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planejador de Orçamento — Histórico</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+
+  <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
+    <div class="relative flex min-h-screen w-full overflow-x-hidden">
+      <!-- Sidebar -->
+      <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+        <div class="p-5 flex flex-col h-full">
+          <div class="flex flex-col items-center gap-3">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10"
+                 style='background-image:url("../Imagens/usuario.jpg");'></div>
+            <div class="text-center">
+              <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm">Online</p>
+            </div>
+            <a href="TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
+          </div>
+
+          <div class="mt-6">
+            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+          </div>
+
+          <nav class="mt-4 grid gap-1" id="sidebar">
+            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor"><path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/></svg>
+              </span>
+              <span class="text-white text-sm font-medium">Home</span>
+            </a>
+
+            <a href="RegistrarEmpresa.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/></svg></span>
+              <span class="text-white text-sm font-medium">Registrar empresa</span>
+            </a>
+
+            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg></span>
+              <span class="text-white text-sm font-medium">Registrar serviço</span>
+            </a>
+
+            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/></svg></span>
+              <span class="text-white text-sm font-medium">Agendar serviço</span>
+            </a>
+
+            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg bg-[#243647] ring-1 ring-white/10">
+              <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/></svg></span>
+              <span class="text-white text-sm font-medium">Ver histórico</span>
+            </a>
+
+            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg></span>
+              <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+            </a>
+          </nav>
+
+          <div class="mt-auto pt-4">
+            <a href="../TelaLogin.html" class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition">Sair</a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Conteúdo -->
+      <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
+        <div class="flex items-end justify-between">
+          <div>
+            <h2 class="text-white text-2xl font-bold">Histórico</h2>
+            <p class="text-[#93adc8] mt-1">Todos os serviços agendados.</p>
+          </div>
+          <input id="inp-busca" placeholder="Pesquisar..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+        </div>
+
+        <div class="mt-6 overflow-hidden rounded-xl border border-white/10">
+          <table class="min-w-full divide-y divide-white/10">
+            <thead class="bg-white/5">
+              <tr class="text-[#b9cee3] text-sm">
+                <th class="px-4 py-3 text-left font-medium">Data/Hora</th>
+                <th class="px-4 py-3 text-left font-medium">Serviço</th>
+                <th class="px-4 py-3 text-left font-medium">Valor</th>
+                <th class="px-4 py-3 text-left font-medium">Adicionado por</th>
+                <th class="px-4 py-3 text-left font-medium">Adicionado em</th>
+                <th class="px-4 py-3 text-left font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbody" class="divide-y divide-white/5 text-white/90"></tbody>
+          </table>
+        </div>
+
+        <div id="empty" class="mt-4 hidden">
+          <p class="text-white/70">Nenhum registro encontrado.</p>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const KEY_AGEND = 'agendamentos:v1';
+      const $tbody = document.getElementById('tbody');
+      const $busca = document.getElementById('inp-busca');
+      const $empty = document.getElementById('empty');
+
+      function load(key){ try{ return JSON.parse(localStorage.getItem(key))||[] } catch{ return [] } }
+      function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)); }
+      function fmtDataHoraISO(iso){
+        const d = new Date(iso);
+        if (isNaN(d)) return '-';
+        const dd = d.toLocaleDateString('pt-BR');
+        const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+        return dd+' '+hh;
+      }
+      function fmtDataHora(ms){
+        const d = new Date(ms);
+        if (isNaN(d)) return '-';
+        const dd = d.toLocaleDateString('pt-BR');
+        const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        return dd+' '+hh;
+      }
+      function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+      function render(){
+        const list = load(KEY_AGEND);
+        const q = ($busca.value||'').trim().toLowerCase();
+        let rows = list.filter(a =>
+          !q ||
+          a.servicoNome.toLowerCase().includes(q) ||
+          (a.usuario||'').toLowerCase().includes(q)
+        );
+
+        rows.sort((a,b)=> new Date(b.dataHora)-new Date(a.dataHora));
+
+        $tbody.innerHTML = '';
+        rows.forEach(a=>{
+          const cancelado = !!a.canceledAt;
+          const concluido = !!a.completedAt;
+
+          let statusHtml = '<span class="text-emerald-300">Agendado</span>';
+          if (cancelado) statusHtml = '<span class="text-red-300 font-semibold">CANCELADO</span>';
+          else if (concluido) statusHtml = '<span class="text-green-300 font-semibold">CONCLUÍDO</span>';
+
+          const tr = document.createElement('tr');
+          if (cancelado) tr.classList.add('opacity-60');
+
+          tr.innerHTML = `
+            <td class="px-4 py-3">${fmtDataHoraISO(a.dataHora)}</td>
+            <td class="px-4 py-3">${escapeHtml(a.servicoNome)}</td>
+            <td class="px-4 py-3">${moeda(a.preco)}</td>
+            <td class="px-4 py-3">${escapeHtml(a.usuario||'-')}</td>
+            <td class="px-4 py-3">${fmtDataHora(a.createdAt)}</td>
+            <td class="px-4 py-3">${statusHtml}</td>
+          `;
+          $tbody.appendChild(tr);
+        });
+
+        $empty.classList.toggle('hidden', rows.length>0);
+      }
+
+      $busca.addEventListener('input', render);
+      render();
+    </script>
+  </body>
+</html>

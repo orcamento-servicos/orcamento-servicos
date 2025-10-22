@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planejador de Orçamento — Editar Perfil</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+
+  <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
+    <div class="relative flex min-h-screen w-full overflow-x-hidden">
+      <!-- BARRA LATERAL (mantida) -->
+      <aside
+        class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen"
+      >
+        <div class="p-5 flex flex-col h-full">
+          <!-- Perfil -->
+          <div class="flex flex-col items-center gap-3">
+            <div
+              id="avatarPreview"
+              class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10"
+              style='background-image:url("../imagens/usuario.jpg");'
+            ></div>
+            <div class="text-center">
+              <p class="text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm" id="statusTopo">Online</p>
+            </div>
+
+            <!-- Estamos nesta página: "Editar Perfil" fica visualmente "ativo" -->
+            <a
+              href="TelaEditarPerfil.html"
+              aria-disabled="true"
+              class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-white/20 text-white text-sm font-semibold pointer-events-none"
+              title="Você já está na página de edição"
+            >
+              Editar Perfil
+            </a>
+          </div>
+
+          <!-- Info -->
+          <div class="mt-6">
+            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+          </div>
+
+          <nav class="mt-4 grid gap-1" id="sidebar">
+            <!-- HOME -->
+            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- ícone: casa -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                  <path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Home</span>
+            </a>
+
+            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- prédios -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar empresa</span>
+            </a>
+
+            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- arquivo -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar serviço</span>
+            </a>
+
+            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- calendário -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Agendar serviço</span>
+            </a>
+
+            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- relógio sólido (branco) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Ver histórico</span>
+            </a>
+
+            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- plus -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+            </a>
+          </nav>
+
+          <!-- Sair -->
+          <div class="mt-auto pt-4">
+            <a
+              href="../TelaLogin.html"
+              class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+            >
+              Sair
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTEÚDO PRINCIPAL -->
+      <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
+        <header class="flex items-center justify-between">
+          <div>
+            <h2 class="text-white text-3xl font-bold">Editar Perfil</h2>
+            <p class="text-[#93adc8] mt-1">Atualize suas informações pessoais e de conta.</p>
+          </div>
+          <a
+            href="TelaMenuPrincipal.html"
+            class="h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+            title="Voltar ao menu principal"
+          >
+            Voltar
+          </a>
+        </header>
+
+        <!-- Alerta -->
+        <div id="alertArea" class="hidden mt-6"></div>
+
+        <form id="formPerfil" class="mt-6 grid gap-6">
+          <!-- Card: Avatar -->
+          <section class="rounded-xl border border-white/10 bg-white/5 p-6">
+            <h3 class="text-white text-lg font-semibold">Foto de perfil</h3>
+            <p class="text-[#93adc8] text-sm mt-1">Envie uma imagem quadrada para melhor resultado.</p>
+
+            <div class="mt-4 flex items-center gap-4">
+              <div
+                id="avatarLarge"
+                class="bg-center bg-no-repeat bg-cover rounded-full h-24 w-24 ring-2 ring-white/10"
+                style='background-image:url("../imagens/usuario.jpg");'
+              ></div>
+              <div class="grid gap-2">
+                <label class="block">
+                  <span class="text-white text-sm">Selecionar arquivo</span>
+                  <input
+                    id="inputAvatar"
+                    type="file"
+                    accept="image/*"
+                    class="mt-1 block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#1773cf] file:text-white hover:file:bg-[#1773cf]/90"
+                  />
+                </label>
+                <button
+                  type="button"
+                  id="btnRemoverAvatar"
+                  class="justify-self-start h-9 px-3 rounded-lg bg-white/10 text-white text-sm hover:bg-white/20 transition"
+                >
+                  Remover foto
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Card: Informações básicas -->
+          <section class="rounded-xl border border-white/10 bg-white/5 p-6 grid md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <h3 class="text-white text-lg font-semibold">Informações básicas</h3>
+              <p class="text-[#93adc8] text-sm mt-1">Esses dados aparecem no topo do painel.</p>
+            </div>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">Nome</span>
+              <input id="inpNome" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" placeholder="Seu nome" value="Usuário exemplo" />
+            </label>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">Status</span>
+              <select id="inpStatus" class="form-select h-11 rounded-lg border-none bg-[#243647] text-white">
+                <option selected>Online</option>
+                <option>Ocupado</option>
+                <option>Ausente</option>
+              </select>
+            </label>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">E-mail</span>
+              <input id="inpEmail" type="email" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" placeholder="voce@exemplo.com" />
+            </label>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">Telefone</span>
+              <input id="inpTelefone" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" placeholder="(00) 00000-0000" />
+            </label>
+
+            <label class="md:col-span-2 grid gap-1">
+              <span class="text-white text-sm">Bio</span>
+              <textarea id="inpBio" class="form-textarea min-h-28 rounded-lg border-none bg-[#243647] text-white" placeholder="Conte um pouco sobre você"></textarea>
+            </label>
+          </section>
+
+          <!-- Card: Alterar senha -->
+          <section class="rounded-xl border border-white/10 bg-white/5 p-6 grid md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <h3 class="text-white text-lg font-semibold">Alterar senha</h3>
+              <p class="text-[#93adc8] text-sm mt-1">Deixe em branco se não desejar alterar.</p>
+            </div>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">Senha atual</span>
+              <input id="inpSenhaAtual" type="password" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+            </label>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">Nova senha</span>
+              <input id="inpSenhaNova" type="password" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+            </label>
+
+            <label class="grid gap-1">
+              <span class="text-white text-sm">Confirmar nova senha</span>
+              <input id="inpSenhaConf" type="password" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+            </label>
+          </section>
+
+          <!-- Ações -->
+          <div class="flex items-center gap-3">
+            <button
+              type="submit"
+              class="h-11 px-5 rounded-lg bg-[#1773cf] text-white font-bold hover:bg-[#1773cf]/90 transition"
+            >
+              Salvar alterações
+            </button>
+            <a
+              href="TelaMenuPrincipal.html"
+              class="h-11 px-5 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+            >
+              Cancelar
+            </a>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <!-- Script -->
+    <script>
+      const inputAvatar = document.getElementById("inputAvatar");
+      const avatarLarge = document.getElementById("avatarLarge");
+      const avatarPreview = document.getElementById("avatarPreview");
+      const btnRemoverAvatar = document.getElementById("btnRemoverAvatar");
+
+      const form = document.getElementById("formPerfil");
+      const alertArea = document.getElementById("alertArea");
+      const nomeTopo = document.getElementById("nomeTopo");
+      const statusTopo = document.getElementById("statusTopo");
+
+      const inpNome = document.getElementById("inpNome");
+      const inpStatus = document.getElementById("inpStatus");
+      const inpEmail = document.getElementById("inpEmail");
+      const inpSenhaNova = document.getElementById("inpSenhaNova");
+      const inpSenhaConf = document.getElementById("inpSenhaConf");
+
+      inputAvatar.addEventListener("change", () => {
+        const file = inputAvatar.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          avatarLarge.style.backgroundImage = `url('${e.target.result}')`;
+          avatarPreview.style.backgroundImage = `url('${e.target.result}')`;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      btnRemoverAvatar.addEventListener("click", () => {
+        inputAvatar.value = "";
+        const fallback = "../imagens/usuario.jpg";
+        avatarLarge.style.backgroundImage = `url('${fallback}')`;
+        avatarPreview.style.backgroundImage = `url('${fallback}')`;
+      });
+
+      function showAlert(msg, type = "success") {
+        const base = "rounded-lg p-4 border mt-6";
+        const ok = "bg-emerald-500/10 border-emerald-400 text-emerald-200";
+        const err = "bg-rose-500/10 border-rose-400 text-rose-200";
+        alertArea.className = `${base} ${type === "success" ? ok : err}`;
+        alertArea.textContent = msg;
+        alertArea.classList.remove("hidden");
+        setTimeout(() => {
+          alertArea.classList.add("hidden");
+        }, 3500);
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (inpEmail.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inpEmail.value)) {
+          showAlert("Informe um e-mail válido.", "error");
+          return;
+        }
+
+        if (inpSenhaNova.value || inpSenhaConf.value) {
+          if (inpSenhaNova.value !== inpSenhaConf.value) {
+            showAlert("A confirmação da nova senha não confere.", "error");
+            return;
+          }
+          if (inpSenhaNova.value.length < 6) {
+            showAlert("A nova senha deve ter pelo menos 6 caracteres.", "error");
+            return;
+          }
+        }
+
+        if (inpNome.value.trim()) nomeTopo.textContent = inpNome.value.trim();
+        statusTopo.textContent = inpStatus.value;
+
+        showAlert("Perfil atualizado com sucesso!");
+      });
+    </script>
+  </
+  

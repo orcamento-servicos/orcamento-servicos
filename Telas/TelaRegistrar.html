@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
+    />
+
+    <title>OrçaTech — Cadastro</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body class="bg-slate-50" style='font-family: Inter, "Noto Sans", sans-serif;'>
+    <div class="relative min-h-screen w-full flex flex-col overflow-x-hidden">
+      <!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf3] px-6 md:px-10 py-3 h-16">
+  <a href="TelaSobre.html" class="flex items-center gap-3 text-[#0d141b]">
+    <div class="size-24 flex items-center justify-center">
+      <img
+        src="Imagens/OTLogoHeader.png"
+        alt="Logo OrçaTech"
+        class="w-24 h-24 object-contain"
+      />
+    </div>
+    <h1 class="text-[#0d141b] text-lg font-bold leading-tight tracking-[-0.015em]">
+      OrçaTech
+    </h1>
+  </a>
+
+  <div class="flex flex-1 justify-end gap-6 md:gap-8">
+    <nav class="flex items-center gap-6 md:gap-9">
+      <a class="text-[#0d141b] text-sm font-medium leading-normal" href="TelaSobre.html" aria-current="page">Sobre</a>
+      <a class="text-[#0d141b] text-sm font-medium leading-normal" href="TelaContato.html">Contato</a>
+    </nav>
+    <a
+      href="TelaRegistrar.html"
+      class="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#d3d3d3] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+    >
+      <span class="truncate">Registrar-se</span>
+    </a>
+    <a
+      href="TelaLogin.html"
+      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf3] text-[#0d141b] text-sm font-bold leading-normal tracking-[0.015em]"
+    >
+      <span class="truncate">Entrar</span>
+    </a>
+  </div>
+</header>
+
+      <!-- Conteúdo -->
+      <main class="flex-1 px-6 md:px-10 py-8">
+        <!-- Grid com 2 colunas: formulário (centralizado) + imagem lateral -->
+        <div class="grid gap-8 md:gap-12 md:grid-cols-[minmax(0,1fr)_360px]">
+          <!-- Coluna do formulário (centralizada no eixo x e y do bloco) -->
+          <div class="w-full place-self-center transform translate-x-24">
+            <div class="flex flex-col items-center text-center">
+              <h2 class="text-[#0d141b] tracking-tight text-[28px] font-bold leading-tight pb-3">
+                Crie sua conta
+              </h2>
+
+              <!-- Wrap do formulário com largura máxima e centralização -->
+              <form class="w-full max-w-[480px]">
+                <!-- Nome -->
+                <div class="px-0 py-3">
+                  <label class="flex flex-col w-full">
+                    <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">Nome</p>
+                    <input
+                      type="text"
+                      placeholder="Digite seu nome"
+                      class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                    />
+                  </label>
+                </div>
+
+                <!-- Email -->
+                <div class="px-0 py-3">
+                  <label class="flex flex-col w-full">
+                    <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">E-mail</p>
+                    <input
+                      type="email"
+                      placeholder="Digite seu e-mail"
+                      class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                    />
+                  </label>
+                </div>
+
+                <!-- Senha -->
+                <div class="px-0 py-3">
+                  <label class="flex flex-col w-full">
+                    <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">Senha</p>
+                    <input
+                      type="password"
+                      placeholder="Digite sua senha"
+                      class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                    />
+                  </label>
+                </div>
+
+                <!-- Confirmar senha -->
+                <div class="px-0 py-3">
+                  <label class="flex flex-col w-full">
+                    <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">Confirmar senha</p>
+                    <input
+                      type="password"
+                      placeholder="Confirme sua senha"
+                      class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                    />
+                  </label>
+                </div>
+
+                <!-- Botão cadastrar (centralizado) -->
+                <div class="flex justify-center px-0 py-4">
+                  <button
+                    class="flex min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-11 px-6 bg-[#1380ec] hover:brightness-95 active:brightness-90 text-slate-50 text-sm font-bold tracking-[0.015em] transition"
+                    type="button"
+                  >
+                    <span class="truncate">Cadastrar</span>
+                  </button>
+                </div>
+            <div class="flex items-center gap-3 my-5">
+              <div class="h-px bg-[#e7edf3] w-full"></div>
+              <span class="text-xs text-[#4c739a]">ou</span>
+              <div class="h-px bg-[#e7edf3] w-full"></div>
+            </div>
+                <!-- Link para login -->
+                <p class="text-[#4c739a] text-sm leading-normal pt-1 text-left">
+                  Já tem uma conta?
+                  <a href="TelaLogin.html" class="underline">Entre →</a>
+                  </p>
+                <!-- Esqueceu a senha -->
+                  <p class="text-[#4c739a] text-sm leading-normal pt-1 text-left">
+                  <b>Esqueceu a senha?
+                  <a href="TelaEsqueceuSenha.html" class="underline">Recupere →</a></b>
+                </p>
+
+              </form>
+            </div>
+          </div>
+
+          <!-- Coluna da imagem lateral (oculta no mobile) -->
+          <div class="hidden md:block w-[480px] transform -translate-x-80">
+            <div class="w-full bg-slate-50 @container p-0">
+              <div class="w-full overflow-hidden bg-slate-50 @[480px]:gap-2 aspect-[2/3] rounded-lg flex">
+                <div
+                  class="w-full bg-center bg-no-repeat bg-cover rounded-lg"
+                  style='background-image: url("Imagens/VLTP.png");'
+                  role="img"
+                  aria-label="Ilustracao"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- /Conteúdo -->
+    </div>
+  </body>
+</html>

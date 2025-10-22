@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
+    />
+
+    <title>OrçaTech — Contato</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body>
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col bg-slate-50 group/design-root overflow-x-hidden"
+      style='font-family: Inter, "Noto Sans", sans-serif;'
+    >
+      <div class="layout-container flex h-full grow flex-col">
+        <!-- Cabeçalho -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf3] px-6 md:px-10 py-3 h-16">
+  <a href="TelaSobre.html" class="flex items-center gap-3 text-[#0d141b]">
+    <div class="size-24 flex items-center justify-center">
+      <img
+        src="Imagens/OTLogoHeader.png"
+        alt="Logo OrçaTech"
+        class="w-24 h-24 object-contain"
+      />
+    </div>
+    <h1 class="text-[#0d141b] text-lg font-bold leading-tight tracking-[-0.015em]">
+      OrçaTech
+    </h1>
+  </a>
+
+          <!-- Navegação -->
+          <div class="flex flex-1 justify-end gap-6 md:gap-8">
+            <nav class="flex items-center gap-6 md:gap-9">
+              <a class="text-[#0d141b] text-sm font-medium leading-normal" href="TelaSobre.html">Sobre</a>
+              <a class="text-[#0d141b] text-sm font-medium leading-normal" href="TelaContato.html" aria-current="page"
+                >Contato</a
+              >
+            </nav>
+            <a
+              href="TelaRegistrar.html"
+              class="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#1380ec] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+            >
+              <span class="truncate">Registrar-se</span>
+            </a>
+            <a
+              href="TelaLogin.html"
+              class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf3] text-[#0d141b] text-sm font-bold leading-normal tracking-[0.015em]"
+            >
+              <span class="truncate">Entrar</span>
+            </a>
+          </div>
+        </header>
+
+        <!-- Conteúdo -->
+        <div class="px-4 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-5">
+          <div class="layout-content-container flex flex-col w-full max-w-[960px] py-5 flex-1 transform -translate-y-4">
+            <h2
+              class="text-[#0d141b] tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-5"
+            >
+              Fale conosco
+            </h2>
+            <p class="text-[#0d141b] text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">
+              Preencha o formulário abaixo ou utilize os dados de contato informados.
+            </p>
+
+            <form class="w-full flex flex-col items-center" action="#" method="post" novalidate>
+              <!-- Nome -->
+              <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                <label for="nome" class="flex flex-col min-w-40 flex-1">
+                  <span class="text-[#0d141b] text-base font-medium leading-normal pb-2">Nome</span>
+                  <input
+                    id="nome"
+                    name="nome"
+                    type="text"
+                    autocomplete="name"
+                    placeholder="Seu nome"
+                    required
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-slate-50 focus:border-[#8fb6d8] h-14 placeholder:text-[#4c739a] p-[15px] text-base font-normal leading-normal"
+                  />
+                </label>
+              </div>
+
+              <!-- Email -->
+              <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                <label for="email" class="flex flex-col min-w-40 flex-1">
+                  <span class="text-[#0d141b] text-base font-medium leading-normal pb-2">E-mail</span>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="seuemail@exemplo.com"
+                    required
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-slate-50 focus:border-[#8fb6d8] h-14 placeholder:text-[#4c739a] p-[15px] text-base font-normal leading-normal"
+                  />
+                </label>
+              </div>
+
+              <!-- Assunto -->
+              <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                <label for="assunto" class="flex flex-col min-w-40 flex-1">
+                  <span class="text-[#0d141b] text-base font-medium leading-normal pb-2">Assunto</span>
+                  <input
+                    id="assunto"
+                    name="assunto"
+                    type="text"
+                    placeholder="Assunto da mensagem"
+                    required
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-slate-50 focus:border-[#8fb6d8] h-14 placeholder:text-[#4c739a] p-[15px] text-base font-normal leading-normal"
+                  />
+                </label>
+              </div>
+
+              <!-- Mensagem -->
+              <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                <label for="mensagem" class="flex flex-col min-w-40 flex-1">
+                  <span class="text-[#0d141b] text-base font-medium leading-normal pb-2">Mensagem</span>
+                  <textarea
+                    id="mensagem"
+                    name="mensagem"
+                    placeholder="Sua mensagem"
+                    required
+                    rows="3"
+                    class="form-textarea flex w-full min-w-0 flex-1 resize-y overflow-auto rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-slate-50 focus:border-[#8fb6d8] min-h-36 placeholder:text-[#4c739a] p-[15px] text-base font-normal leading-normal"
+                  ></textarea>
+                </label>
+              </div>
+
+              <!-- Botão enviar -->
+              <div class="flex w-full max-w-[480px] px-4 py-3">
+                <button
+                  type="submit"
+                  class="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-5 flex-1 bg-[#1380ec] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+                >
+                  <span class="truncate">Enviar mensagem</span>
+                </button>
+              </div>
+            </form>
+
+
+            <h2 class="text-[#0d141b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 text-center">
+              Ou se preferir, utilize um dos métodos abaixo:
+            </h2>
+
+            <!-- Redes sociais -->
+            <div class="@container w-full">
+              <div class="gap-4 px-4 flex flex-wrap justify-center">
+                <a href="TelaContato.html" class="flex flex-col items-center gap-2 bg-slate-50 py-2.5 text-center w-24">
+                  <div class="rounded-full bg-[#e7edf3] p-2.5">
+                    <div class="text-[#0d141b]">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48ZM220.69,72,128,133.69,35.31,72ZM32,192V80l93.38,62.25a8,8,0,0,0,9.24,0L224,80V192Z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <p class="text-[#0d141b] text-sm font-medium leading-normal">Contato Online</p>
+                </a>
+
+<a href="https://wa.me/5547997616006" class="flex flex-col items-center gap-2 bg-slate-50 py-2.5 text-center w-24">
+  <div class="rounded-full bg-[#e7edf3] p-2.5">
+    <div class="text-[#0d141b]">
+      <!-- Ícone do WhatsApp -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+        <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a87.37,87.37,0,0,1-44.12-11.91l-30.12,8.08,8.06-29.76A87.85,87.85,0,0,1,40,128a88,88,0,1,1,88,88Zm41.19-61.28c-2.26-1.13-13.36-6.59-15.43-7.35s-3.59-1.13-5.09,1.13-5.83,7.35-7.14,8.85-2.63,1.7-4.89.57a71.93,71.93,0,0,1-21.17-13c-7.83-7-13.12-15.64-14.64-18.28s-.15-4.07,1-5.2c1-1,2.26-2.26,3.39-3.39a15.32,15.32,0,0,0,2.26-3.39,4.51,4.51,0,0,0-.19-4.31c-.56-1.13-5.09-12.22-7-16.73s-3.72-3.8-5.09-3.87a9.39,9.39,0,0,0-4.32.57,8.19,8.19,0,0,0-5.94,5.57,24.89,24.89,0,0,0-1.58,8.85c0,5.2,3.73,10.21,4.23,10.89.56.76,7.34,11.21,17.77,19.19s20.71,10.47,24,11.81,6.63,1.08,9.08.68a15.24,15.24,0,0,0,10-7c1.26-1.75,1.89-3.09,2.64-4.32s1.13-2.26,1.76-3.39.38-2.13-.19-3.26S171.46,154.85,169.19,154.72Z"></path>
+      </svg>
+    </div>
+  </div>
+  <p class="text-[#0d141b] text-sm font-medium leading-normal">WhatsApp</p>
+</a>
+
+
+                <a href="https://www.instagram.com/roberto_ehenz/" class="flex flex-col items-center gap-2 bg-slate-50 py-2.5 text-center w-24">
+                  <div class="rounded-full bg-[#e7edf3] p-2.5">
+                    <div class="text-[#0d141b]">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <p class="text-[#0d141b] text-sm font-medium leading-normal">Instagram</p>
+                </a>
+
+                <a href="mailto:roberto.henz@universo.univates.br" class="flex flex-col items-center gap-2 bg-slate-50 py-2.5 text-center w-24">
+                  <div class="rounded-full bg-[#e7edf3] p-2.5">
+                    <div class="text-[#0d141b]">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <p class="text-[#0d141b] text-sm font-medium leading-normal">Email</p>
+                </a>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- Rodapé -->
+        <footer class="flex justify-center">
+          <div class="flex max-w-[960px] flex-1 flex-col
