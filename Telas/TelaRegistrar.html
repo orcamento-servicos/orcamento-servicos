@@ -66,15 +66,18 @@
               </h2>
 
               <!-- Wrap do formulário com largura máxima e centralização -->
-              <form class="w-full max-w-[480px]">
+              <form id="registerForm" class="w-full max-w-[480px]">
                 <!-- Nome -->
                 <div class="px-0 py-3">
                   <label class="flex flex-col w-full">
                     <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">Nome</p>
                     <input
                       type="text"
+                      id="nome"
+                      name="nome"
                       placeholder="Digite seu nome"
                       class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                      required
                     />
                   </label>
                 </div>
@@ -85,8 +88,11 @@
                     <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">E-mail</p>
                     <input
                       type="email"
+                      id="email"
+                      name="email"
                       placeholder="Digite seu e-mail"
                       class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                      required
                     />
                   </label>
                 </div>
@@ -97,8 +103,11 @@
                     <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">Senha</p>
                     <input
                       type="password"
+                      id="senha"
+                      name="senha"
                       placeholder="Digite sua senha"
                       class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                      required
                     />
                   </label>
                 </div>
@@ -109,17 +118,28 @@
                     <p class="text-[#0d141b] text-base font-medium leading-normal pb-2 text-left">Confirmar senha</p>
                     <input
                       type="password"
+                      id="confirmarSenha"
+                      name="confirmarSenha"
                       placeholder="Confirme sua senha"
                       class="form-input w-full rounded-lg text-[#0d141b] focus:outline-0 focus:ring-0 border border-[#cfdbe7] bg-white focus:border-[#4c739a] h-14 placeholder:text-[#4c739a] p-[15px] text-base"
+                      required
                     />
                   </label>
+                </div>
+
+                <!-- Mensagem de erro -->
+                <div id="errorMessage" class="hidden px-0 py-3">
+                  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    <span id="errorText"></span>
+                  </div>
                 </div>
 
                 <!-- Botão cadastrar (centralizado) -->
                 <div class="flex justify-center px-0 py-4">
                   <button
+                    type="submit"
+                    id="btnCadastrar"
                     class="flex min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-11 px-6 bg-[#1380ec] hover:brightness-95 active:brightness-90 text-slate-50 text-sm font-bold tracking-[0.015em] transition"
-                    type="button"
                   >
                     <span class="truncate">Cadastrar</span>
                   </button>
@@ -161,5 +181,96 @@
       </main>
       <!-- /Conteúdo -->
     </div>
+
+    <script>
+      // Configuração da API
+      const API_BASE_URL = '/api';
+
+      // Elementos do DOM
+      const registerForm = document.getElementById('registerForm');
+      const btnCadastrar = document.getElementById('btnCadastrar');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+
+      // Função para mostrar erro
+      function mostrarErro(mensagem) {
+        errorText.textContent = mensagem;
+        errorMessage.classList.remove('hidden');
+      }
+
+      // Função para esconder erro
+      function esconderErro() {
+        errorMessage.classList.add('hidden');
+      }
+
+      // Event listener para o formulário de registro
+      registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Esconde mensagens de erro anteriores
+        esconderErro();
+        
+        // Pega os dados do formulário
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+        const confirmarSenha = document.getElementById('confirmarSenha').value;
+        
+        // Validações básicas no frontend
+        if (!nome || !email || !senha || !confirmarSenha) {
+          mostrarErro('Todos os campos são obrigatórios');
+          return;
+        }
+        
+        if (senha !== confirmarSenha) {
+          mostrarErro('As senhas não coincidem');
+          return;
+        }
+        
+        if (senha.length < 6) {
+          mostrarErro('A senha deve ter pelo menos 6 caracteres');
+          return;
+        }
+        
+        // Desabilita o botão para evitar múltiplos cliques
+        btnCadastrar.disabled = true;
+        btnCadastrar.textContent = 'Cadastrando...';
+        
+        try {
+          // Faz a requisição para a API
+          const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include', // Importante para cookies de sessão
+            body: JSON.stringify({
+              nome: nome,
+              email: email,
+              senha: senha
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            // Registro bem-sucedido
+            console.log('Usuário cadastrado:', data);
+            // Redireciona para o menu principal
+            window.location.href = '/MenuPrincipal/TelaMenuPrincipal.html';
+          } else {
+            // Erro no registro
+            mostrarErro(data.erro || 'Erro ao cadastrar usuário');
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          mostrarErro('Erro de conexão. Verifique se o servidor está rodando.');
+        } finally {
+          // Reabilita o botão
+          btnCadastrar.disabled = false;
+          btnCadastrar.textContent = 'Cadastrar';
+        }
+      });
+    </script>
   </body>
 </html>

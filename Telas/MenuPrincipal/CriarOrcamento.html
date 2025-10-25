@@ -9,10 +9,6 @@
     <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
       href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-    <!-- jsPDF + autoTable (para gerar PDF) -->
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
   </head>
 
   <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
@@ -27,7 +23,7 @@
               <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
               <p class="text-[#b9cee3] text-sm">Online</p>
             </div>
-            <a href="TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
+            <a href="/MenuPrincipal/TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
           </div>
 
           <div class="mt-6">
@@ -37,7 +33,7 @@
 
           <nav class="mt-4 grid gap-1" id="sidebar">
             <!-- HOME -->
-            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- ícone: casa -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
@@ -47,17 +43,17 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
                 </svg>
               </span>
-              <span class="text-white text-sm font-medium">Registrar empresa</span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
             </a>
 
-            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- arquivo -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -67,7 +63,7 @@
               <span class="text-white text-sm font-medium">Registrar serviço</span>
             </a>
 
-            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- calendário -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -77,7 +73,7 @@
               <span class="text-white text-sm font-medium">Agendar serviço</span>
             </a>
 
-            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- relógio sólido (branco) -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -87,7 +83,7 @@
               <span class="text-white text-sm font-medium">Ver histórico</span>
             </a>
 
-            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg bg-[#243647] ring-1 ring-white/10">
+            <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg bg-[#243647] ring-1 ring-white/10">
               <span class="text-white">
                 <!-- plus -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -101,7 +97,7 @@
           <!-- Sair -->
           <div class="mt-auto pt-4">
             <a
-              href="../TelaLogin.html"
+              href="/"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -115,13 +111,13 @@
         <h2 class="text-white text-2xl font-bold">Criar Plano de Orçamento</h2>
         <p class="text-[#93adc8] mt-1">Selecione empresa, serviços e os dados do cliente para gerar um PDF.</p>
 
-        <!-- SELEÇÃO DE EMPRESA -->
+        <!-- SELEÇÃO DE CLIENTE -->
         <section class="mt-6 grid gap-3 max-w-4xl">
-          <h3 class="text-white font-semibold">Empresa</h3>
-          <select id="sel-empresa" class="form-select h-11 rounded-lg border-none bg-[#243647] text-white">
-            <option value="">Selecione uma empresa...</option>
+          <h3 class="text-white font-semibold">Cliente</h3>
+          <select id="sel-cliente" class="form-select h-11 rounded-lg border-none bg-[#243647] text-white">
+            <option value="">Selecione um cliente...</option>
           </select>
-          <p id="warn-emp" class="text-amber-300 text-sm hidden">⚠️ Nenhuma empresa cadastrada. Cadastre em “Registrar empresa”.</p>
+          <p id="warn-cliente" class="text-amber-300 text-sm hidden">⚠️ Nenhum cliente cadastrado. Cadastre em "Registrar cliente".</p>
         </section>
 
         <!-- SELEÇÃO DE SERVIÇOS -->
@@ -139,17 +135,18 @@
         <!-- DADOS DO CLIENTE -->
         <section class="mt-8 grid md:grid-cols-2 gap-6 max-w-4xl">
           <div class="grid gap-3">
-            <h3 class="text-white font-semibold">Cliente</h3>
-            <input id="inp-cliente" placeholder="Nome do cliente" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
-            <input id="inp-endereco-cliente" placeholder="Endereço do cliente" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
-            <input id="inp-email" type="email" placeholder="Email do cliente (para enviar)" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" />
+            <h3 class="text-white font-semibold">Dados do Cliente</h3>
+            <div id="dados-cliente" class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
+              <p class="text-[#b9cee3] text-sm">Nome: <span id="cliente-nome" class="text-white/90">—</span></p>
+              <p class="text-[#b9cee3] text-sm">Telefone: <span id="cliente-telefone" class="text-white/90">—</span></p>
+              <p class="text-[#b9cee3] text-sm">E-mail: <span id="cliente-email" class="text-white/90">—</span></p>
+              <p class="text-[#b9cee3] text-sm">Endereço: <span id="cliente-endereco" class="text-white/90">—</span></p>
+            </div>
           </div>
           <div class="grid gap-3">
-            <h3 class="text-white font-semibold">Resumo rápido</h3>
+            <h3 class="text-white font-semibold">Resumo do Orçamento</h3>
             <div class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
-              <p class="text-[#b9cee3] text-sm">Empresa: <span id="prev-empresa" class="text-white/90">—</span></p>
               <p class="text-[#b9cee3] text-sm">Cliente: <span id="prev-cliente" class="text-white/90">—</span></p>
-              <p class="text-[#b9cee3] text-sm">Endereço: <span id="prev-endereco" class="text-white/90">—</span></p>
               <p class="text-[#b9cee3] text-sm">Serviços selecionados: <span id="prev-qtd" class="text-white/90">0</span></p>
               <p class="text-[#b9cee3] text-sm">Total estimado: <span id="prev-total" class="text-white font-semibold">R$ 0,00</span></p>
             </div>
@@ -161,11 +158,6 @@
           <p id="msg" class="text-sm text-white/70"></p>
           <div class="flex gap-2">
             <button id="btn-pdf" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Gerar PDF</button>
-            <div class="flex items-center gap-2">
-              <label for="inp-email" class="text-[#b9cee3] text-sm">Enviar Para:</label>
-              <input id="inp-email-inline" type="email" class="form-input h-10 w-64 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" placeholder="email@cliente.com" />
-              <button id="btn-mailto" class="h-10 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold">Enviar</button>
-            </div>
           </div>
         </section>
 
@@ -190,251 +182,285 @@
       </main>
     </div>
 
+    <!-- Script de proteção de autenticação -->
+    <script src="/js/auth-protection.js"></script>
+    
     <script>
-      // ====== CHAVES DE STORAGE ======
-      const KEY_EMP = 'empresasRegistradas:v1';
-      const KEY_SRV = 'servicosRegistrados:v1';
+      // Configuração da API
+      const API_BASE_URL = '/api';
 
       // ====== ELEMENTOS ======
-      const $selEmpresa = document.getElementById('sel-empresa');
+      const $selCliente = document.getElementById('sel-cliente');
       const $listaServ = document.getElementById('lista-servicos');
       const $buscaServ = document.getElementById('inp-busca-serv');
-      const $warnEmp = document.getElementById('warn-emp');
+      const $warnCliente = document.getElementById('warn-cliente');
       const $warnSrv = document.getElementById('warn-serv');
 
-      const $cliente = document.getElementById('inp-cliente');
-      const $endCliente = document.getElementById('inp-endereco-cliente');
-      const $email = document.getElementById('inp-email');
-      const $emailInline = document.getElementById('inp-email-inline');
+      const $clienteNome = document.getElementById('cliente-nome');
+      const $clienteTelefone = document.getElementById('cliente-telefone');
+      const $clienteEmail = document.getElementById('cliente-email');
+      const $clienteEndereco = document.getElementById('cliente-endereco');
 
-      const $prevEmpresa = document.getElementById('prev-empresa');
       const $prevCliente = document.getElementById('prev-cliente');
-      const $prevEndereco = document.getElementById('prev-endereco');
       const $prevQtd = document.getElementById('prev-qtd');
       const $prevTotal = document.getElementById('prev-total');
       const $tbodyPrev = document.getElementById('tbody-preview');
 
       const $btnPDF = document.getElementById('btn-pdf');
-      const $btnMail = document.getElementById('btn-mailto');
       const $msg = document.getElementById('msg');
 
       // ====== UTILS ======
-      function load(key){ try{ return JSON.parse(localStorage.getItem(key))||[] } catch{ return [] } }
-      function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)) }
-      function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
-      function showMsg(text, ok=true){ $msg.textContent=text; $msg.className='text-sm ' + (ok?'text-emerald-300':'text-red-300'); setTimeout(()=>{$msg.textContent='';$msg.className='text-sm text-white/70'},2200) }
-
-      function syncPreview(){
-        // Empresa
-        const emp = getEmpresaSelecionada();
-        $prevEmpresa.textContent = emp ? emp.nome : '—';
-
-        // Cliente
-        $prevCliente.textContent = $cliente.value.trim() || '—';
-        $prevEndereco.textContent = $endCliente.value.trim() || '—';
-
-        // Serviços selecionados
-        const selecionados = getServicosSelecionados();
-        $prevQtd.textContent = selecionados.length;
-        const total = selecionados.reduce((acc,s)=> acc + Number(s.preco||0), 0);
-        $prevTotal.textContent = moeda(total);
-
-        // Tabela preview
-        $tbodyPrev.innerHTML = '';
-        selecionados.forEach(s=>{
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="px-4 py-2">${escapeHtml(s.nome)}</td>
-            <td class="px-4 py-2">${escapeHtml(s.descricao||'-')}</td>
-            <td class="px-4 py-2 text-right">${moeda(s.preco)}</td>
-          `;
-          $tbodyPrev.appendChild(tr);
-        });
+      function moeda(v) { 
+        return new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(Number(v||0)); 
+      }
+      function escapeHtml(s) { 
+        return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); 
+      }
+      function showMsg(text, ok=true) { 
+        $msg.textContent=text; 
+        $msg.className='text-sm ' + (ok?'text-emerald-300':'text-red-300'); 
+        setTimeout(()=>{$msg.textContent='';$msg.className='text-sm text-white/70'},2200); 
       }
 
-      // ====== EMPRESAS ======
-      function preencherEmpresas(){
-        const empresas = load(KEY_EMP);
-        $selEmpresa.innerHTML = '<option value="">Selecione uma empresa...</option>';
-        empresas.forEach(e=>{
+      // ====== CLIENTES ======
+      let cacheClientes = [];
+      async function carregarClientes() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/clientes/`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            cacheClientes = data.clientes || [];
+            preencherClientes();
+            $warnCliente.classList.toggle('hidden', cacheClientes.length > 0);
+          } else {
+            console.error('Erro ao carregar clientes:', response.status);
+            cacheClientes = [];
+            $warnCliente.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro ao carregar clientes. Verifique se o servidor está rodando.', false);
+          cacheClientes = [];
+          $warnCliente.classList.remove('hidden');
+        }
+      }
+
+      function preencherClientes() {
+        $selCliente.innerHTML = '<option value="">Selecione um cliente...</option>';
+        cacheClientes.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = e.id;
-          opt.textContent = `${e.nome} ${e.endereco? '— '+e.endereco : ''}`;
-          $selEmpresa.appendChild(opt);
+          opt.value = c.id_cliente;
+          opt.textContent = `${c.nome} ${c.telefone ? '— ' + c.telefone : ''}`;
+          $selCliente.appendChild(opt);
         });
-        $warnEmp.classList.toggle('hidden', empresas.length>0);
       }
-      function getEmpresaSelecionada(){
-        const id = $selEmpresa.value;
+
+      function getClienteSelecionado() {
+        const id = $selCliente.value;
         if (!id) return null;
-        return load(KEY_EMP).find(e=>e.id===id) || null;
+        return cacheClientes.find(c => c.id_cliente == id) || null;
       }
 
       // ====== SERVIÇOS ======
       let cacheServicos = [];
-      function preencherServicos(){
-        cacheServicos = load(KEY_SRV);
-        renderServicos();
-        $warnSrv.classList.toggle('hidden', cacheServicos.length>0);
+      async function carregarServicos() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/servicos/`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            cacheServicos = data.servicos || [];
+            renderServicos();
+            $warnSrv.classList.toggle('hidden', cacheServicos.length > 0);
+          } else {
+            console.error('Erro ao carregar serviços:', response.status);
+            cacheServicos = [];
+            $warnSrv.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro ao carregar serviços. Verifique se o servidor está rodando.', false);
+          cacheServicos = [];
+          $warnSrv.classList.remove('hidden');
+        }
       }
-      function renderServicos(){
+
+      function renderServicos() {
         const q = ($buscaServ.value||'').trim().toLowerCase();
         const data = cacheServicos.filter(s =>
           !q || s.nome.toLowerCase().includes(q) || (s.descricao||'').toLowerCase().includes(q)
         );
         $listaServ.innerHTML = '';
-        data.forEach(s=>{
-          const id = `srv-${s.id}`;
+        data.forEach(s => {
+          const id = `srv-${s.id_servicos}`;
           const card = document.createElement('label');
           card.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 hover:bg-white/[0.07]';
           card.innerHTML = `
-            <input type="checkbox" class="form-checkbox rounded" data-id="${s.id}" />
+            <input type="checkbox" class="form-checkbox rounded" data-id="${s.id_servicos}" />
             <div class="flex-1">
               <p class="text-white font-medium leading-tight">${escapeHtml(s.nome)}</p>
               <p class="text-white/70 text-sm line-clamp-2">${escapeHtml(s.descricao||'Sem descrição')}</p>
             </div>
             <div class="text-right">
-              <p class="text-white font-semibold">${moeda(s.preco)}</p>
+              <p class="text-white font-semibold">${moeda(s.valor)}</p>
             </div>
           `;
           $listaServ.appendChild(card);
         });
-      }
-      function getServicosSelecionados(){
-        const ids = Array.from($listaServ.querySelectorAll('input[type="checkbox"]:checked')).map(i=>i.getAttribute('data-id'));
-        const all = cacheServicos.length ? cacheServicos : load(KEY_SRV);
-        return all.filter(s=> ids.includes(s.id));
+        bindServicoChecks();
       }
 
-      // ====== PDF ======
-      async function gerarPDF(){
-        const emp = getEmpresaSelecionada();
-        const clienteNome = $cliente.value.trim();
-        const clienteEnd = $endCliente.value.trim();
-        const selecionados = getServicosSelecionados();
-
-        if (!emp){ showMsg('Selecione uma empresa.', false); $selEmpresa.focus(); return; }
-        if (!clienteNome){ showMsg('Informe o nome do cliente.', false); $cliente.focus(); return; }
-        if (selecionados.length===0){ showMsg('Selecione ao menos um serviço.', false); return; }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-
-        const agora = new Date();
-        const dataBR = agora.toLocaleDateString('pt-BR');
-        const horaBR = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-
-        // Cabeçalho
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(18);
-        doc.text('Orçamento de Serviços', 40, 50);
-        doc.setFontSize(10);
-        doc.setFont('helvetica','normal');
-        doc.text(`Data: ${dataBR} ${horaBR}`, 40, 68);
-
-        // Empresa
-        doc.setFont('helvetica','bold'); doc.setFontSize(12);
-        doc.text('Empresa', 40, 100);
-        doc.setFont('helvetica','normal');
-        const empresaBloco = [
-          emp.nome || '',
-          emp.endereco || '',
-          emp.contato ? `Contato: ${emp.contato}` : ''
-        ].filter(Boolean).join('\n');
-        doc.text(empresaBloco, 40, 118);
-
-        // Cliente
-        doc.setFont('helvetica','bold'); doc.text('Cliente', 320, 100);
-        doc.setFont('helvetica','normal');
-        const clienteBloco = [
-          clienteNome,
-          clienteEnd || ''
-        ].filter(Boolean).join('\n');
-        doc.text(clienteBloco, 320, 118);
-
-        // Tabela de serviços
-        const body = selecionados.map(s=> [s.nome || '-', s.descricao || '-', moeda(s.preco || 0)]);
-        const total = selecionados.reduce((acc,s)=> acc + Number(s.preco||0), 0);
-
-        doc.autoTable({
-          startY: 170,
-          head: [['Serviço', 'Descrição', 'Preço']],
-          body,
-          styles: { fontSize: 10 },
-          headStyles: { fillColor: [23,115,207] },
-          columnStyles: { 2: { halign: 'right' } }
-        });
-
-        // Total
-        const yAfter = doc.lastAutoTable.finalY || 170;
-        doc.setFont('helvetica','bold'); doc.setFontSize(12);
-        doc.text(`Total: ${moeda(total)}`, 40, yAfter + 30);
-
-        // Observações
-        doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        doc.text('Observações: Este orçamento é válido por 15 dias a partir da data de emissão.', 40, yAfter + 50);
-
-        const filename = `Orcamento_${(emp.nome||'Empresa').replace(/\s+/g,'_')}_${agora.toISOString().slice(0,10)}.pdf`;
-        doc.save(filename);
-
-        showMsg('PDF gerado com sucesso!');
-        // guarda nome do arquivo para usar no email
-        window._orc_lastPdfName = filename;
-        window._orc_lastResumo = {
-          empresa: emp.nome,
-          cliente: clienteNome,
-          total: moeda(total),
-          itens: selecionados.map(s=> `${s.nome} (${moeda(s.preco)})`).join(', ')
-        };
+      function getServicosSelecionados() {
+        const ids = Array.from($listaServ.querySelectorAll('input[type="checkbox"]:checked')).map(i => i.getAttribute('data-id'));
+        return cacheServicos.filter(s => ids.includes(String(s.id_servicos)));
       }
 
-      // ====== EMAIL (mailto) ======
-      function enviarEmail(){
-        const to = ($emailInline.value || $email.value || '').trim();
-        if (!to){ showMsg('Informe o e-mail do cliente.', false); $emailInline.focus(); return; }
-
-        const resumo = window._orc_lastResumo || null;
-        const assunto = encodeURIComponent('Orçamento de Serviços');
-        let corpo = 'Olá,\n\nSegue o orçamento conforme solicitado.\n\n';
-        if (resumo){
-          corpo += `Empresa: ${resumo.empresa}\nCliente: ${resumo.cliente}\nItens: ${resumo.itens}\nTotal: ${resumo.total}\n\n`;
-        } else {
-          corpo += '(Gere o PDF para incluir um resumo automático no corpo do e-mail)\n\n';
-        }
-        corpo += 'Anexe ao e-mail o PDF baixado pelo sistema.\n\nAtenciosamente,\n';
-
-        const href = `mailto:${encodeURIComponent(to)}?subject=${assunto}&body=${encodeURIComponent(corpo)}`;
-        window.location.href = href;
-      }
-
-      // ====== EVENTOS ======
-      document.getElementById('sidebar')?.querySelectorAll('.menu-item').forEach(a=>{
-        const href = a.getAttribute('href')||'';
-        if (href === (location.pathname.split('/').pop()||'')) a.classList.add("bg-[#243647]","ring-1","ring-white/10");
-      });
-
-      $selEmpresa.addEventListener('change', syncPreview);
-      $cliente.addEventListener('input', syncPreview);
-      $endCliente.addEventListener('input', syncPreview);
-      $buscaServ.addEventListener('input', ()=>{ renderServicos(); bindServicoChecks(); syncPreview(); });
-
-      function bindServicoChecks(){
-        $listaServ.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+      function bindServicoChecks() {
+        $listaServ.querySelectorAll('input[type="checkbox"]').forEach(cb => {
           cb.addEventListener('change', syncPreview);
         });
       }
 
+      // ====== PREVIEW ======
+      function syncPreview() {
+        // Cliente selecionado
+        const cliente = getClienteSelecionado();
+        if (cliente) {
+          $clienteNome.textContent = cliente.nome;
+          $clienteTelefone.textContent = cliente.telefone || '—';
+          $clienteEmail.textContent = cliente.email || '—';
+          $clienteEndereco.textContent = cliente.endereco || '—';
+          $prevCliente.textContent = cliente.nome;
+        } else {
+          $clienteNome.textContent = '—';
+          $clienteTelefone.textContent = '—';
+          $clienteEmail.textContent = '—';
+          $clienteEndereco.textContent = '—';
+          $prevCliente.textContent = '—';
+        }
+
+        // Serviços selecionados
+        const selecionados = getServicosSelecionados();
+        $prevQtd.textContent = selecionados.length;
+        const total = selecionados.reduce((acc, s) => acc + Number(s.valor || 0), 0);
+        $prevTotal.textContent = moeda(total);
+
+        // Tabela preview
+        $tbodyPrev.innerHTML = '';
+        selecionados.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-2">${escapeHtml(s.nome)}</td>
+            <td class="px-4 py-2">${escapeHtml(s.descricao||'-')}</td>
+            <td class="px-4 py-2 text-right">${moeda(s.valor)}</td>
+          `;
+          $tbodyPrev.appendChild(tr);
+        });
+      }
+
+      // ====== PDF ======
+      async function gerarPDF() {
+        const cliente = getClienteSelecionado();
+        const selecionados = getServicosSelecionados();
+
+        if (!cliente) { 
+          showMsg('Selecione um cliente.', false); 
+          $selCliente.focus(); 
+          return; 
+        }
+        if (selecionados.length === 0) { 
+          showMsg('Selecione ao menos um serviço.', false); 
+          return; 
+        }
+
+        // Desabilita o botão durante a requisição
+        $btnPDF.disabled = true;
+        $btnPDF.textContent = 'Gerando...';
+
+        try {
+          // Primeiro, cria o orçamento na API
+          const itens = selecionados.map(s => ({
+            id_servico: s.id_servicos,
+            quantidade: 1
+          }));
+
+          const response = await fetch(`${API_BASE_URL}/orcamentos/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              id_cliente: cliente.id_cliente,
+              itens: itens
+            })
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            // Agora gera o PDF
+            const idOrcamento = data.orcamento.id_orcamento;
+            const pdfResponse = await fetch(`${API_BASE_URL}/orcamentos/${idOrcamento}/pdf`, {
+              method: 'GET',
+              credentials: 'include'
+            });
+
+            if (pdfResponse.ok) {
+              // Baixa o PDF
+              const blob = await pdfResponse.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `orcamento_${idOrcamento}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+              
+              showMsg('PDF gerado com sucesso!');
+            } else {
+              const errorData = await pdfResponse.json();
+              showMsg(errorData.erro || 'Erro ao gerar PDF', false);
+            }
+          } else {
+            showMsg(data.erro || 'Erro ao criar orçamento', false);
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+        } finally {
+          // Reabilita o botão
+          $btnPDF.disabled = false;
+          $btnPDF.textContent = 'Gerar PDF';
+        }
+      }
+
+      // ====== EVENTOS ======
+      document.getElementById('sidebar')?.querySelectorAll('.menu-item').forEach(a => {
+        const href = a.getAttribute('href') || '';
+        if (href === (location.pathname.split('/').pop() || '')) a.classList.add("bg-[#243647]", "ring-1", "ring-white/10");
+      });
+
+      $selCliente.addEventListener('change', syncPreview);
+      $buscaServ.addEventListener('input', () => { 
+        renderServicos(); 
+        syncPreview(); 
+      });
+
       $btnPDF.addEventListener('click', gerarPDF);
-      $btnMail.addEventListener('click', enviarEmail);
 
       // ====== INIT ======
-      preencherEmpresas();
-      preencherServicos();
-      bindServicoChecks();
+      carregarClientes();
+      carregarServicos();
       syncPreview();
-
-      // Prefill do e-mail com o campo de cliente, se existir no cadastro
-      $email.addEventListener('input', ()=>{ if(!$emailInline.value) $emailInline.value = $email.value; });
     </script>
   </body>
 </html>

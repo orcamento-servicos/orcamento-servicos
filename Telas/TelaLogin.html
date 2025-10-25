@@ -21,7 +21,7 @@
   <body class="bg-slate-50 text-[#0d141b]" style='font-family: Inter, "Noto Sans", sans-serif;'>
     <!-- Header (mantido idêntico) -->
     <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf3] px-6 md:px-10 py-3 h-16">
-      <a href="TelaSobre.html" class="flex items-center gap-3 text-[#0d141b]">
+      <a href="/TelaSobre.html" class="flex items-center gap-3 text-[#0d141b]">
         <div class="size-24 flex items-center justify-center">
           <img
             src="Imagens/OTLogoHeader.png"
@@ -36,17 +36,17 @@
 
       <div class="flex flex-1 justify-end gap-6 md:gap-8">
         <nav class="flex items-center gap-6 md:gap-9">
-          <a class="text-[#0d141b] text-sm font-medium leading-normal" href="TelaSobre.html" aria-current="page">Sobre</a>
-          <a class="text-[#0d141b] text-sm font-medium leading-normal" href="TelaContato.html">Contato</a>
+          <a class="text-[#0d141b] text-sm font-medium leading-normal" href="/TelaSobre.html" aria-current="page">Sobre</a>
+          <a class="text-[#0d141b] text-sm font-medium leading-normal" href="/TelaContato.html">Contato</a>
         </nav>
         <a
-          href="TelaRegistrar.html"
+          href="/TelaRegistrar.html"
           class="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#1380ec] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
         >
           <span class="truncate">Registrar-se</span>
         </a>
         <a
-          href="TelaLogin.html"
+          href="/TelaLogin.html"
           class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf3] text-[#0d141b] text-sm font-bold leading-normal tracking-[0.015em]"
         >
           <span class="truncate">Entrar</span>
@@ -70,15 +70,18 @@
             </p>
           </div>
 
-          <form class="w-full">
-            <!-- Usuário -->
+          <form id="loginForm" class="w-full">
+            <!-- Email -->
             <div class="py-2">
               <label class="flex flex-col w-full">
-                <span class="text-base font-medium pb-2 text-left">Usuário</span>
+                <span class="text-base font-medium pb-2 text-left">E-mail</span>
                 <input
-                  type="text"
-                  placeholder="Digite seu usuário"
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Digite seu e-mail"
                   class="form-input w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-white h-14 placeholder:text-[#4c739a] p-4 focus:outline-0 focus:ring-0 focus:border-[#4c739a]"
+                  required
                 />
               </label>
             </div>
@@ -89,10 +92,20 @@
                 <span class="text-base font-medium pb-2 text-left">Senha</span>
                 <input
                   type="password"
+                  id="senha"
+                  name="senha"
                   placeholder="Digite sua senha"
                   class="form-input w-full rounded-lg text-[#0d141b] border border-[#cfdbe7] bg-white h-14 placeholder:text-[#4c739a] p-4 focus:outline-0 focus:ring-0 focus:border-[#4c739a]"
+                  required
                 />
               </label>
+            </div>
+
+            <!-- Mensagem de erro -->
+            <div id="errorMessage" class="hidden py-2">
+              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <span id="errorText"></span>
+              </div>
             </div>
 
             <!-- Esqueceu a senha -->
@@ -107,12 +120,13 @@
 
             <!-- Botão Entrar -->
             <div class="flex justify-center py-4">
-              <a
-                href="MenuPrincipal/TelaMenuPrincipal.html"
+              <button
+                type="submit"
+                id="btnEntrar"
                 class="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-6 bg-[#1380ec] hover:brightness-95 active:brightness-90 text-white text-sm font-bold tracking-[0.015em] transition"
               >
                 Entrar
-              </a>
+              </button>
             </div>
 
             <!-- Divider -->
@@ -145,5 +159,77 @@
         </div>
       </div>
     </main>
+
+    <script>
+      // Configuração da API
+      const API_BASE_URL = '/api';
+
+      // Elementos do DOM
+      const loginForm = document.getElementById('loginForm');
+      const btnEntrar = document.getElementById('btnEntrar');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+
+      // Função para mostrar erro
+      function mostrarErro(mensagem) {
+        errorText.textContent = mensagem;
+        errorMessage.classList.remove('hidden');
+      }
+
+      // Função para esconder erro
+      function esconderErro() {
+        errorMessage.classList.add('hidden');
+      }
+
+      // Event listener para o formulário de login
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Esconde mensagens de erro anteriores
+        esconderErro();
+        
+        // Desabilita o botão para evitar múltiplos cliques
+        btnEntrar.disabled = true;
+        btnEntrar.textContent = 'Entrando...';
+        
+        // Pega os dados do formulário
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+        
+        try {
+          // Faz a requisição para a API
+          const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include', // Importante para cookies de sessão
+            body: JSON.stringify({
+              email: email,
+              senha: senha
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            // Login bem-sucedido
+            console.log('Login realizado:', data);
+            // Redireciona para o menu principal
+            window.location.href = '/MenuPrincipal/TelaMenuPrincipal.html';
+          } else {
+            // Erro no login
+            mostrarErro(data.erro || 'Erro ao fazer login');
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          mostrarErro('Erro de conexão. Verifique se o servidor está rodando.');
+        } finally {
+          // Reabilita o botão
+          btnEntrar.disabled = false;
+          btnEntrar.textContent = 'Entrar';
+        }
+      });
+    </script>
   </body>
 </html>

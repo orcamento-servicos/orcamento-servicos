@@ -1,37 +1,60 @@
-# Use uma imagem base oficial do Python. A versão 'slim' é mais leve.
+# ========================================
+# DOCKERFILE - Sistema de Orçamentos
+# Versão otimizada com todas as dependências
+# ========================================
+
+# Use uma imagem base oficial do Python 3.11
 FROM python:3.11-slim
 
-# Define o diretório de trabalho dentro do contêiner
+# Define variáveis de ambiente
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    FLASK_APP=src.main:app
+
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Instala as dependências de sistema necessárias para o WeasyPrint
+# Instala dependências do sistema necessárias
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     libffi-dev \
     pango1.0-tools \
     libpangocairo-1.0-0 \
-    --no-install-recommends
+    sqlite3 \
+    curl \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Copia o arquivo de dependências do Python primeiro para aproveitar o cache do Docker
+# Copia o arquivo de dependências primeiro (para cache do Docker)
 COPY requirements.txt .
 
 # Instala as dependências do Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o resto do seu projeto para o diretório de trabalho no contêiner
+# Copia todo o projeto
 COPY . .
 
-# --- ALTERAÇÕES AQUI ---
-# 1. Copia o script de inicialização para o contêiner
+# Copia e torna executável o script de entrada
 COPY docker-entrypoint.sh .
-
-# 2. Torna o script executável
 RUN chmod +x docker-entrypoint.sh
-# --- FIM DAS ALTERAÇÕES ---
 
-# Expõe a porta que o seu aplicativo usa
+# Cria diretórios necessários
+RUN mkdir -p /app/src/database \
+    && mkdir -p /app/logs
+
+# Define permissões corretas
+RUN chmod -R 755 /app
+
+# Expõe a porta
 EXPOSE 5000
 
-# 3. Comando para iniciar a aplicação usando o nosso novo script
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:5000/api || exit 1
+
+# Comando para iniciar a aplicação
 CMD ["./docker-entrypoint.sh"]

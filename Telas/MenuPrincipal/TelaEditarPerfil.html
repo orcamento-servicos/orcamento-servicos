@@ -117,7 +117,8 @@
           <!-- Sair -->
           <div class="mt-auto pt-4">
             <a
-              href="../TelaLogin.html"
+              href="#"
+              data-logout="true"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -272,9 +273,99 @@
       const inpNome = document.getElementById("inpNome");
       const inpStatus = document.getElementById("inpStatus");
       const inpEmail = document.getElementById("inpEmail");
+      const inpTelefone = document.getElementById("inpTelefone");
+      const inpSenhaAtual = document.getElementById("inpSenhaAtual");
       const inpSenhaNova = document.getElementById("inpSenhaNova");
       const inpSenhaConf = document.getElementById("inpSenhaConf");
 
+      // ====== MÁSCARAS DE ENTRADA ======
+      function aplicarMascaraTelefone(input) {
+        input.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length <= 11) {
+            if (value.length <= 2) {
+              e.target.value = value;
+            } else if (value.length <= 7) {
+              e.target.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            } else {
+              e.target.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+            }
+          }
+        });
+      }
+
+      // Aplica máscara no campo de telefone
+      aplicarMascaraTelefone(inpTelefone);
+
+      // ====== API FUNCTIONS ======
+      async function carregarPerfil() {
+        try {
+          const response = await fetch('/api/auth/profile', {
+            credentials: 'include'
+          });
+          if (!response.ok) throw new Error('Erro ao carregar perfil');
+          const data = await response.json();
+          
+          const usuario = data.usuario;
+          inpNome.value = usuario.nome || '';
+          inpEmail.value = usuario.email || '';
+          inpTelefone.value = usuario.telefone || '';
+          
+          // Atualiza o nome no topo da sidebar
+          nomeTopo.textContent = usuario.nome || 'Usuário';
+        } catch (error) {
+          console.error('Erro ao carregar perfil:', error);
+          showAlert('Erro ao carregar dados do perfil', 'error');
+        }
+      }
+
+      async function atualizarPerfil(dados) {
+        try {
+          const response = await fetch('/api/auth/profile', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(dados)
+          });
+          
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.erro || 'Erro ao atualizar perfil');
+          }
+          
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      async function alterarSenha(dados) {
+        try {
+          const response = await fetch('/api/auth/change-password', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(dados)
+          });
+          
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.erro || 'Erro ao alterar senha');
+          }
+          
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      // ====== EVENT LISTENERS ======
       inputAvatar.addEventListener("change", () => {
         const file = inputAvatar.files?.[0];
         if (!file) return;
@@ -305,30 +396,121 @@
         }, 3500);
       }
 
-      form.addEventListener("submit", (e) => {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        // Validações básicas
+        if (!inpNome.value.trim()) {
+          showAlert("Nome é obrigatório.", "error");
+          return;
+        }
+
+        if (!inpEmail.value.trim()) {
+          showAlert("Email é obrigatório.", "error");
+          return;
+        }
 
         if (inpEmail.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inpEmail.value)) {
           showAlert("Informe um e-mail válido.", "error");
           return;
         }
 
+        // Validação de telefone (11 dígitos com DDD)
+        if (inpTelefone.value.trim()) {
+          const telefoneLimpo = inpTelefone.value.replace(/\D/g, '');
+          if (telefoneLimpo.length !== 11) {
+            showAlert("Telefone deve ter 11 dígitos (DDD + 9 dígitos).", "error");
+            return;
+          }
+          if (!telefoneLimpo.startsWith('11') && !telefoneLimpo.startsWith('12') && 
+              !telefoneLimpo.startsWith('13') && !telefoneLimpo.startsWith('14') && 
+              !telefoneLimpo.startsWith('15') && !telefoneLimpo.startsWith('16') && 
+              !telefoneLimpo.startsWith('17') && !telefoneLimpo.startsWith('18') && 
+              !telefoneLimpo.startsWith('19') && !telefoneLimpo.startsWith('21') && 
+              !telefoneLimpo.startsWith('22') && !telefoneLimpo.startsWith('24') && 
+              !telefoneLimpo.startsWith('27') && !telefoneLimpo.startsWith('28') && 
+              !telefoneLimpo.startsWith('31') && !telefoneLimpo.startsWith('32') && 
+              !telefoneLimpo.startsWith('33') && !telefoneLimpo.startsWith('34') && 
+              !telefoneLimpo.startsWith('35') && !telefoneLimpo.startsWith('37') && 
+              !telefoneLimpo.startsWith('38') && !telefoneLimpo.startsWith('41') && 
+              !telefoneLimpo.startsWith('42') && !telefoneLimpo.startsWith('43') && 
+              !telefoneLimpo.startsWith('44') && !telefoneLimpo.startsWith('45') && 
+              !telefoneLimpo.startsWith('46') && !telefoneLimpo.startsWith('47') && 
+              !telefoneLimpo.startsWith('48') && !telefoneLimpo.startsWith('49') && 
+              !telefoneLimpo.startsWith('51') && !telefoneLimpo.startsWith('53') && 
+              !telefoneLimpo.startsWith('54') && !telefoneLimpo.startsWith('55') && 
+              !telefoneLimpo.startsWith('61') && !telefoneLimpo.startsWith('62') && 
+              !telefoneLimpo.startsWith('63') && !telefoneLimpo.startsWith('64') && 
+              !telefoneLimpo.startsWith('65') && !telefoneLimpo.startsWith('66') && 
+              !telefoneLimpo.startsWith('67') && !telefoneLimpo.startsWith('68') && 
+              !telefoneLimpo.startsWith('69') && !telefoneLimpo.startsWith('71') && 
+              !telefoneLimpo.startsWith('73') && !telefoneLimpo.startsWith('74') && 
+              !telefoneLimpo.startsWith('75') && !telefoneLimpo.startsWith('77') && 
+              !telefoneLimpo.startsWith('79') && !telefoneLimpo.startsWith('81') && 
+              !telefoneLimpo.startsWith('82') && !telefoneLimpo.startsWith('83') && 
+              !telefoneLimpo.startsWith('84') && !telefoneLimpo.startsWith('85') && 
+              !telefoneLimpo.startsWith('86') && !telefoneLimpo.startsWith('87') && 
+              !telefoneLimpo.startsWith('88') && !telefoneLimpo.startsWith('89') && 
+              !telefoneLimpo.startsWith('91') && !telefoneLimpo.startsWith('92') && 
+              !telefoneLimpo.startsWith('93') && !telefoneLimpo.startsWith('94') && 
+              !telefoneLimpo.startsWith('95') && !telefoneLimpo.startsWith('96') && 
+              !telefoneLimpo.startsWith('97') && !telefoneLimpo.startsWith('98') && 
+              !telefoneLimpo.startsWith('99')) {
+            showAlert("DDD inválido.", "error");
+            return;
+          }
+        }
+
+        // Validações de senha
         if (inpSenhaNova.value || inpSenhaConf.value) {
+          if (!inpSenhaAtual.value.trim()) {
+            showAlert("Senha atual é obrigatória para alterar a senha.", "error");
+            return;
+          }
+          
           if (inpSenhaNova.value !== inpSenhaConf.value) {
             showAlert("A confirmação da nova senha não confere.", "error");
             return;
           }
+          
           if (inpSenhaNova.value.length < 6) {
             showAlert("A nova senha deve ter pelo menos 6 caracteres.", "error");
             return;
           }
         }
 
-        if (inpNome.value.trim()) nomeTopo.textContent = inpNome.value.trim();
-        statusTopo.textContent = inpStatus.value;
+        try {
+          // Atualiza perfil
+          await atualizarPerfil({
+            nome: inpNome.value.trim(),
+            email: inpEmail.value.trim(),
+            telefone: inpTelefone.value.trim()
+          });
 
-        showAlert("Perfil atualizado com sucesso!");
+          // Atualiza senha se fornecida
+          if (inpSenhaNova.value.trim()) {
+            await alterarSenha({
+              senha_atual: inpSenhaAtual.value.trim(),
+              nova_senha: inpSenhaNova.value.trim()
+            });
+          }
+
+          // Atualiza interface
+          nomeTopo.textContent = inpNome.value.trim();
+          statusTopo.textContent = inpStatus.value;
+
+          // Limpa campos de senha
+          inpSenhaAtual.value = '';
+          inpSenhaNova.value = '';
+          inpSenhaConf.value = '';
+
+          showAlert("Perfil atualizado com sucesso!");
+        } catch (error) {
+          showAlert(error.message, "error");
+        }
       });
-    </script>
+
+      // Carrega dados do perfil ao inicializar
+      carregarPerfil();
   </
   

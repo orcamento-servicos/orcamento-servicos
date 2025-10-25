@@ -285,3 +285,154 @@ def reset_password():
         db.session.rollback()
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
 
+# ========================================
+# ROTA: OBTER PERFIL DO USUÁRIO
+# GET /api/auth/profile
+# ========================================
+@auth_bp.route('/profile', methods=['GET'])
+@login_required
+def obter_perfil():
+    """
+    Obtém os dados do perfil do usuário logado
+    Retorna: dados do usuário ou erro
+    """
+    try:
+        return jsonify({
+            'usuario': current_user.para_dict()
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+# ========================================
+# ROTA: ATUALIZAR PERFIL DO USUÁRIO
+# PUT /api/auth/profile
+# ========================================
+@auth_bp.route('/profile', methods=['PUT'])
+@login_required
+def atualizar_perfil():
+    """
+    Atualiza as informações do perfil do usuário logado
+    Recebe: nome, email
+    Retorna: dados do usuário atualizado ou erro
+    """
+    try:
+        # Pega os dados enviados pelo cliente (JSON)
+        dados = request.get_json()
+        
+        # Verifica se foram enviados dados
+        if not dados:
+            return jsonify({'erro': 'Nenhum dado foi enviado'}), 400
+        
+        # Extrai os campos
+        nome = dados.get('nome')
+        email = dados.get('email')
+        telefone = dados.get('telefone')
+        
+        # Validações básicas
+        if not nome or not email:
+            return jsonify({'erro': 'Nome e email são obrigatórios'}), 400
+        
+        if len(nome) > 80:
+            return jsonify({'erro': 'Nome muito longo (máximo 80 caracteres)'}), 400
+        
+        if len(email) > 50:
+            return jsonify({'erro': 'Email muito longo (máximo 50 caracteres)'}), 400
+        
+        # Verifica se o email já está sendo usado por outro usuário
+        usuario_existente = Usuario.query.filter(
+            Usuario.email == email,
+            Usuario.id_usuario != current_user.id_usuario
+        ).first()
+        
+        if usuario_existente:
+            return jsonify({'erro': 'Este email já está sendo usado por outro usuário'}), 400
+        
+        # Atualiza os dados do usuário
+        current_user.nome = nome
+        current_user.email = email
+        current_user.telefone = telefone
+        
+        # Salva no banco de dados
+        db.session.commit()
+        
+        # Registra a ação no log
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao='Perfil atualizado',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+        
+        # Retorna sucesso
+        return jsonify({
+            'mensagem': 'Perfil atualizado com sucesso!',
+            'usuario': current_user.para_dict()
+        }), 200
+        
+    except Exception as e:
+        # Se deu erro, desfaz as alterações no banco
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+# ========================================
+# ROTA: ALTERAR SENHA
+# PUT /api/auth/change-password
+# ========================================
+@auth_bp.route('/change-password', methods=['PUT'])
+@login_required
+def alterar_senha():
+    """
+    Permite ao usuário alterar sua própria senha
+    Recebe: senha_atual, nova_senha
+    Retorna: mensagem de sucesso ou erro
+    """
+    try:
+        # Pega os dados enviados pelo cliente (JSON)
+        dados = request.get_json()
+        
+        # Verifica se foram enviados dados
+        if not dados:
+            return jsonify({'erro': 'Nenhum dado foi enviado'}), 400
+        
+        # Extrai os campos
+        senha_atual = dados.get('senha_atual')
+        nova_senha = dados.get('nova_senha')
+        
+        # Validações básicas
+        if not senha_atual or not nova_senha:
+            return jsonify({'erro': 'Senha atual e nova senha são obrigatórias'}), 400
+        
+        if len(nova_senha) < 6:
+            return jsonify({'erro': 'Nova senha deve ter pelo menos 6 caracteres'}), 400
+        
+        # Verifica se a senha atual está correta
+        if not current_user.verificar_senha(senha_atual):
+            return jsonify({'erro': 'Senha atual incorreta'}), 401
+        
+        # Define a nova senha
+        current_user.definir_senha(nova_senha)
+        
+        # Salva no banco de dados
+        db.session.commit()
+        
+        # Registra a ação no log
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao='Senha alterada',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+        
+        # Retorna sucesso
+        return jsonify({
+            'mensagem': 'Senha alterada com sucesso!'
+        }), 200
+        
+    except Exception as e:
+        # Se deu erro, desfaz as alterações no banco
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+

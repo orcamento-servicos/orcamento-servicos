@@ -1,19 +1,48 @@
+# ========================================
+# DOCKER COMPOSE - Sistema de Orçamentos
+# Configuração otimizada para produção
+# ========================================
+
+version: '3.8'
+
 services:
   backend:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: orcamento-backend
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=production
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - SECRET_KEY=${SECRET_KEY}
+      - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:///app/src/database/app.db
     env_file:
       - .env
     volumes:
+      # Persistência do banco de dados
       - ./src/database:/app/src/database
+      # Arquivos estáticos (opcional)
+      - ./Telas:/app/Telas:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - orcamento-network
+    # Limites de recursos
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+networks:
+  orcamento-network:
+    driver: bridge
+    name: orcamento-network

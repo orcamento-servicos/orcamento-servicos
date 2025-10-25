@@ -24,7 +24,7 @@
               <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
               <p class="text-[#b9cee3] text-sm">Online</p>
             </div>
-            <a href="TelaEditarPerfil.html"
+            <a href="/MenuPrincipal/TelaEditarPerfil.html"
                class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">
               Editar Perfil
             </a>
@@ -39,7 +39,7 @@
           <!-- Menu -->
           <nav class="mt-4 grid gap-1" id="sidebar">
             <!-- HOME -->
-            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- ícone: casa -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
@@ -49,17 +49,17 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true">
            <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/>
            </svg>
               </span>
-              <span class="text-white text-sm font-medium">Registrar empresa</span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
             </a>
 
-            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- arquivo -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -69,7 +69,7 @@
               <span class="text-white text-sm font-medium">Registrar serviço</span>
             </a>
 
-            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- calendário -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -79,7 +79,7 @@
               <span class="text-white text-sm font-medium">Agendar serviço</span>
             </a>
 
-            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- relógio sólido (branco) -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -89,7 +89,7 @@
               <span class="text-white text-sm font-medium">Ver histórico</span>
             </a>
 
-            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- plus -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -103,7 +103,8 @@
           <!-- Sair -->
           <div class="mt-auto pt-4">
             <a
-              href="../TelaLogin.html"
+              href="#"
+              data-logout="true"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -114,26 +115,27 @@
 
       <!-- CONTEÚDO -->
       <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
-        <h2 class="text-white text-2xl font-bold">Registrar Empresa</h2>
-        <p class="text-[#93adc8] mt-1">Forneça os detalhes da sua empresa para começar.</p>
+        <h2 class="text-white text-2xl font-bold">Registrar Cliente</h2>
+        <p class="text-[#93adc8] mt-1">Cadastre seus clientes para criar orçamentos.</p>
 
         <!-- FORMULÁRIO -->
         <div class="mt-6 grid max-w-xl gap-4">
-          <input id="inp-nome" placeholder="Nome da empresa" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+          <input id="inp-nome" placeholder="Nome do cliente" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+          <input id="inp-telefone" placeholder="Telefone" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+          <input id="inp-email" placeholder="E-mail" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
           <input id="inp-endereco" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
-          <input id="inp-contato" placeholder="Contato" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
           <div class="flex items-center justify-between">
             <p id="msg" class="text-sm text-white/70"></p>
-            <button id="btn-salvar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Enviar</button>
+            <button id="btn-salvar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar cliente</button>
           </div>
         </div>
 
-        <!-- LISTA DE EMPRESAS -->
+        <!-- LISTA DE CLIENTES -->
         <div class="mt-10">
           <div class="flex items-end justify-between">
             <div>
-              <h3 class="text-white text-xl font-semibold">Empresas registradas</h3>
-              <p class="text-[#93adc8] text-sm mt-1">Gerencie suas empresas salvas.</p>
+              <h3 class="text-white text-xl font-semibold">Clientes registrados</h3>
+              <p class="text-[#93adc8] text-sm mt-1">Gerencie seus clientes cadastrados.</p>
             </div>
             <input id="inp-busca" placeholder="Pesquisar..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
           </div>
@@ -142,13 +144,14 @@
             <table class="min-w-full divide-y divide-white/10">
               <thead class="bg-white/5">
                 <tr class="text-[#b9cee3] text-sm">
-                  <th class="px-4 py-3 text-left font-medium">Empresa</th>
+                  <th class="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th class="px-4 py-3 text-left font-medium">Telefone</th>
+                  <th class="px-4 py-3 text-left font-medium">E-mail</th>
                   <th class="px-4 py-3 text-left font-medium">Endereço</th>
-                  <th class="px-4 py-3 text-left font-medium">Contato</th>
                   <th class="px-4 py-3 text-right font-medium">Ações</th>
                 </tr>
               </thead>
-              <tbody id="tbody-empresas" class="divide-y divide-white/5 text-white/90">
+              <tbody id="tbody-clientes" class="divide-y divide-white/5 text-white/90">
                 <!-- itens gerados via JS -->
               </tbody>
             </table>
@@ -156,13 +159,19 @@
 
           <!-- VAZIO -->
           <div id="empty-state" class="mt-4 hidden">
-            <p class="text-white/70">Nenhuma empresa cadastrada ainda.</p>
+            <p class="text-white/70">Nenhum cliente cadastrado ainda.</p>
           </div>
         </div>
       </main>
     </div>
 
+    <!-- Script de proteção de autenticação -->
+    <script src="/js/auth-protection.js"></script>
+    
     <script>
+      // Configuração da API
+      const API_BASE_URL = '/api';
+
       // marca item ativo conforme URL
       (function () {
         const path = location.pathname.split('/').pop() || '';
@@ -174,67 +183,19 @@
         });
       })();
 
-      // ====== EMPRESAS (localStorage) ======
-      const KEY = 'empresasRegistradas:v1';
-
+      // ====== CLIENTES (API) ======
       const $nome = document.getElementById('inp-nome');
-      const $end = document.getElementById('inp-endereco');
-      const $cont = document.getElementById('inp-contato');
+      const $telefone = document.getElementById('inp-telefone');
+      const $email = document.getElementById('inp-email');
+      const $endereco = document.getElementById('inp-endereco');
       const $btn = document.getElementById('btn-salvar');
-      const $tbody = document.getElementById('tbody-empresas');
+      const $tbody = document.getElementById('tbody-clientes');
       const $msg = document.getElementById('msg');
       const $busca = document.getElementById('inp-busca');
       const $empty = document.getElementById('empty-state');
 
-      function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-
-      function load() {
-        try {
-          return JSON.parse(localStorage.getItem(KEY)) || [];
-        } catch {
-          return [];
-        }
-      }
-      function save(list) {
-        localStorage.setItem(KEY, JSON.stringify(list));
-      }
-
-      function render(filter = '') {
-        const data = load();
-        const q = filter.trim().toLowerCase();
-        const rows = data.filter(e =>
-          !q ||
-          e.nome.toLowerCase().includes(q) ||
-          e.endereco.toLowerCase().includes(q) ||
-          e.contato.toLowerCase().includes(q)
-        );
-
-        $tbody.innerHTML = '';
-        rows.forEach(e => {
-          const tr = document.createElement('tr');
-
-          tr.innerHTML = `
-            <td class="px-4 py-3">${escapeHtml(e.nome)}</td>
-            <td class="px-4 py-3">${escapeHtml(e.endereco)}</td>
-            <td class="px-4 py-3">${escapeHtml(e.contato)}</td>
-            <td class="px-4 py-3 text-right">
-              <button data-del="${e.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
-                Excluir
-              </button>
-            </td>
-          `;
-          $tbody.appendChild(tr);
-        });
-
-        $empty.classList.toggle('hidden', data.length !== 0);
-        if (rows.length === 0 && data.length !== 0) {
-          // tem dados, mas o filtro ocultou tudo
-          $empty.classList.add('hidden');
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="4">Nenhum resultado para “${escapeHtml(filter)}”.</td>`;
-          $tbody.appendChild(tr);
-        }
+      function escapeHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       }
 
       function showMsg(text, ok = true) {
@@ -243,40 +204,217 @@
         setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
       }
 
-      function escapeHtml(s) {
-        return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      // ====== MÁSCARAS DE ENTRADA ======
+      function aplicarMascaraTelefone(input) {
+        input.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length <= 11) {
+            if (value.length <= 2) {
+              e.target.value = value;
+            } else if (value.length <= 7) {
+              e.target.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            } else {
+              e.target.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+            }
+          }
+        });
       }
 
-      $btn.addEventListener('click', () => {
+      // Aplica máscara no campo de telefone
+      aplicarMascaraTelefone($telefone);
+
+      // Função para carregar clientes da API
+      async function carregarClientes() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/clientes/`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            return data.clientes || [];
+          } else {
+            console.error('Erro ao carregar clientes:', response.status);
+            return [];
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro ao carregar clientes. Verifique se o servidor está rodando.', false);
+          return [];
+        }
+      }
+
+      // Função para salvar cliente na API
+      async function salvarCliente(nome, telefone, email, endereco) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/clientes/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              nome: nome,
+              telefone: telefone || null,
+              email: email || null,
+              endereco: endereco || null
+            })
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMsg('Cliente salvo com sucesso!');
+            return true;
+          } else {
+            showMsg(data.erro || 'Erro ao salvar cliente', false);
+            return false;
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          return false;
+        }
+      }
+
+      // Função para excluir cliente da API
+      async function excluirCliente(idCliente) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/clientes/${idCliente}`, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            showMsg('Cliente excluído com sucesso!');
+            return true;
+          } else {
+            const data = await response.json();
+            showMsg(data.erro || 'Erro ao excluir cliente', false);
+            return false;
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          return false;
+        }
+      }
+
+      function render(filter = '') {
+        carregarClientes().then(data => {
+          const q = filter.trim().toLowerCase();
+          const rows = data.filter(c =>
+            !q ||
+            c.nome.toLowerCase().includes(q) ||
+            (c.telefone && c.telefone.toLowerCase().includes(q)) ||
+            (c.email && c.email.toLowerCase().includes(q)) ||
+            (c.endereco && c.endereco.toLowerCase().includes(q))
+          );
+
+          $tbody.innerHTML = '';
+          rows.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="px-4 py-3">${escapeHtml(c.nome)}</td>
+              <td class="px-4 py-3">${escapeHtml(c.telefone || '')}</td>
+              <td class="px-4 py-3">${escapeHtml(c.email || '')}</td>
+              <td class="px-4 py-3">${escapeHtml(c.endereco || '')}</td>
+              <td class="px-4 py-3 text-right">
+                <button data-del="${c.id_cliente}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
+                  Excluir
+                </button>
+              </td>
+            `;
+            $tbody.appendChild(tr);
+          });
+
+          $empty.classList.toggle('hidden', data.length !== 0);
+          if (rows.length === 0 && data.length !== 0) {
+            // tem dados, mas o filtro ocultou tudo
+            $empty.classList.add('hidden');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="5">Nenhum resultado para "${escapeHtml(filter)}".</td>`;
+            $tbody.appendChild(tr);
+          }
+        });
+      }
+
+      $btn.addEventListener('click', async () => {
         const nome = $nome.value.trim();
-        const endereco = $end.value.trim();
-        const contato = $cont.value.trim();
+        const telefone = $telefone.value.trim();
+        const email = $email.value.trim();
+        const endereco = $endereco.value.trim();
 
-        if (!nome) { showMsg('Informe o nome da empresa.', false); $nome.focus(); return; }
+        if (!nome) { showMsg('Informe o nome do cliente.', false); $nome.focus(); return; }
 
-        const list = load();
-        list.push({ id: uid(), nome, endereco, contato });
-        save(list);
+        // Validação de email
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showMsg('Informe um e-mail válido.', false);
+          $email.focus();
+          return;
+        }
 
-        $nome.value = '';
-        $end.value = '';
-        $cont.value = '';
+        // Validação de telefone (11 dígitos com DDD)
+        if (telefone) {
+          const telefoneLimpo = telefone.replace(/\D/g, '');
+          if (telefoneLimpo.length !== 11) {
+            showMsg('Telefone deve ter 11 dígitos (DDD + 9 dígitos).', false);
+            $telefone.focus();
+            return;
+          }
+          // Validação básica de DDD (apenas verifica se começa com dígitos válidos)
+          if (!/^[1-9][1-9]/.test(telefoneLimpo)) {
+            showMsg('DDD inválido.', false);
+            $telefone.focus();
+            return;
+          }
+        }
 
-        showMsg('Empresa cadastrada com sucesso!');
-        render($busca.value);
+        // Desabilita o botão durante a requisição
+        $btn.disabled = true;
+        $btn.textContent = 'Salvando...';
+
+        const sucesso = await salvarCliente(nome, telefone, email, endereco);
+        
+        if (sucesso) {
+          $nome.value = '';
+          $telefone.value = '';
+          $email.value = '';
+          $endereco.value = '';
+          render($busca.value);
+        }
+
+        // Reabilita o botão
+        $btn.disabled = false;
+        $btn.textContent = 'Salvar cliente';
       });
 
       // Delegação para excluir
-      $tbody.addEventListener('click', (e) => {
+      $tbody.addEventListener('click', async (e) => {
         const btn = e.target.closest('button[data-del]');
         if (!btn) return;
         const id = btn.getAttribute('data-del');
-        const ok = confirm('Excluir esta empresa?');
+        const ok = confirm('Excluir este cliente?');
         if (!ok) return;
 
-        const list = load().filter(i => i.id !== id);
-        save(list);
-        render($busca.value);
+        // Desabilita o botão durante a requisição
+        btn.disabled = true;
+        btn.textContent = 'Excluindo...';
+
+        const sucesso = await excluirCliente(id);
+        
+        if (sucesso) {
+          render($busca.value);
+        }
+
+        // Reabilita o botão
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
+          Excluir
+        `;
       });
 
       // Busca

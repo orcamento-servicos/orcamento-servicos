@@ -23,7 +23,7 @@
               <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
               <p class="text-[#b9cee3] text-sm">Online</p>
             </div>
-            <a href="TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
+            <a href="/MenuPrincipal/TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
           </div>
 
           <div class="mt-6">
@@ -33,7 +33,7 @@
 
           <nav class="mt-4 grid gap-1" id="sidebar">
             <!-- HOME -->
-            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- ícone: casa -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
@@ -43,17 +43,17 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
                 </svg>
               </span>
-              <span class="text-white text-sm font-medium">Registrar empresa</span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
             </a>
 
-            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- arquivo -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -63,7 +63,7 @@
               <span class="text-white text-sm font-medium">Registrar serviço</span>
             </a>
 
-            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- calendário -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -73,7 +73,7 @@
               <span class="text-white text-sm font-medium">Agendar serviço</span>
             </a>
 
-            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- relógio sólido (branco) -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -83,7 +83,7 @@
               <span class="text-white text-sm font-medium">Ver histórico</span>
             </a>
 
-            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- plus -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -97,7 +97,8 @@
           <!-- Sair -->
           <div class="mt-auto pt-4">
             <a
-              href="../TelaLogin.html"
+              href="#"
+              data-logout="true"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -169,8 +170,11 @@
   </div>
 </main>
 
-<script>
-  // ====== MENU ATIVO + prefill usuário ======
+    <!-- Script de proteção de autenticação -->
+    <script src="/js/auth-protection.js"></script>
+    
+    <script>
+      // ====== MENU ATIVO + prefill usuário ======
   (function () {
     const path = location.pathname.split('/').pop() || '';
     document.querySelectorAll('#sidebar .menu-item').forEach(a => {
@@ -181,10 +185,6 @@
     const $usuario = document.getElementById('inp-usuario');
     if ($usuario && nomeSidebar) $usuario.value = nomeSidebar;
   })();
-
-  // ====== STORAGE KEYS ======
-  const KEY_SERVICOS = 'servicosRegistrados:v1';
-  const KEY_AGEND = 'agendamentos:v1';
 
   // ====== ELEMENTOS ======
   const $data = document.getElementById('inp-data');
@@ -200,9 +200,6 @@
   const $warn = document.getElementById('warn-sem-servicos');
 
   // ====== UTILS ======
-  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
-  function load(key){ try{ return JSON.parse(localStorage.getItem(key))||[] } catch{ return [] } }
-  function save(key, list){ localStorage.setItem(key, JSON.stringify(list)); }
   function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)); }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function fmtDataHoraISO(iso){
@@ -212,32 +209,106 @@
     const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     return dd+' '+hh;
   }
-  function fmtDataHora(ms){
-    const d = new Date(ms);
+  function fmtDataHora(iso){
+    const d = new Date(iso);
     if (isNaN(d)) return '-';
     const dd = d.toLocaleDateString('pt-BR');
     const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     return dd+' '+hh;
   }
 
-  // ====== PREENCHE SELECT DE SERVIÇOS ======
-  function preencherServicos(){
-    const servs = load(KEY_SERVICOS);
-    $selServico.innerHTML = '<option value="">Selecione um serviço...</option>';
-    servs.forEach(s=>{
-      const opt = document.createElement('option');
-      opt.value = s.id;
-      opt.textContent = `${s.nome} — ${moeda(s.preco)}`;
-      $selServico.appendChild(opt);
-    });
-    $warn.classList.toggle('hidden', servs.length>0);
+  // ====== API FUNCTIONS ======
+  async function carregarServicos() {
+    try {
+      const response = await fetch('/api/servicos/', {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Erro ao carregar serviços');
+      const data = await response.json();
+      
+      $selServico.innerHTML = '<option value="">Selecione um serviço...</option>';
+      data.servicos.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id_servicos;
+        opt.textContent = `${s.nome} — ${moeda(s.valor)}`;
+        $selServico.appendChild(opt);
+      });
+      $warn.classList.toggle('hidden', data.servicos.length > 0);
+    } catch (error) {
+      console.error('Erro ao carregar serviços:', error);
+      showMsg('Erro ao carregar serviços', false);
+    }
+  }
+
+  async function carregarAgendamentos() {
+    try {
+      const params = new URLSearchParams();
+      if ($busca.value.trim()) params.append('busca', $busca.value.trim());
+      
+      const response = await fetch(`/api/agendamentos/?${params}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Erro ao carregar agendamentos');
+      const data = await response.json();
+      
+      renderAgendamentos(data.agendamentos);
+    } catch (error) {
+      console.error('Erro ao carregar agendamentos:', error);
+      showMsg('Erro ao carregar agendamentos', false);
+    }
+  }
+
+  async function criarAgendamento(dados) {
+    try {
+      const response = await fetch('/api/agendamentos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(dados)
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.erro || 'Erro ao criar agendamento');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function atualizarStatusAgendamento(id, status) {
+    try {
+      const response = await fetch(`/api/agendamentos/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.erro || 'Erro ao atualizar status');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   // ====== ORDENADORES ======
   function compareMaisProximo(a, b){
-    const now = Date.now();
-    const ta = new Date(a.dataHora).getTime();
-    const tb = new Date(b.dataHora).getTime();
+    const now = new Date();
+    const ta = new Date(a.data_hora);
+    const tb = new Date(b.data_hora);
     const aFuture = ta >= now, bFuture = tb >= now;
 
     if (aFuture && !bFuture) return -1;         // futuros primeiro
@@ -247,27 +318,26 @@
     return tb - ta;                              // ambos passados -> mais recente primeiro (desc)
   }
   function compareMaisCaro(a, b){
-    return Number(b.preco) - Number(a.preco) || compareMaisProximo(a,b);
+    return Number(b.valor) - Number(a.valor) || compareMaisProximo(a,b);
   }
 
   // ====== RENDER ======
-  function render(){
-    const ag = load(KEY_AGEND);
+  function renderAgendamentos(agendamentos) {
     const q = ($busca.value||'').trim().toLowerCase();
 
-    let rows = ag.filter(a =>
+    let rows = agendamentos.filter(a =>
       !q ||
-      a.servicoNome.toLowerCase().includes(q) ||
-      (a.usuario||'').toLowerCase().includes(q)
+      (a.servico_nome || '').toLowerCase().includes(q) ||
+      (a.usuario_nome || '').toLowerCase().includes(q)
     );
 
     const ord = $ordenacao.value;
     rows.sort(ord === 'caro' ? compareMaisCaro : compareMaisProximo);
 
     $tbody.innerHTML = '';
-    rows.forEach(a=>{
-      const cancelado = !!a.canceledAt;
-      const concluido = !!a.completedAt;
+    rows.forEach(a => {
+      const cancelado = a.status === 'Cancelado';
+      const concluido = a.status === 'Concluído';
 
       let statusHtml = '<span class="text-emerald-300">Agendado</span>';
       if (cancelado) statusHtml = '<span class="text-red-300 font-semibold">CANCELADO</span>';
@@ -279,22 +349,22 @@
       const concluirDisabled = cancelado ? 'opacity-50 pointer-events-none' : '';
 
       tr.innerHTML = `
-        <td class="px-4 py-3">${fmtDataHoraISO(a.dataHora)}</td>
-        <td class="px-4 py-3">${escapeHtml(a.servicoNome)}</td>
-        <td class="px-4 py-3 text-right">${moeda(a.preco)}</td>
-        <td class="px-4 py-3">${escapeHtml(a.usuario||'-')}</td>
-        <td class="px-4 py-3">${fmtDataHora(a.createdAt)}</td>
+        <td class="px-4 py-3">${fmtDataHoraISO(a.data_hora)}</td>
+        <td class="px-4 py-3">${escapeHtml(a.servico_nome || '-')}</td>
+        <td class="px-4 py-3 text-right">${moeda(a.valor)}</td>
+        <td class="px-4 py-3">${escapeHtml(a.usuario_nome || '-')}</td>
+        <td class="px-4 py-3">${fmtDataHora(a.created_at)}</td>
         <td class="px-4 py-3">${statusHtml}</td>
         <td class="px-4 py-3 text-right flex gap-2 justify-end">
           <!-- Toggle concluir -->
           ${
             concluido
-              ? `<button data-complete="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm ${concluirDisabled}">
+              ? `<button data-complete="${a.id_agendamento}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm ${concluirDisabled}">
                    <!-- reabrir (desfazer concluído) -->
                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M176,40a8,8,0,0,1,8,8V80a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h12.69A72,72,0,1,0,208,128a8,8,0,0,1,16,0,88,88,0,1,1-88-88Z"/></svg>
                    Reabrir
                  </button>`
-              : `<button data-complete="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm ${concluirDisabled}">
+              : `<button data-complete="${a.id_agendamento}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm ${concluirDisabled}">
                    <!-- check -->
                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,1,1,11.32,11.32Z"/></svg>
                    Concluir
@@ -303,12 +373,12 @@
           <!-- Toggle cancelar -->
           ${
             cancelado
-              ? `<button data-cancel="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+              ? `<button data-cancel="${a.id_agendamento}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
                    <!-- reativar -->
                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M176,40a8,8,0,0,1,8,8V80a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h12.69A72,72,0,1,0,208,128a8,8,0,0,1,16,0,88,88,0,1,1-88-88Z"/></svg>
                    Reativar
                  </button>`
-              : `<button data-cancel="${a.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+              : `<button data-cancel="${a.id_agendamento}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
                    <!-- lixeira -->
                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
                    Cancelar
@@ -319,18 +389,18 @@
       $tbody.appendChild(tr);
     });
 
-    const hasData = ag.length>0;
+    const hasData = agendamentos.length > 0;
     $empty.classList.toggle('hidden', hasData);
-    if (rows.length===0 && hasData){
+    if (rows.length === 0 && hasData) {
       $empty.classList.add('hidden');
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="7">Nenhum resultado para “${escapeHtml($busca.value||'')}”.</td>`;
+      tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="7">Nenhum resultado para "${escapeHtml($busca.value||'')}".</td>`;
       $tbody.appendChild(tr);
     }
   }
 
   // ====== CRIAR AGENDAMENTO ======
-  $btnAgendar.addEventListener('click', ()=>{
+  $btnAgendar.addEventListener('click', async () => {
     const data = $data.value;
     const hora = $hora.value;
     const servId = $selServico.value;
@@ -340,73 +410,64 @@
     if (!hora){ showMsg('Informe a hora.', false); $hora.focus(); return; }
     if (!servId){ showMsg('Selecione um serviço.', false); $selServico.focus(); return; }
 
-    const servs = load(KEY_SERVICOS);
-    const s = servs.find(x=>x.id===servId);
-    const preco = s ? Number(s.preco) : 0;
-    const nome = s ? s.nome : 'Serviço';
-
     const dataHoraISO = `${data}T${hora}:00`;
 
-    const list = load(KEY_AGEND);
-    list.push({
-      id: uid(),
-      servicoId: servId,
-      servicoNome: nome,
-      preco: preco,
-      dataHora: dataHoraISO,
-      usuario: usuario || 'Usuário',
-      createdAt: Date.now(),
-      canceledAt: null,
-      completedAt: null
-    });
-    save(KEY_AGEND, list);
+    try {
+      await criarAgendamento({
+        id_servico: parseInt(servId),
+        data_hora: dataHoraISO,
+        observacoes: ''
+      });
 
-    $data.value = '';
-    $hora.value = '';
-    $selServico.value = '';
+      $data.value = '';
+      $hora.value = '';
+      $selServico.value = '';
 
-    showMsg('Agendamento criado com sucesso!');
-    render();
+      showMsg('Agendamento criado com sucesso!');
+      carregarAgendamentos();
+    } catch (error) {
+      showMsg(error.message, false);
+    }
   });
 
   // ====== TOGGLES: CONCLUIR / CANCELAR ======
-  $tbody.addEventListener('click', (e)=>{
+  $tbody.addEventListener('click', async (e) => {
     const btnComplete = e.target.closest('button[data-complete]');
     const btnCancel = e.target.closest('button[data-cancel]');
     if (!btnComplete && !btnCancel) return;
 
     const id = (btnComplete || btnCancel).getAttribute('data-complete') || (btnCancel && btnCancel.getAttribute('data-cancel'));
 
-    const list = load(KEY_AGEND).map(a=>{
-      if (a.id !== id) return a;
-
-      if (btnComplete){
-        // não permite concluir se estiver cancelado
-        if (a.canceledAt) { alert('Não é possível concluir um agendamento cancelado. Reative-o primeiro.'); return a; }
-        const isDone = !!a.completedAt;
+    try {
+      if (btnComplete) {
+        const isDone = btnComplete.textContent.includes('Reabrir');
         const ok = confirm(isDone ? 'Reabrir este agendamento (desfazer concluído)?' : 'Marcar como CONCLUÍDO?');
-        if (!ok) return a;
-        return { ...a, completedAt: isDone ? null : Date.now() };
+        if (!ok) return;
+        
+        const novoStatus = isDone ? 'Agendado' : 'Concluído';
+        await atualizarStatusAgendamento(id, novoStatus);
+        showMsg(`Status alterado para ${novoStatus} com sucesso!`);
       }
 
-      if (btnCancel){
-        const isCanceled = !!a.canceledAt;
+      if (btnCancel) {
+        const isCanceled = btnCancel.textContent.includes('Reativar');
         const ok = confirm(isCanceled ? 'Reativar este agendamento?' : 'Cancelar este agendamento?');
-        if (!ok) return a;
-        // ao cancelar, também desfaz concluído
-        return { ...a, canceledAt: isCanceled ? null : Date.now(), completedAt: isCanceled ? a.completedAt : null };
+        if (!ok) return;
+        
+        const novoStatus = isCanceled ? 'Agendado' : 'Cancelado';
+        await atualizarStatusAgendamento(id, novoStatus);
+        showMsg(`Status alterado para ${novoStatus} com sucesso!`);
       }
 
-      return a;
-    });
-
-    save(KEY_AGEND, list);
-    render();
+      carregarAgendamentos();
+    } catch (error) {
+      showMsg(error.message, false);
+    }
   });
 
   // ====== BUSCA + ORDENAÇÃO ======
-  $busca.addEventListener('input', render);
-  $ordenacao.addEventListener('change', render);
+  $busca.addEventListener('input', carregarAgendamentos);
+  $ordenacao.addEventListener('change', carregarAgendamentos);
 
   // ====== MENSAGENS ======
   function showMsg(text, ok = true){
@@ -416,6 +477,6 @@
   }
 
   // init
-  preencherServicos();
-  render();
+  carregarServicos();
+  carregarAgendamentos();
 </script>

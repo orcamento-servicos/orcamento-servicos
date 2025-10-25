@@ -21,7 +21,7 @@ except Exception as e:
     print(f"Erro ao carregar .env: {e}")
 
 # Importações do Flask e extensões
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory, send_file
 from flask_login import LoginManager
 from flask_cors import CORS
 
@@ -32,6 +32,7 @@ from src.routes.clientes import clientes_bp
 from src.routes.servicos import servicos_bp
 from src.routes.orcamentos import orcamentos_bp
 from src.routes.vendas import vendas_bp
+from src.routes.agendamentos import agendamentos_bp
 
 # ========================================
 # CONFIGURAÇÃO DO FLASK
@@ -75,6 +76,7 @@ app.register_blueprint(clientes_bp, url_prefix='/api/clientes') # Rotas de clien
 app.register_blueprint(servicos_bp, url_prefix='/api/servicos') # Rotas de serviços
 app.register_blueprint(orcamentos_bp, url_prefix='/api/orcamentos') # Rotas de orçamentos
 app.register_blueprint(vendas_bp, url_prefix='/api/vendas') # Rotas de vendas
+app.register_blueprint(agendamentos_bp, url_prefix='/api/agendamentos') # Rotas de agendamentos
 
 # ========================================
 # CONFIGURAÇÃO DO BANCO DE DADOS
@@ -97,7 +99,7 @@ with app.app_context():
 # ROTA PRINCIPAL DA API
 # ========================================
 
-@app.route('/')
+@app.route('/api')
 def api_info():
     """
     Informações sobre a API
@@ -110,9 +112,59 @@ def api_info():
             'clientes': '/api/clientes/',
             'servicos': '/api/servicos/',
             'orcamentos': '/api/orcamentos/',
-            'vendas': '/api/vendas/'
+            'vendas': '/api/vendas/',
+            'agendamentos': '/api/agendamentos/'
         }
     })
+
+# ========================================
+# ROTAS PARA SERVIR O FRONTEND
+# ========================================
+
+@app.route('/')
+def index():
+    """Serve a página inicial (login)"""
+    return send_file(os.path.join(os.path.dirname(__file__), '..', 'Telas', 'TelaLogin.html'))
+
+@app.route('/<path:filename>')
+def serve_html(filename):
+    """Serve arquivos HTML do frontend"""
+    telas_path = os.path.join(os.path.dirname(__file__), '..', 'Telas')
+    
+    # Se não tem extensão, assume .html
+    if '.' not in filename:
+        filename += '.html'
+    
+    # Verifica se o arquivo existe
+    file_path = os.path.join(telas_path, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path)
+    
+    # Se não encontrou, tenta na pasta MenuPrincipal
+    menu_path = os.path.join(telas_path, 'MenuPrincipal', filename)
+    if os.path.exists(menu_path):
+        return send_file(menu_path)
+    
+    # Se ainda não encontrou, retorna 404
+    return jsonify({'erro': 'Página não encontrada'}), 404
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve arquivos estáticos (CSS, JS, imagens)"""
+    static_path = os.path.join(os.path.dirname(__file__), '..', 'Telas')
+    return send_from_directory(static_path, filename)
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    """Serve arquivos JavaScript"""
+    js_path = os.path.join(os.path.dirname(__file__), '..', 'Telas', 'js')
+    return send_from_directory(js_path, filename)
+
+@app.route('/Imagens/<path:filename>')
+def serve_images(filename):
+    """Serve imagens"""
+    images_path = os.path.join(os.path.dirname(__file__), '..', 'Telas', 'Imagens')
+    return send_from_directory(images_path, filename)
 
 # ========================================
 # INICIALIZAÇÃO DO SERVIDOR

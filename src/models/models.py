@@ -23,6 +23,7 @@ class Usuario(UserMixin, db.Model):
     id_usuario = db.Column(db.Integer, primary_key=True)  # ID único
     nome = db.Column(db.String(80), nullable=False)       # Nome completo
     email = db.Column(db.String(50), unique=True, nullable=False)  # Email (único)
+    telefone = db.Column(db.String(15))                   # Telefone (opcional)
     senha = db.Column(db.String(255), nullable=False)     # Senha criptografada (hash)
     perfil = db.Column(db.String(18), default='admin')    # Tipo de usuário
     
@@ -48,6 +49,7 @@ class Usuario(UserMixin, db.Model):
             'id_usuario': self.id_usuario,
             'nome': self.nome,
             'email': self.email,
+            'telefone': self.telefone,
             'perfil': self.perfil
         }
 
@@ -275,6 +277,45 @@ class VendaItem(db.Model):
             'subtotal': float(self.subtotal),
         }
 
+
+# ========================================
+# MODELO: AGENDAMENTO
+# Representa os agendamentos de serviços
+# ========================================
+class Agendamento(db.Model):
+    __tablename__ = 'agendamentos'
+    
+    # Campos da tabela
+    id_agendamento = db.Column(db.Integer, primary_key=True)  # ID único
+    id_servico = db.Column(db.Integer, db.ForeignKey('servicos.id_servicos'), nullable=False)  # Serviço agendado
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)   # Usuário que criou
+    data_hora = db.Column(db.DateTime, nullable=False)        # Data e hora do agendamento
+    valor = db.Column(db.Numeric(10, 2), nullable=False)      # Valor do serviço na época do agendamento
+    status = db.Column(db.String(20), default='Agendado')     # Status: Agendado, Concluído, Cancelado
+    observacoes = db.Column(db.Text)                          # Observações adicionais
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Data de criação
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Data de atualização
+    
+    # Relacionamentos
+    servico = db.relationship('Servico', backref='agendamentos', lazy=True)
+    usuario = db.relationship('Usuario', backref='agendamentos', lazy=True)
+    
+    # Converte o agendamento para formato JSON
+    def para_dict(self):
+        return {
+            'id_agendamento': self.id_agendamento,
+            'id_servico': self.id_servico,
+            'id_usuario': self.id_usuario,
+            'data_hora': self.data_hora.isoformat() if self.data_hora else None,
+            'valor': float(self.valor),
+            'status': self.status,
+            'observacoes': self.observacoes,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'servico_nome': self.servico.nome if self.servico else None,
+            'servico_descricao': self.servico.descricao if self.servico else None,
+            'usuario_nome': self.usuario.nome if self.usuario else None
+        }
 
 # ========================================
 # MODELO: TOKEN DE RECUPERAÇÃO DE SENHA

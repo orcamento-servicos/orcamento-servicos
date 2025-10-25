@@ -23,7 +23,7 @@
               <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
               <p class="text-[#b9cee3] text-sm">Online</p>
             </div>
-            <a href="TelaEditarPerfil.html"
+            <a href="/MenuPrincipal/TelaEditarPerfil.html"
                class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
           </div>
 
@@ -34,7 +34,7 @@
 
           <nav class="mt-4 grid gap-1" id="sidebar">
             <!-- HOME -->
-            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- ícone: casa -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
@@ -44,17 +44,17 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
                 </svg>
               </span>
-              <span class="text-white text-sm font-medium">Registrar empresa</span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
             </a>
 
-            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- arquivo -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -64,7 +64,7 @@
               <span class="text-white text-sm font-medium">Registrar serviço</span>
             </a>
 
-            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- calendário -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -74,7 +74,7 @@
               <span class="text-white text-sm font-medium">Agendar serviço</span>
             </a>
 
-            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- relógio sólido (branco) -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -84,7 +84,7 @@
               <span class="text-white text-sm font-medium">Ver histórico</span>
             </a>
 
-            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- plus -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -98,7 +98,7 @@
           <!-- Sair -->
           <div class="mt-auto pt-4">
             <a
-              href="../TelaLogin.html"
+              href="/"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -157,7 +157,13 @@
       </main>
     </div>
 
+    <!-- Script de proteção de autenticação -->
+    <script src="/js/auth-protection.js"></script>
+    
     <script>
+      // Configuração da API
+      const API_BASE_URL = '/api';
+
       // Destaca item ativo conforme URL
       (function () {
         const path = location.pathname.split('/').pop() || '';
@@ -167,9 +173,7 @@
         });
       })();
 
-      // ====== SERVIÇOS (localStorage) ======
-      const KEY = 'servicosRegistrados:v1';
-
+      // ====== SERVIÇOS (API) ======
       const $nome = document.getElementById('inp-nome');
       const $desc = document.getElementById('inp-desc');
       const $preco = document.getElementById('inp-preco');
@@ -178,16 +182,6 @@
       const $busca = document.getElementById('inp-busca');
       const $msg = document.getElementById('msg');
       const $empty = document.getElementById('empty-state');
-
-      function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-      function load() {
-        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-        catch { return []; }
-      }
-      function save(list) {
-        localStorage.setItem(KEY, JSON.stringify(list));
-      }
 
       function moeda(v) {
         const n = Number(v || 0);
@@ -198,53 +192,131 @@
         return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       }
 
-      function render(filter = '') {
-        const data = load();
-        const q = filter.trim().toLowerCase();
-        const rows = data.filter(s =>
-          !q ||
-          s.nome.toLowerCase().includes(q) ||
-          s.descricao.toLowerCase().includes(q) ||
-          String(s.preco).toLowerCase().includes(q)
-        );
-
-        $tbody.innerHTML = '';
-        rows.forEach(s => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="px-4 py-3 align-top">${escapeHtml(s.nome)}</td>
-            <td class="px-4 py-3 align-top">${escapeHtml(s.descricao)}</td>
-            <td class="px-4 py-3 text-right align-top">${moeda(s.preco)}</td>
-            <td class="px-4 py-3 text-right align-top">
-              <button data-del="${s.id}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
-                <!-- lixeira -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
-                Excluir
-              </button>
-            </td>
-          `;
-          $tbody.appendChild(tr);
-        });
-
-        // estado vazio / sem resultados
-        const hasData = data.length > 0;
-        $empty.classList.toggle('hidden', hasData);
-        if (rows.length === 0 && hasData) {
-          $empty.classList.add('hidden');
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="4">Nenhum resultado para “${escapeHtml(filter)}”.</td>`;
-          $tbody.appendChild(tr);
-        }
-      }
-
       function showMsg(text, ok = true) {
         $msg.textContent = text;
         $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
         setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
       }
 
+      // Função para carregar serviços da API
+      async function carregarServicos() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/servicos/`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            return data.servicos || [];
+          } else {
+            console.error('Erro ao carregar serviços:', response.status);
+            return [];
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro ao carregar serviços. Verifique se o servidor está rodando.', false);
+          return [];
+        }
+      }
+
+      // Função para salvar serviço na API
+      async function salvarServico(nome, descricao, preco) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/servicos/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              nome: nome,
+              descricao: descricao,
+              valor: Number(preco)
+            })
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMsg('Serviço salvo com sucesso!');
+            return true;
+          } else {
+            showMsg(data.erro || 'Erro ao salvar serviço', false);
+            return false;
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          return false;
+        }
+      }
+
+      // Função para excluir serviço da API
+      async function excluirServico(idServico) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/servicos/${idServico}`, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            showMsg('Serviço excluído com sucesso!');
+            return true;
+          } else {
+            const data = await response.json();
+            showMsg(data.erro || 'Erro ao excluir serviço', false);
+            return false;
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          return false;
+        }
+      }
+
+      function render(filter = '') {
+        carregarServicos().then(data => {
+          const q = filter.trim().toLowerCase();
+          const rows = data.filter(s =>
+            !q ||
+            s.nome.toLowerCase().includes(q) ||
+            (s.descricao && s.descricao.toLowerCase().includes(q)) ||
+            String(s.valor).toLowerCase().includes(q)
+          );
+
+          $tbody.innerHTML = '';
+          rows.forEach(s => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="px-4 py-3 align-top">${escapeHtml(s.nome)}</td>
+              <td class="px-4 py-3 align-top">${escapeHtml(s.descricao || '')}</td>
+              <td class="px-4 py-3 text-right align-top">${moeda(s.valor)}</td>
+              <td class="px-4 py-3 text-right align-top">
+                <button data-del="${s.id_servicos}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+                  <!-- lixeira -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
+                  Excluir
+                </button>
+              </td>
+            `;
+            $tbody.appendChild(tr);
+          });
+
+          // estado vazio / sem resultados
+          const hasData = data.length > 0;
+          $empty.classList.toggle('hidden', hasData);
+          if (rows.length === 0 && hasData) {
+            $empty.classList.add('hidden');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="4">Nenhum resultado para "${escapeHtml(filter)}".</td>`;
+            $tbody.appendChild(tr);
+          }
+        });
+      }
+
       // Salvar
-      $btn.addEventListener('click', () => {
+      $btn.addEventListener('click', async () => {
         const nome = $nome.value.trim();
         const descricao = $desc.value.trim();
         const preco = $preco.value.trim();
@@ -252,28 +324,47 @@
         if (!nome) { showMsg('Informe o nome do serviço.', false); $nome.focus(); return; }
         if (preco === '' || Number(preco) < 0) { showMsg('Informe um preço válido.', false); $preco.focus(); return; }
 
-        const list = load();
-        list.push({ id: uid(), nome, descricao, preco: Number(preco) });
-        save(list);
+        // Desabilita o botão durante a requisição
+        $btn.disabled = true;
+        $btn.textContent = 'Salvando...';
 
-        $nome.value = '';
-        $desc.value = '';
-        $preco.value = '';
+        const sucesso = await salvarServico(nome, descricao, preco);
+        
+        if (sucesso) {
+          $nome.value = '';
+          $desc.value = '';
+          $preco.value = '';
+          render($busca.value);
+        }
 
-        showMsg('Serviço salvo com sucesso!');
-        render($busca.value);
+        // Reabilita o botão
+        $btn.disabled = false;
+        $btn.textContent = 'Salvar serviço';
       });
 
       // Excluir (delegação)
-      document.getElementById('tbody-servicos').addEventListener('click', (e) => {
+      document.getElementById('tbody-servicos').addEventListener('click', async (e) => {
         const btn = e.target.closest('button[data-del]');
         if (!btn) return;
         const id = btn.getAttribute('data-del');
         if (!confirm('Excluir este serviço?')) return;
 
-        const list = load().filter(s => s.id !== id);
-        save(list);
-        render($busca.value);
+        // Desabilita o botão durante a requisição
+        btn.disabled = true;
+        btn.textContent = 'Excluindo...';
+
+        const sucesso = await excluirServico(id);
+        
+        if (sucesso) {
+          render($busca.value);
+        }
+
+        // Reabilita o botão
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
+          Excluir
+        `;
       });
 
       // Busca
