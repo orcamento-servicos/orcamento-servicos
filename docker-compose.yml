@@ -6,6 +6,20 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: orcamento-db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - orcamento-network
+
   backend:
     build: 
       context: .
@@ -17,15 +31,19 @@ services:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY}
       - PYTHONPATH=/app
-      - DATABASE_URL=sqlite:///app/src/database/app.db
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     env_file:
       - .env
     volumes:
       # Persistência do banco de dados
-      - ./src/database:/app/src/database
-      # Arquivos estáticos (opcional)
-      - ./Telas:/app/Telas:ro
+      # removed SQLite file mapping; using PostgreSQL volume instead
+      # Monta apenas os assets estáticos (Imagens) para que /static/Imagens funcione sem duplicar arquivos
+      - ./Telas/Imagens:/app/src/static/Imagens:ro
+      - ./src:/app/src:rw
+      - ./requirements.txt:/app/requirements.txt:ro
     restart: unless-stopped
+    depends_on:
+      - db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api"]
       interval: 30s
@@ -46,3 +64,7 @@ networks:
   orcamento-network:
     driver: bridge
     name: orcamento-network
+
+volumes:
+  postgres_data:
+    driver: local

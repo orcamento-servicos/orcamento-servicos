@@ -60,19 +60,41 @@ echo "🛑 Para parar: Ctrl+C"
 echo "===================================================="
 echo ""
 
+# Aguarda o banco de dados PostgreSQL (se DATABASE_URL estiver definida)
+echo ""
+echo "⏳ Aguardando conexão com o banco de dados PostgreSQL..."
+
+if [ -n "${DATABASE_URL}" ]; then
+    # Extrai as variáveis da DATABASE_URL no formato: postgresql://user:pass@host:port/dbname
+    export PGPASSWORD=$(echo $DATABASE_URL | awk -F':' '{print $3}' | awk -F'@' '{print $1}')
+    DB_USER=$(echo $DATABASE_URL | awk -F'//' '{print $2}' | awk -F':' '{print $1}')
+    DB_HOST=$(echo $DATABASE_URL | awk -F'@' '{print $2}' | awk -F':' '{print $1}')
+    DB_NAME=$(echo $DATABASE_URL | awk -F'/' '{print $4}')
+
+    # Loop de espera usando pg_isready
+    until pg_isready -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" >/dev/null 2>&1; do
+        echo "Banco de dados indisponível. Tentando novamente em 2s..."
+        sleep 2
+    done
+
+    echo "✅ Conexão com o PostgreSQL estabelecida!"
+else
+    echo "DATABASE_URL não definida; pulando espera por PostgreSQL (usar fallback SQLite)."
+fi
+
 # Inicia o Gunicorn com configurações otimizadas
 exec gunicorn \
-  --bind 0.0.0.0:5000 \
-  --workers 2 \
-  --worker-class sync \
-  --worker-connections 1000 \
-  --timeout 120 \
-  --keep-alive 5 \
-  --max-requests 1000 \
-  --max-requests-jitter 100 \
-  --preload \
-  --access-logfile - \
-  --error-logfile - \
-  --log-level info \
-  --capture-output \
-  src.main:app
+    --bind 0.0.0.0:5000 \
+    --workers 2 \
+    --worker-class sync \
+    --worker-connections 1000 \
+    --timeout 120 \
+    --keep-alive 5 \
+    --max-requests 1000 \
+    --max-requests-jitter 100 \
+    --preload \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level info \
+    --capture-output \
+    src.main:app

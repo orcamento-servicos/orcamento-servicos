@@ -14,13 +14,13 @@ from src.models.models import (
     Orcamento,
 )
 
-vendas_bp = Blueprint('vendas', __name__)
+vendas_bp = Blueprint("vendas", __name__)
 
 
 def _paginate(query):
     try:
-        page = int(request.args.get('page', 1))
-        size = int(request.args.get('size', 10))
+        page = int(request.args.get("page", 1))
+        size = int(request.args.get("size", 10))
         if page < 1:
             page = 1
         if size < 1 or size > 100:
@@ -37,16 +37,16 @@ def _paginate(query):
 # GET /api/vendas/
 # Filtros: data_ini, data_fim, id_cliente, id_orcamento
 # ========================================
-@vendas_bp.route('/', methods=['GET'])
+@vendas_bp.route("/", methods=["GET"])
 @login_required
 def listar_vendas():
     try:
         q = Venda.query.options(joinedload(Venda.itens))
 
-        id_cliente = request.args.get('id_cliente')
-        id_orcamento = request.args.get('id_orcamento')
-        data_ini = request.args.get('data_ini')
-        data_fim = request.args.get('data_fim')
+        id_cliente = request.args.get("id_cliente")
+        id_orcamento = request.args.get("id_orcamento")
+        data_ini = request.args.get("data_ini")
+        data_fim = request.args.get("data_fim")
 
         if id_cliente:
             q = q.filter(Venda.id_cliente == int(id_cliente))
@@ -70,31 +70,38 @@ def listar_vendas():
 
         resp = []
         for v in vendas:
-            resp.append({
-                'venda': v.para_dict(),
-                'itens': [i.para_dict() for i in v.itens],
-            })
+            resp.append(
+                {
+                    "venda": v.para_dict(),
+                    "itens": [i.para_dict() for i in v.itens],
+                }
+            )
 
-        return jsonify({'vendas': resp, 'total': total, 'page': page, 'size': size}), 200
+        return (
+            jsonify({"vendas": resp, "total": total, "page": page, "size": size}),
+            200,
+        )
     except Exception as e:
-        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+        return jsonify({"erro": f"Erro no servidor: {str(e)}"}), 500
 
 
 # ========================================
 # DETALHAR VENDA
 # GET /api/vendas/<id_venda>
 # ========================================
-@vendas_bp.route('/<int:id_venda>', methods=['GET'])
+@vendas_bp.route("/<int:id_venda>", methods=["GET"])
 @login_required
 def detalhar_venda(id_venda):
     try:
         venda = Venda.query.options(joinedload(Venda.itens)).get_or_404(id_venda)
-        return jsonify({
-            'venda': venda.para_dict(),
-            'itens': [i.para_dict() for i in venda.itens]
-        }), 200
+        return (
+            jsonify(
+                {
+                    "venda": venda.para_dict(),
+                    "itens": [i.para_dict() for i in venda.itens],
+                }
+            ),
+            200,
+        )
     except Exception as e:
-        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
-
-
-
+        return jsonify({"erro": f"Erro no servidor: {str(e)}"}), 500

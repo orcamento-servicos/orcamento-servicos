@@ -1,3 +1,25 @@
+# Docker ignore file
+__pycache__/
+*.pyc
+.pytest_cache/
+*.pyo
+*.pyd
+env/
+.venv/
+venv/
+.env
+.env.local
+.env.*
+.git
+.gitignore
+.vscode/
+.idea/
+node_modules/
+dist/
+build/
+src/database/app.db
+Dockerfile
+dockerfile
 # ========================================
 # DOCKER IGNORE - Sistema de Orçamentos
 # Arquivos e diretórios ignorados pelo Docker

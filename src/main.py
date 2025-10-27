@@ -82,18 +82,26 @@ app.register_blueprint(agendamentos_bp, url_prefix='/api/agendamentos') # Rotas 
 # CONFIGURAÇÃO DO BANCO DE DADOS
 # ========================================
 
-# Caminho para o arquivo do banco SQLite
-caminho_banco = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{caminho_banco}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desabilita avisos desnecessários
+# Caminho para o banco SQLite (usado apenas se DATABASE_URL não estiver definida)
+caminho_banco_fallback = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
+fallback_uri = f"sqlite:///{caminho_banco_fallback}"
+
+# Usa a DATABASE_URL do ambiente (PostgreSQL no Docker) ou o fallback (SQLite local)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', fallback_uri)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa o banco de dados
 db.init_app(app)
 
 # Cria as tabelas se não existirem
 with app.app_context():
-    db.create_all()
-    print("Banco de dados inicializado!")
+    try:
+        db.create_all()
+        print("Banco de dados inicializado!")
+    except Exception as e:
+        # Se a criação falhar (por exemplo; banco não disponível), apenas logamos a mensagem.
+        # O entrypoint do Docker irá aguardar o banco antes de iniciar o Gunicorn.
+        print(f"Aviso: falha ao criar tabelas no momento: {e}")
 
 # ========================================
 # ROTA PRINCIPAL DA API
@@ -118,51 +126,97 @@ def api_info():
     })
 
 # ========================================
-# ROTAS PARA SERVIR O FRONTEND
+# ROTAS PARA SERVIR O FRONTEND (TEMPLATES REORGANIZADOS)
 # ========================================
+
+# Diretórios preferenciais (reorganizados dentro de src/)
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
+STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
+
 
 @app.route('/')
 def index():
-    """Serve a página inicial (login)"""
+    """Serve a página inicial (login) — procura primeiro em src/templates, senão cai para Telas/ antiga."""
+    candidate = os.path.join(TEMPLATES_DIR, 'TelaLogin.html')
+    if os.path.exists(candidate):
+        return send_file(candidate)
+    # fallback para estrutura antiga (Telas/)
     return send_file(os.path.join(os.path.dirname(__file__), '..', 'Telas', 'TelaLogin.html'))
+
 
 @app.route('/<path:filename>')
 def serve_html(filename):
-    """Serve arquivos HTML do frontend"""
-    telas_path = os.path.join(os.path.dirname(__file__), '..', 'Telas')
-    
+    """Serve arquivos HTML do frontend; procura em src/templates, depois em src/templates/MenuPrincipal, e por fim no diretório Telas/"""
     # Se não tem extensão, assume .html
     if '.' not in filename:
         filename += '.html'
-    
-    # Verifica se o arquivo existe
+
+    # 1) procurar em src/templates
+    file_path = os.path.join(TEMPLATES_DIR, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path)
+
+    # 2) procurar em src/templates/MenuPrincipal
+    menu_path = os.path.join(TEMPLATES_DIR, 'MenuPrincipal', filename)
+    if os.path.exists(menu_path):
+        return send_file(menu_path)
+
+    # 3) fallback para estrutura antiga (Telas/)
+    telas_path = os.path.join(os.path.dirname(__file__), '..', 'Telas')
     file_path = os.path.join(telas_path, filename)
     if os.path.exists(file_path):
         return send_file(file_path)
-    
-    # Se não encontrou, tenta na pasta MenuPrincipal
+
     menu_path = os.path.join(telas_path, 'MenuPrincipal', filename)
     if os.path.exists(menu_path):
         return send_file(menu_path)
-    
-    # Se ainda não encontrou, retorna 404
+
     return jsonify({'erro': 'Página não encontrada'}), 404
+
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
-    """Serve arquivos estáticos (CSS, JS, imagens)"""
+    """Serve arquivos estáticos (CSS, JS, imagens).
+    Procura primeiro em src/static (recomendado), senão cai para Telas/ (estrutura antiga).
+    """
+    # 1) src/static
+    if os.path.exists(STATIC_DIR):
+        try:
+            return send_from_directory(STATIC_DIR, filename)
+        except Exception:
+            pass
+
+    # 2) fallback para Telas/
     static_path = os.path.join(os.path.dirname(__file__), '..', 'Telas')
     return send_from_directory(static_path, filename)
 
+
 @app.route('/js/<path:filename>')
 def serve_js(filename):
-    """Serve arquivos JavaScript"""
+    """Serve arquivos JavaScript; prioriza src/static/js, depois Telas/js"""
+    # 1) src/static/js
+    js_src = os.path.join(STATIC_DIR, 'js')
+    if os.path.exists(js_src):
+        try:
+            return send_from_directory(js_src, filename)
+        except Exception:
+            pass
+
+    # 2) fallback Telas/js
     js_path = os.path.join(os.path.dirname(__file__), '..', 'Telas', 'js')
     return send_from_directory(js_path, filename)
 
+
 @app.route('/Imagens/<path:filename>')
 def serve_images(filename):
-    """Serve imagens"""
+    """Serve imagens; prioriza src/static/Imagens, depois Telas/Imagens"""
+    imgs_src = os.path.join(STATIC_DIR, 'Imagens')
+    if os.path.exists(imgs_src):
+        try:
+            return send_from_directory(imgs_src, filename)
+        except Exception:
+            pass
+
     images_path = os.path.join(os.path.dirname(__file__), '..', 'Telas', 'Imagens')
     return send_from_directory(images_path, filename)
 

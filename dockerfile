@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     pango1.0-tools \
     libpangocairo-1.0-0 \
     sqlite3 \
+    postgresql-client \
     curl \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
@@ -39,8 +40,10 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY . .
 
 # Copia e torna executável o script de entrada
+# Copia e torna executável o script de entrada (corrige finais de linha CRLF caso existam)
 COPY docker-entrypoint.sh .
-RUN chmod +x docker-entrypoint.sh
+# Remove possíveis CRLF do arquivo (salva compatibilidade com ambientes Windows)
+RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
 
 # Cria diretórios necessários
 RUN mkdir -p /app/src/database \

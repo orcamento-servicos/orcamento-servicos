@@ -72,3 +72,36 @@ Sistema completo de gerenciamento de orçamentos de serviços com API REST em Fl
     - Geração automática de orçamentos recorrentes
     - Workflow de aprovação configurável
     - Templates de orçamento personalizáveis
+
+## 🚀 Executando com Docker Compose
+
+Instruções rápidas para rodar a aplicação com PostgreSQL via Docker Compose (recomendado):
+
+1. Copie o arquivo de exemplo e edite valores sensíveis (opcional):
+
+```powershell
+cp .env.example .env
+# Edite .env se precisar (ex.: SECRET_KEY)
+```
+
+2. Build e subir os containers:
+
+```powershell
+docker compose up --build
+```
+
+3. Subir em background:
+
+```powershell
+docker compose up -d --build
+```
+
+4. Ver logs:
+
+```powershell
+docker compose logs -f backend db
+```
+
+Notas:
+- Se quiser usar SQLite localmente, comente `DATABASE_URL` no `.env` e a aplicação usará o arquivo `src/database/app.db` como fallback.
+- Para produção, recomendo configurar variáveis reais (SECRET_KEY, POSTGRES_PASSWORD) e usar migrations (Alembic) em vez de `db.create_all()`.
