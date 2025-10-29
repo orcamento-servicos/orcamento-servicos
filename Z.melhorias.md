@@ -46,5 +46,3 @@
 - [ ] Padronizar nomes de arquivos e pastas (case, idioma, etc).
 
 ---
-
-Essas melhorias podem ser implementadas gradualmente conforme a prioridade do projeto. Se quiser detalhar ou priorizar alguma delas, me avise!
