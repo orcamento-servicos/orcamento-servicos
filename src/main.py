@@ -24,6 +24,7 @@ except Exception as e:
 from flask import Flask, jsonify, send_from_directory, send_file
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 # Importações dos nossos módulos
 from src.models.models import db, Usuario
@@ -87,11 +88,14 @@ caminho_banco_fallback = os.path.join(os.path.dirname(__file__), 'database', 'ap
 fallback_uri = f"sqlite:///{caminho_banco_fallback}"
 
 # Usa a DATABASE_URL do ambiente (PostgreSQL no Docker) ou o fallback (SQLite local)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', fallback_uri)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///banco.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa o banco de dados
 db.init_app(app)
+
+# Inicializa o Flask-Migrate
+migrate = Migrate(app, db)
 
 # Cria as tabelas se não existirem
 with app.app_context():
@@ -224,6 +228,15 @@ def serve_images(filename):
 
     images_path = os.path.join(os.path.dirname(__file__), '..', 'Telas', 'Imagens')
     return send_from_directory(images_path, filename)
+
+
+@app.route('/avatar/<filename>')
+def avatar_file(filename):
+    """Serve arquivos de avatar; procura na pasta padrão de avatares."""
+    # Caminho absoluto para a pasta de avatares
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    avatar_dir = os.path.normpath(os.path.join(base_dir, '..', 'static', 'uploads', 'avatars'))
+    return send_from_directory(avatar_dir, filename)
 
 # ========================================
 # INICIALIZAÇÃO DO SERVIDOR

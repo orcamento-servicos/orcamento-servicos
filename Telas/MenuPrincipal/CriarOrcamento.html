@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,20 +8,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
       href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = {
+        darkMode: 'class',
+        theme: { extend: {} }
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   </head>
 
-  <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
-    <div class="relative flex min-h-screen w-full overflow-x-hidden">
+  <body class="bg-[#111a22] dark:bg-[#0a1015] transition-colors duration-300" style='font-family: Inter, "Noto Sans", sans-serif'>
+  <script src="../js/auth-protection.js"></script>
+  <div class="relative flex min-h-screen w-full overflow-x-hidden">
       <!-- Sidebar -->
       <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
         <div class="p-5 flex flex-col h-full">
           <div class="flex flex-col items-center gap-3">
-            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10"
-                 style='background-image:url("../Imagens/usuario.jpg");'></div>
+            <div id="avatarPreview" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10" style='background-image:url("../imagens/usuario.jpg");'></div>
             <div class="text-center">
-              <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
-              <p class="text-[#b9cee3] text-sm">Online</p>
+              <p class="text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm" id="statusTopo">Online</p>
             </div>
             <a href="/MenuPrincipal/TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
           </div>

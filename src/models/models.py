@@ -26,6 +26,8 @@ class Usuario(UserMixin, db.Model):
     telefone = db.Column(db.String(15))                   # Telefone (opcional)
     senha = db.Column(db.String(255), nullable=False)     # Senha criptografada (hash)
     perfil = db.Column(db.String(18), default='admin')    # Tipo de usuário
+    status = db.Column(db.String(20), default='Online')   # Status do usuário
+    avatar_url = db.Column(db.String(255))                # URL da imagem de perfil
     
     # Relacionamentos (um usuário pode ter vários orçamentos e logs)
     orcamentos = db.relationship('Orcamento', backref='usuario', lazy=True)
@@ -50,7 +52,9 @@ class Usuario(UserMixin, db.Model):
             'nome': self.nome,
             'email': self.email,
             'telefone': self.telefone,
-            'perfil': self.perfil
+            'perfil': self.perfil,
+            'status': self.status,
+            'avatar_url': self.avatar_url
         }
 
 # ========================================

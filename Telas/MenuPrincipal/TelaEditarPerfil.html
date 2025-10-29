@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,14 +12,22 @@
       onload="this.rel='stylesheet'"
       href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
     />
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = {
+        darkMode: 'class',
+        theme: { extend: {} }
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   </head>
 
-  <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
-    <div class="relative flex min-h-screen w-full overflow-x-hidden">
+  <body class="bg-[#f5f7fa] text-gray-900 dark:bg-[#0a1015] dark:text-white transition-colors duration-300" style='font-family: Inter, "Noto Sans", sans-serif'>
+  <script src="../js/auth-protection.js"></script>
+  <div class="relative flex min-h-screen w-full overflow-x-hidden">
       <!-- BARRA LATERAL (mantida) -->
       <aside
-        class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen"
+        class="w-[310px] shrink-0 bg-white/90 dark:bg-[#1a2a38]/95 border-r border-gray-200 dark:border-white/10 shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_10px_30px_rgba(0,0,0,0.10)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen"
       >
         <div class="p-5 flex flex-col h-full">
           <!-- Perfil -->
@@ -30,15 +38,15 @@
               style='background-image:url("../imagens/usuario.jpg");'
             ></div>
             <div class="text-center">
-              <p class="text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
-              <p class="text-[#b9cee3] text-sm" id="statusTopo">Online</p>
+              <p class="text-gray-900 dark:text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
+              <p class="text-gray-500 dark:text-[#b9cee3] text-sm" id="statusTopo">Online</p>
             </div>
 
             <!-- Estamos nesta página: "Editar Perfil" fica visualmente "ativo" -->
             <a
               href="TelaEditarPerfil.html"
               aria-disabled="true"
-              class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-white/20 text-white text-sm font-semibold pointer-events-none"
+              class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-blue-200 dark:bg-white/20 text-blue-900 dark:text-white text-sm font-semibold pointer-events-none"
               title="Você já está na página de edição"
             >
               Editar Perfil
@@ -47,8 +55,8 @@
 
           <!-- Info -->
           <div class="mt-6">
-            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
-            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+            <h1 class="text-gray-900 dark:text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-gray-500 dark:text-[#9fbbd4] text-xs">v1.0</p>
           </div>
 
           <nav class="mt-4 grid gap-1" id="sidebar">
@@ -315,14 +323,20 @@
       // ====== API FUNCTIONS ======
       async function carregarPerfil() {
         try {
-          const response = await fetch('/api/auth/profile', { credentials: 'include' });
-          if (!response.ok) throw new Error('Erro ao carregar perfil');
-          const data = await response.json();
-          const usuario = data.usuario;
+          // Usa o sistema global de dados do usuário
+          const usuario = await carregarDadosUsuario();
+          if (!usuario) throw new Error('Erro ao carregar perfil');
+          
           inpNome.value = usuario.nome || '';
           inpEmail.value = usuario.email || '';
           inpTelefone.value = usuario.telefone || '';
-          nomeTopo.textContent = usuario.nome || 'Usuário';
+          inpStatus.value = usuario.status || 'Online';
+          
+          // Se tem avatar personalizado, exibe
+          if (usuario.avatar_url) {
+            avatarLarge.style.backgroundImage = `url('${usuario.avatar_url}')`;
+            avatarPreview.style.backgroundImage = `url('${usuario.avatar_url}')`;
+          }
         } catch (error) {
           console.error('Erro ao carregar perfil:', error);
           showMsg('Erro ao carregar dados do perfil', false);
@@ -379,13 +393,45 @@
         }
 
         try {
-          await atualizarPerfil({ nome: inpNome.value.trim(), email: inpEmail.value.trim(), telefone: inpTelefone.value.trim() });
-          if (inpSenhaNova.value.trim()) {
-            await alterarSenha({ senha_atual: inpSenhaAtual.value.trim(), nova_senha: inpSenhaNova.value.trim() });
+          const formData = new FormData();
+          formData.append('nome', inpNome.value.trim());
+          formData.append('email', inpEmail.value.trim());
+          formData.append('telefone', inpTelefone.value.trim());
+          formData.append('status', inpStatus.value);
+          
+          // Adiciona avatar se foi selecionado
+          if (inputAvatar.files?.[0]) {
+            formData.append('avatar', inputAvatar.files[0]);
           }
-          nomeTopo.textContent = inpNome.value.trim();
-          statusTopo.textContent = inpStatus.value;
-          inpSenhaAtual.value = ''; inpSenhaNova.value = ''; inpSenhaConf.value = '';
+
+          // Atualiza perfil com FormData para suportar upload de arquivo
+          const response = await fetch('/api/auth/profile', {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData
+          });
+
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({erro:'Erro ao atualizar perfil'}));
+            throw new Error(err.erro || 'Erro ao atualizar perfil');
+          }
+
+          // Se tem senha nova, atualiza
+          if (inpSenhaNova.value.trim()) {
+            await alterarSenha({ 
+              senha_atual: inpSenhaAtual.value.trim(), 
+              nova_senha: inpSenhaNova.value.trim() 
+            });
+          }
+
+          // Recarrega dados do usuário globalmente
+          await carregarDadosUsuario();
+          
+          // Limpa campos de senha
+          inpSenhaAtual.value = ''; 
+          inpSenhaNova.value = ''; 
+          inpSenhaConf.value = '';
+          
           showMsg('Perfil atualizado com sucesso!');
         } catch (error) {
           showMsg(error.message || 'Erro ao salvar perfil', false);

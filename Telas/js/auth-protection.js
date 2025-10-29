@@ -123,6 +123,135 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// ====== Gerenciamento Global do Perfil do Usuário ======
+let dadosUsuarioGlobal = null;
+
+/**
+ * Carrega os dados do perfil do usuário
+ * @returns {Promise<object>} Dados do usuário
+ */
+async function carregarDadosUsuario() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, { 
+      credentials: 'include' 
+    });
+    if (!response.ok) throw new Error('Erro ao carregar perfil');
+    const data = await response.json();
+    dadosUsuarioGlobal = data.usuario;
+    atualizarInterfaceUsuario();
+    return data.usuario;
+  } catch (error) {
+    console.error('Erro ao carregar dados do usuário:', error);
+    return null;
+  }
+}
+
+/**
+ * Atualiza a interface com os dados do usuário
+ */
+function atualizarInterfaceUsuario() {
+  if (!dadosUsuarioGlobal) return;
+  
+  // Atualiza nome do usuário onde houver elemento com id="nomeTopo"
+  const elementosNome = document.querySelectorAll('[id="nomeTopo"]');
+  elementosNome.forEach(el => {
+    el.textContent = dadosUsuarioGlobal.nome || 'Usuário';
+  });
+  
+  // Atualiza status do usuário onde houver elemento com id="statusTopo"
+  const elementosStatus = document.querySelectorAll('[id="statusTopo"]');
+  elementosStatus.forEach(el => {
+    el.textContent = dadosUsuarioGlobal.status || 'Online';
+  });
+  
+  // Atualiza avatar do usuário onde houver elementos com id="avatarPreview" ou id="avatarLarge"
+  const avatarUrl = dadosUsuarioGlobal.avatar_url || '../imagens/usuario.jpg';
+  const elementosAvatar = document.querySelectorAll('[id="avatarPreview"], [id="avatarLarge"]');
+  elementosAvatar.forEach(el => {
+    el.style.backgroundImage = `url('${avatarUrl}')`;
+  });
+  
+  // Corrige avatar quebrado: tenta carregar, se falhar, usa imagem padrão
+  function corrigirAvatarFallback() {
+    const elementosAvatar = document.querySelectorAll('[id="avatarPreview"], [id="avatarLarge"]');
+    elementosAvatar.forEach(el => {
+      const url = el.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+      if (url && url !== '../imagens/usuario.jpg') {
+        const img = new window.Image();
+        img.onerror = () => {
+          el.style.backgroundImage = `url('../imagens/usuario.jpg')`;
+        };
+        img.src = url;
+      }
+    });
+  }
+  corrigirAvatarFallback();
+}
+
+// Carrega os dados do usuário quando o script é inicializado
+document.addEventListener('DOMContentLoaded', carregarDadosUsuario);
+
+// ====== Tema Escuro/Claro (Dark/Light Mode) ======
+
+// Alternância de tema robusta
+function alternarTema() {
+  const html = document.querySelector('html');
+  const temaAtual = html.classList.contains('dark') ? 'dark' : 'light';
+  const novoTema = temaAtual === 'dark' ? 'light' : 'dark';
+  if (novoTema === 'dark') {
+    html.classList.add('dark');
+    console.log('[Tema] Ativado modo escuro');
+  } else {
+    html.classList.remove('dark');
+    console.log('[Tema] Ativado modo claro');
+  }
+  localStorage.setItem('temaPreferido', novoTema);
+  atualizarIconeTema();
+  console.log('[Tema] Classe dark no <html>?', html.classList.contains('dark'));
+}
+
+function aplicarTemaSalvo() {
+  const temaSalvo = localStorage.getItem('temaPreferido');
+  const html = document.querySelector('html');
+  if (temaSalvo === 'dark') {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
+  atualizarIconeTema();
+}
+
+function atualizarIconeTema() {
+  const btn = document.getElementById('btnTema');
+  if (!btn) return;
+  const html = document.querySelector('html');
+  const isDark = html.classList.contains('dark');
+  if (isDark) {
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" /></svg>';
+    btn.title = 'Alternar para tema claro';
+  } else {
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 6.66l-.71-.71M4.05 4.93l-.71-.71" /></svg>';
+    btn.title = 'Alternar para tema escuro';
+  }
+}
+
+
+// Injeta o botão de alternância de tema no canto superior direito absoluto
+function injetarBotaoTema() {
+  if (document.getElementById('btnTema')) return; // já existe
+  const btn = document.createElement('button');
+  btn.id = 'btnTema';
+  btn.type = 'button';
+  btn.className = 'fixed z-50 top-4 right-6 p-2 rounded-full bg-white/20 hover:bg-white/40 text-gray-800 dark:text-white dark:bg-white/10 dark:hover:bg-white/20 shadow transition flex items-center justify-center';
+  btn.style = 'width:2.5rem;height:2.5rem;';
+  btn.title = 'Alternar tema escuro/claro';
+  btn.addEventListener('click', alternarTema);
+  document.body.appendChild(btn);
+  aplicarTemaSalvo();
+}
+
+document.addEventListener('DOMContentLoaded', injetarBotaoTema);
+
 // ====== Compatibilidade e utilitários globais ======
 // Ajusta botões que não possuem `type` explícito para evitar comportamento de submit por omissão
 (function ensureButtonTypesAndLogging(){

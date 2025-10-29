@@ -9,6 +9,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from src.models.models import db, Usuario, LogsAcesso, PasswordResetToken
 from datetime import datetime, timedelta
 import secrets
+import os
 
 # Cria um blueprint (grupo de rotas) para autenticação
 auth_bp = Blueprint('auth', __name__)
@@ -313,21 +314,15 @@ def obter_perfil():
 def atualizar_perfil():
     """
     Atualiza as informações do perfil do usuário logado
-    Recebe: nome, email
+    Recebe: FormData com nome, email, telefone, status e avatar (opcional)
     Retorna: dados do usuário atualizado ou erro
     """
     try:
-        # Pega os dados enviados pelo cliente (JSON)
-        dados = request.get_json()
-        
-        # Verifica se foram enviados dados
-        if not dados:
-            return jsonify({'erro': 'Nenhum dado foi enviado'}), 400
-        
-        # Extrai os campos
-        nome = dados.get('nome')
-        email = dados.get('email')
-        telefone = dados.get('telefone')
+        # Pega os dados do formulário
+        nome = request.form.get('nome')
+        email = request.form.get('email')
+        telefone = request.form.get('telefone')
+        status = request.form.get('status', 'Online')
         
         # Validações básicas
         if not nome or not email:
@@ -348,10 +343,27 @@ def atualizar_perfil():
         if usuario_existente:
             return jsonify({'erro': 'Este email já está sendo usado por outro usuário'}), 400
         
+        # Processa upload de avatar se houver
+        if 'avatar' in request.files:
+            arquivo = request.files['avatar']
+            if arquivo and arquivo.filename:
+                # Gera um nome único para o arquivo
+                extensao = arquivo.filename.rsplit('.', 1)[1].lower()
+                nome_arquivo = f'avatar_{current_user.id_usuario}_{datetime.utcnow().strftime("%Y%m%d_%H%M%S")}.{extensao}'
+                
+                # Salva o arquivo
+                caminho = os.path.join('static', 'uploads', 'avatars', nome_arquivo)
+                os.makedirs(os.path.dirname(caminho), exist_ok=True)
+                arquivo.save(caminho)
+                
+                # Atualiza a URL do avatar
+                current_user.avatar_url = f'/avatar/{nome_arquivo}'
+        
         # Atualiza os dados do usuário
         current_user.nome = nome
         current_user.email = email
         current_user.telefone = telefone
+        current_user.status = status
         
         # Salva no banco de dados
         db.session.commit()
