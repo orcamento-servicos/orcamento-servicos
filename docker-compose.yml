@@ -23,7 +23,7 @@ services:
   backend:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: orcamento-backend
     ports:
       - "5000:5000"
