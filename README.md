@@ -105,3 +105,22 @@ docker compose logs -f backend db
 Notas:
 - Se quiser usar SQLite localmente, comente `DATABASE_URL` no `.env` e a aplicação usará o arquivo `src/database/app.db` como fallback.
 - Para produção, recomendo configurar variáveis reais (SECRET_KEY, POSTGRES_PASSWORD) e usar migrations (Alembic) em vez de `db.create_all()`.
+
+---
+
+## 🗂️ Organização dos arquivos Docker
+
+Todos os arquivos relacionados ao Docker agora ficam na pasta `docker/`:
+- `docker/Dockerfile` — arquivo principal de build
+- `docker/docker-entrypoint.sh` — script de inicialização
+
+O `docker-compose.yml` na raiz já está configurado para usar o Dockerfile dentro da pasta `docker/`.
+
+Se você encontrar arquivos antigos como `dockerfile` ou `docker-entrypoint.sh` na raiz, pode removê-los com segurança.
+
+## 📦 Sobre requirements
+
+- Use `requirements.txt` para dependências de produção.
+- Use `requirements-local.txt` (ou crie `requirements-dev.txt`) para dependências extras de desenvolvimento.
+
+---
