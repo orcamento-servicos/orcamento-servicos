@@ -9,6 +9,8 @@
     <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
       href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   </head>
 
   <body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
@@ -116,7 +118,7 @@
 
   <!-- FORMULÁRIO -->
   <div class="mt-6 grid max-w-xl gap-4">
-    <input id="inp-data" type="date" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" />
+    <input id="inp-data" type="text" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" placeholder="dd/mm/aaaa" />
     <input id="inp-hora" type="time" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" />
     <select id="sel-servico" class="form-select h-12 rounded-lg border-none bg-[#243647] text-white">
       <option value="">Selecione um serviço...</option>
@@ -198,6 +200,27 @@
   const $msg = document.getElementById('msg');
   const $empty = document.getElementById('empty-state');
   const $warn = document.getElementById('warn-sem-servicos');
+
+  function showMsg(text, ok = true) {
+    $msg.textContent = text;
+    $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
+    setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
+  }
+
+  flatpickr($data, {
+    dateFormat: "d/m/Y",
+    locale: {
+      firstDayOfWeek: 0,
+      weekdays: {
+        shorthand: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+        longhand: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"],
+      },
+      months: {
+        shorthand: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+        longhand: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+      },
+    },
+  });
 
   // ====== UTILS ======
   function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)); }
@@ -297,6 +320,7 @@
         throw new Error(error.erro || 'Erro ao atualizar status');
       }
       
+      showMsg('Status atualizado com sucesso!');
       const data = await response.json();
       return data;
     } catch (error) {
@@ -401,7 +425,14 @@
 
   // ====== CRIAR AGENDAMENTO ======
   $btnAgendar.addEventListener('click', async () => {
-    const data = $data.value;
+    const dataBr = $data.value;
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataBr)) {
+      showMsg('Formato de data inválido. Use dd/mm/aaaa.', false);
+      $data.focus();
+      return;
+    }
+    const [dia, mes, ano] = dataBr.split('/');
+    const data = `${ano}-${mes}-${dia}`;
     const hora = $hora.value;
     const servId = $selServico.value;
     const usuario = ($usuario.value||'').trim();
@@ -469,12 +500,7 @@
   $busca.addEventListener('input', carregarAgendamentos);
   $ordenacao.addEventListener('change', carregarAgendamentos);
 
-  // ====== MENSAGENS ======
-  function showMsg(text, ok = true){
-    $msg.textContent = text;
-    $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
-    setTimeout(()=>{ $msg.textContent=''; $msg.className='text-sm text-white/70'; }, 2200);
-  }
+
 
   // init
   carregarServicos();

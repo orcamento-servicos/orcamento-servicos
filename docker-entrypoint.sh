@@ -52,9 +52,7 @@ fi
 
 echo ""
 echo "🌐 Iniciando servidor web..."
-echo "🔗 API disponível em: http://localhost:5000"
-echo "📱 Interface web: http://localhost:5000"
-echo "📋 Documentação da API: http://localhost:5000/api"
+echo "🔗 Acesse: http://localhost:5000"
 echo ""
 echo "🛑 Para parar: Ctrl+C"
 echo "===================================================="

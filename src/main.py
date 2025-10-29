@@ -96,6 +96,11 @@ db.init_app(app)
 # Cria as tabelas se não existirem
 with app.app_context():
     try:
+        # Garante que o diretório para o arquivo SQLite exista (útil em execução local)
+        db_dir = os.path.dirname(caminho_banco_fallback)
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            print(f"Diretório do banco criado: {db_dir}")
         db.create_all()
         print("Banco de dados inicializado!")
     except Exception as e:
@@ -225,9 +230,7 @@ def serve_images(filename):
 # ========================================
 
 if __name__ == '__main__':
-    print("Iniciando o Sistema de Orçamentos de Serviços...")
-    print("Acesse: http://localhost:5000")
-    print("Para parar: Ctrl+C")
+    print("Acesse pelo link: http://localhost:5000")
     
     # Inicia o servidor Flask
     # host='0.0.0.0' permite acesso de outros computadores na rede

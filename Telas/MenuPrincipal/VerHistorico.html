@@ -76,29 +76,64 @@
         <div class="flex items-end justify-between">
           <div>
             <h2 class="text-white text-2xl font-bold">Histórico</h2>
-            <p class="text-[#93adc8] mt-1">Todos os serviços agendados.</p>
+            <p class="text-[#93adc8] mt-1">Todos os agendamentos e orçamentos.</p>
           </div>
           <input id="inp-busca" placeholder="Pesquisar..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
         </div>
 
-        <div class="mt-6 overflow-hidden rounded-xl border border-white/10">
-          <table class="min-w-full divide-y divide-white/10">
-            <thead class="bg-white/5">
-              <tr class="text-[#b9cee3] text-sm">
-                <th class="px-4 py-3 text-left font-medium">Data/Hora</th>
-                <th class="px-4 py-3 text-left font-medium">Serviço</th>
-                <th class="px-4 py-3 text-left font-medium">Valor</th>
-                <th class="px-4 py-3 text-left font-medium">Adicionado por</th>
-                <th class="px-4 py-3 text-left font-medium">Adicionado em</th>
-                <th class="px-4 py-3 text-left font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody id="tbody" class="divide-y divide-white/5 text-white/90"></tbody>
-          </table>
+        <!-- Tabs -->
+        <div class="mt-6 border-b border-white/10">
+          <div class="flex gap-6">
+            <button id="tab-agendamentos" class="pb-3 text-white font-medium border-b-2 border-[#1773cf]">
+              Agendamentos
+            </button>
+            <button id="tab-orcamentos" class="pb-3 text-[#93adc8] font-medium hover:text-white transition">
+              Orçamentos
+            </button>
+          </div>
         </div>
 
-        <div id="empty" class="mt-4 hidden">
-          <p class="text-white/70">Nenhum registro encontrado.</p>
+        <!-- Tabela de Agendamentos -->
+        <div id="content-agendamentos" class="mt-6">
+          <div class="overflow-hidden rounded-xl border border-white/10">
+            <table class="min-w-full divide-y divide-white/10">
+              <thead class="bg-white/5">
+                <tr class="text-[#b9cee3] text-sm">
+                  <th class="px-4 py-3 text-left font-medium">Data/Hora</th>
+                  <th class="px-4 py-3 text-left font-medium">Serviço</th>
+                  <th class="px-4 py-3 text-left font-medium">Valor</th>
+                  <th class="px-4 py-3 text-left font-medium">Adicionado por</th>
+                  <th class="px-4 py-3 text-left font-medium">Adicionado em</th>
+                  <th class="px-4 py-3 text-left font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-agendamentos" class="divide-y divide-white/5 text-white/90"></tbody>
+            </table>
+          </div>
+          <div id="empty-agendamentos" class="mt-4 hidden">
+            <p class="text-white/70">Nenhum agendamento encontrado.</p>
+          </div>
+        </div>
+
+        <!-- Tabela de Orçamentos -->
+        <div id="content-orcamentos" class="mt-6 hidden">
+          <div class="overflow-hidden rounded-xl border border-white/10">
+            <table class="min-w-full divide-y divide-white/10">
+              <thead class="bg-white/5">
+                <tr class="text-[#b9cee3] text-sm">
+                  <th class="px-4 py-3 text-left font-medium">Data</th>
+                  <th class="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th class="px-4 py-3 text-left font-medium">Valor Total</th>
+                  <th class="px-4 py-3 text-left font-medium">Status</th>
+                  <th class="px-4 py-3 text-left font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-orcamentos" class="divide-y divide-white/5 text-white/90"></tbody>
+            </table>
+          </div>
+          <div id="empty-orcamentos" class="mt-4 hidden">
+            <p class="text-white/70">Nenhum orçamento encontrado.</p>
+          </div>
         </div>
       </main>
     </div>
@@ -128,68 +163,143 @@
       }
       function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+      // ====== TABS LOGIC ======
+      const $tabAgendamentos = document.getElementById('tab-agendamentos');
+      const $tabOrcamentos = document.getElementById('tab-orcamentos');
+      const $contentAgendamentos = document.getElementById('content-agendamentos');
+      const $contentOrcamentos = document.getElementById('content-orcamentos');
+      const $tbodyAgendamentos = document.getElementById('tbody-agendamentos');
+      const $tbodyOrcamentos = document.getElementById('tbody-orcamentos');
+      const $emptyAgendamentos = document.getElementById('empty-agendamentos');
+      const $emptyOrcamentos = document.getElementById('empty-orcamentos');
+
+      let abaAtual = 'agendamentos';
+
+      function ativarAba(aba) {
+        abaAtual = aba;
+        if (aba === 'agendamentos') {
+          $tabAgendamentos.classList.add('text-white', 'border-[#1773cf]');
+          $tabAgendamentos.classList.remove('text-[#93adc8]');
+          $tabOrcamentos.classList.remove('text-white', 'border-[#1773cf]');
+          $tabOrcamentos.classList.add('text-[#93adc8]');
+          $contentAgendamentos.classList.remove('hidden');
+          $contentOrcamentos.classList.add('hidden');
+        } else {
+          $tabOrcamentos.classList.add('text-white', 'border-[#1773cf]');
+          $tabOrcamentos.classList.remove('text-[#93adc8]');
+          $tabAgendamentos.classList.remove('text-white', 'border-[#1773cf]');
+          $tabAgendamentos.classList.add('text-[#93adc8]');
+          $contentOrcamentos.classList.remove('hidden');
+          $contentAgendamentos.classList.add('hidden');
+        }
+      }
+      $tabAgendamentos.addEventListener('click', () => { ativarAba('agendamentos'); });
+      $tabOrcamentos.addEventListener('click', () => { ativarAba('orcamentos'); });
+      ativarAba('agendamentos');
+
       // ====== API FUNCTIONS ======
       async function carregarAgendamentos() {
         try {
           const params = new URLSearchParams();
           if ($busca.value.trim()) params.append('busca', $busca.value.trim());
-          
-          const response = await fetch(`/api/agendamentos/?${params}`, {
-            credentials: 'include'
-          });
+          const response = await fetch(`/api/agendamentos/?${params}`, { credentials: 'include' });
           if (!response.ok) throw new Error('Erro ao carregar agendamentos');
           const data = await response.json();
-          
           renderAgendamentos(data.agendamentos);
         } catch (error) {
-          console.error('Erro ao carregar agendamentos:', error);
-          $tbody.innerHTML = '<tr><td class="px-4 py-6 text-center text-red-300" colspan="6">Erro ao carregar dados</td></tr>';
+          $tbodyAgendamentos.innerHTML = '<tr><td class="px-4 py-6 text-center text-red-300" colspan="6">Erro ao carregar dados</td></tr>';
         }
       }
-
       function renderAgendamentos(agendamentos) {
         const q = ($busca.value||'').trim().toLowerCase();
         let rows = agendamentos.filter(a =>
-          !q ||
-          (a.servico_nome || '').toLowerCase().includes(q) ||
-          (a.usuario_nome || '').toLowerCase().includes(q)
+          !q || (a.servico_nome || '').toLowerCase().includes(q) || (a.usuario_nome || '').toLowerCase().includes(q)
         );
-
         rows.sort((a,b)=> new Date(b.data_hora) - new Date(a.data_hora));
-
-        $tbody.innerHTML = '';
+        $tbodyAgendamentos.innerHTML = '';
         rows.forEach(a => {
           const cancelado = a.status === 'Cancelado';
           const concluido = a.status === 'Concluído';
-
           let statusHtml = '<span class="text-emerald-300">Agendado</span>';
           if (cancelado) statusHtml = '<span class="text-red-300 font-semibold">CANCELADO</span>';
           else if (concluido) statusHtml = '<span class="text-green-300 font-semibold">CONCLUÍDO</span>';
-
           const tr = document.createElement('tr');
           if (cancelado) tr.classList.add('opacity-60');
-
           tr.innerHTML = `
             <td class="px-4 py-3">${fmtDataHoraISO(a.data_hora)}</td>
             <td class="px-4 py-3">${escapeHtml(a.servico_nome || '-')}</td>
             <td class="px-4 py-3">${moeda(a.valor)}</td>
             <td class="px-4 py-3">${escapeHtml(a.usuario_nome || '-')}</td>
             <td class="px-4 py-3">${fmtDataHora(a.created_at)}</td>
-            <td class="px-4 py-3">${statusHtml}</td>
+            <td class="px-4 py-3 flex items-center gap-2">${statusHtml}
+              <a href="/MenuPrincipal/AgendarServico.html?id=${a.id_agendamento}" class="ml-2 text-[#1773cf] hover:underline whitespace-nowrap">Detalhes</a>
+            </td>
           `;
-          $tbody.appendChild(tr);
+          $tbodyAgendamentos.appendChild(tr);
         });
-
-        $empty.classList.toggle('hidden', rows.length > 0);
+        $emptyAgendamentos.classList.toggle('hidden', rows.length > 0);
         if (rows.length === 0 && agendamentos.length > 0) {
-          $empty.classList.add('hidden');
+          $emptyAgendamentos.classList.add('hidden');
           const tr = document.createElement('tr');
           tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="6">Nenhum resultado para "${escapeHtml($busca.value||'')}".</td>`;
-          $tbody.appendChild(tr);
+          $tbodyAgendamentos.appendChild(tr);
         }
       }
-
-      $busca.addEventListener('input', carregarAgendamentos);
+      async function carregarOrcamentos() {
+        try {
+          const params = new URLSearchParams();
+          if ($busca.value.trim()) params.append('busca', $busca.value.trim());
+          const response = await fetch(`/api/orcamentos/?${params}`, { credentials: 'include' });
+          if (!response.ok) throw new Error('Erro ao carregar orçamentos');
+          const data = await response.json();
+          renderOrcamentos(data.orcamentos || []);
+        } catch (error) {
+          $tbodyOrcamentos.innerHTML = '<tr><td class="px-4 py-6 text-center text-red-300" colspan="5">Erro ao carregar dados</td></tr>';
+        }
+      }
+      function renderOrcamentos(orcamentos) {
+        const q = ($busca.value||'').trim().toLowerCase();
+        let rows = orcamentos.filter(o => {
+          const c = o.orcamento;
+          return !q || (c.cliente_nome || '').toLowerCase().includes(q) || (c.status || '').toLowerCase().includes(q);
+        });
+        rows.sort((a,b)=> new Date(b.orcamento.data_criacao) - new Date(a.orcamento.data_criacao));
+        $tbodyOrcamentos.innerHTML = '';
+        rows.forEach(o => {
+          const c = o.orcamento;
+          let statusHtml = '<span class="text-emerald-300">'+escapeHtml(c.status)+'</span>';
+          if (c.status === 'Recusado') statusHtml = '<span class="text-red-300 font-semibold">RECUSADO</span>';
+          else if (c.status === 'Aprovado') statusHtml = '<span class="text-green-300 font-semibold">APROVADO</span>';
+          else if (c.status === 'Concluído') statusHtml = '<span class="text-blue-300 font-semibold">CONCLUÍDO</span>';
+          $tbodyOrcamentos.innerHTML += `
+            <tr>
+              <td class="px-4 py-3">${fmtDataHoraISO(c.data_criacao)}</td>
+              <td class="px-4 py-3">${escapeHtml(c.cliente_nome || '-')}</td>
+              <td class="px-4 py-3">${moeda(c.valor_total)}</td>
+              <td class="px-4 py-3">${statusHtml}</td>
+              <td class="px-4 py-3">
+                <a href="/MenuPrincipal/DetalheOrcamento.html?id=${c.id_orcamento}" class="text-[#1773cf] hover:underline mr-2">Detalhes</a>
+                <a href="/api/orcamentos/${c.id_orcamento}/pdf" target="_blank" class="text-[#1773cf] hover:underline">PDF</a>
+              </td>
+            </tr>
+          `;
+        });
+        $emptyOrcamentos.classList.toggle('hidden', rows.length > 0);
+        if (rows.length === 0 && orcamentos.length > 0) {
+          $emptyOrcamentos.classList.add('hidden');
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="5">Nenhum resultado para "${escapeHtml($busca.value||'')}".</td>`;
+          $tbodyOrcamentos.appendChild(tr);
+        }
+      }
+      // Busca e recarrega ao trocar de aba ou digitar
+      $busca.addEventListener('input', () => {
+        if (abaAtual === 'agendamentos') carregarAgendamentos();
+        else carregarOrcamentos();
+      });
+      $tabAgendamentos.addEventListener('click', carregarAgendamentos);
+      $tabOrcamentos.addEventListener('click', carregarOrcamentos);
+      // Inicialização
       carregarAgendamentos();
     </script>
   </body>

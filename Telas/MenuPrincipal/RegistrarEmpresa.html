@@ -126,7 +126,8 @@
           <input id="inp-endereco" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
           <div class="flex items-center justify-between">
             <p id="msg" class="text-sm text-white/70"></p>
-            <button id="btn-salvar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar cliente</button>
+            <!-- explicit type to avoid default form/submit behaviors in some browsers -->
+            <button type="button" id="btn-salvar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar cliente</button>
           </div>
         </div>
 
@@ -167,10 +168,8 @@
 
     <!-- Script de proteção de autenticação -->
     <script src="/js/auth-protection.js"></script>
-    
     <script>
-      // Configuração da API
-      const API_BASE_URL = '/api';
+      // API_BASE_URL já está definido em auth-protection.js
 
       // marca item ativo conforme URL
       (function () {
@@ -199,6 +198,8 @@
       }
 
       function showMsg(text, ok = true) {
+        // also log messages to the console to help debug when UI updates are not visible
+        console.log('[showMsg]', text, ok);
         $msg.textContent = text;
         $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
         setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
@@ -248,6 +249,11 @@
       // Função para salvar cliente na API
       async function salvarCliente(nome, telefone, email, endereco) {
         try {
+          // Remove todos os caracteres não numéricos do telefone
+          const telefoneLimpo = telefone ? telefone.replace(/\D/g, '') : '';
+          
+          console.log('Enviando dados:', { nome, telefone: telefoneLimpo, email, endereco });
+          
           const response = await fetch(`${API_BASE_URL}/clientes/`, {
             method: 'POST',
             headers: {
@@ -255,175 +261,193 @@
             },
             credentials: 'include',
             body: JSON.stringify({
-              nome: nome,
-              telefone: telefone || null,
-              email: email || null,
-              endereco: endereco || null
+              nome,
+              telefone: telefoneLimpo,
+              email,
+              endereco
             })
           });
 
-          const data = await response.json();
+          const contentType = response.headers.get('content-type');
+          let data;
           
+          if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+          } else {
+            const text = await response.text();
+            console.error('Resposta não-JSON:', text);
+            throw new Error('Resposta inesperada do servidor');
+          }
+
           if (response.ok) {
-            showMsg('Cliente salvo com sucesso!');
+            console.log('Cliente salvo:', data);
+            showMsg('Cliente cadastrado com sucesso!');
             return true;
           } else {
-            showMsg(data.erro || 'Erro ao salvar cliente', false);
+            console.error('Erro ao salvar:', data);
+            showMsg(data.erro || 'Erro ao cadastrar cliente', false);
             return false;
           }
         } catch (error) {
           console.error('Erro na requisição:', error);
-          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          showMsg('Erro ao cadastrar cliente. Verifique o console para mais detalhes.', false);
           return false;
         }
       }
 
-      // Função para excluir cliente da API
-      async function excluirCliente(idCliente) {
+      // Função para excluir cliente
+      async function excluirCliente(id) {
         try {
-          const response = await fetch(`${API_BASE_URL}/clientes/${idCliente}`, {
+          const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
             method: 'DELETE',
             credentials: 'include'
           });
+
+          const data = await response.json();
 
           if (response.ok) {
             showMsg('Cliente excluído com sucesso!');
             return true;
           } else {
-            const data = await response.json();
             showMsg(data.erro || 'Erro ao excluir cliente', false);
             return false;
           }
         } catch (error) {
-          console.error('Erro na requisição:', error);
-          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          console.error('Erro ao excluir:', error);
+          showMsg('Erro ao excluir cliente', false);
           return false;
         }
       }
 
-      function render(filter = '') {
-        carregarClientes().then(data => {
-          const q = filter.trim().toLowerCase();
-          const rows = data.filter(c =>
-            !q ||
-            c.nome.toLowerCase().includes(q) ||
-            (c.telefone && c.telefone.toLowerCase().includes(q)) ||
-            (c.email && c.email.toLowerCase().includes(q)) ||
-            (c.endereco && c.endereco.toLowerCase().includes(q))
-          );
+      // Função para renderizar lista de clientes
+      function renderizarClientes(clientes, filtro = '') {
+        const filtroLower = filtro.toLowerCase();
+        const clientesFiltrados = clientes.filter(cliente => 
+          cliente.nome.toLowerCase().includes(filtroLower) ||
+          (cliente.email && cliente.email.toLowerCase().includes(filtroLower)) ||
+          (cliente.telefone && cliente.telefone.toLowerCase().includes(filtroLower)) ||
+          (cliente.endereco && cliente.endereco.toLowerCase().includes(filtroLower))
+        );
 
-          $tbody.innerHTML = '';
-          rows.forEach(c => {
+        $tbody.innerHTML = '';
+        $empty.classList.toggle('hidden', clientes.length > 0);
+
+        if (clientesFiltrados.length === 0) {
+          if (clientes.length > 0) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td class="px-4 py-3">${escapeHtml(c.nome)}</td>
-              <td class="px-4 py-3">${escapeHtml(c.telefone || '')}</td>
-              <td class="px-4 py-3">${escapeHtml(c.email || '')}</td>
-              <td class="px-4 py-3">${escapeHtml(c.endereco || '')}</td>
-              <td class="px-4 py-3 text-right">
-                <button data-del="${c.id_cliente}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
-                  Excluir
-                </button>
+              <td colspan="5" class="px-4 py-6 text-center text-white/60">
+                Nenhum resultado encontrado para "${escapeHtml(filtro)}"
               </td>
             `;
             $tbody.appendChild(tr);
-          });
+          }
+          return;
+        }
 
-          $empty.classList.toggle('hidden', data.length !== 0);
-          if (rows.length === 0 && data.length !== 0) {
-            // tem dados, mas o filtro ocultou tudo
-            $empty.classList.add('hidden');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="px-4 py-6 text-center text-white/60" colspan="5">Nenhum resultado para "${escapeHtml(filter)}".</td>`;
-            $tbody.appendChild(tr);
+        clientesFiltrados.forEach(cliente => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-3">${escapeHtml(cliente.nome)}</td>
+            <td class="px-4 py-3">${escapeHtml(cliente.telefone || '')}</td>
+            <td class="px-4 py-3">${escapeHtml(cliente.email || '')}</td>
+            <td class="px-4 py-3">${escapeHtml(cliente.endereco || '')}</td>
+            <td class="px-4 py-3 text-right">
+              <button data-del="${cliente.id_cliente}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+                  <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+                </svg>
+                Excluir
+              </button>
+            </td>
+          `;
+          $tbody.appendChild(tr);
+        });
+      }
+
+      // Event Listeners
+      if ($btn) {
+        $btn.addEventListener('click', async () => {
+          // Validação dos campos
+          const nome = $nome.value.trim();
+          const telefone = $telefone.value.trim();
+          const email = $email.value.trim();
+          const endereco = $endereco.value.trim();
+
+          if (!nome) {
+            showMsg('Nome do cliente é obrigatório', false);
+            $nome.focus();
+            return;
+          }
+
+          if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            showMsg('Email inválido', false);
+            $email.focus();
+            return;
+          }
+
+          // Desabilita o botão durante o salvamento
+          $btn.disabled = true;
+          $btn.textContent = 'Salvando...';
+
+          try {
+            const sucesso = await salvarCliente(nome, telefone, email, endereco);
+            if (sucesso) {
+              // Limpa o formulário
+              $nome.value = '';
+              $telefone.value = '';
+              $email.value = '';
+              $endereco.value = '';
+
+              // Recarrega a lista
+              const clientes = await carregarClientes();
+              renderizarClientes(clientes, $busca.value);
+            }
+          } finally {
+            // Sempre reabilita o botão
+            $btn.disabled = false;
+            $btn.textContent = 'Salvar cliente';
           }
         });
       }
 
-      $btn.addEventListener('click', async () => {
-        const nome = $nome.value.trim();
-        const telefone = $telefone.value.trim();
-        const email = $email.value.trim();
-        const endereco = $endereco.value.trim();
-
-        if (!nome) { showMsg('Informe o nome do cliente.', false); $nome.focus(); return; }
-
-        // Validação de email
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          showMsg('Informe um e-mail válido.', false);
-          $email.focus();
-          return;
-        }
-
-        // Validação de telefone (11 dígitos com DDD)
-        if (telefone) {
-          const telefoneLimpo = telefone.replace(/\D/g, '');
-          if (telefoneLimpo.length !== 11) {
-            showMsg('Telefone deve ter 11 dígitos (DDD + 9 dígitos).', false);
-            $telefone.focus();
-            return;
-          }
-          // Validação básica de DDD (apenas verifica se começa com dígitos válidos)
-          if (!/^[1-9][1-9]/.test(telefoneLimpo)) {
-            showMsg('DDD inválido.', false);
-            $telefone.focus();
-            return;
-          }
-        }
-
-        // Desabilita o botão durante a requisição
-        $btn.disabled = true;
-        $btn.textContent = 'Salvando...';
-
-        const sucesso = await salvarCliente(nome, telefone, email, endereco);
-        
-        if (sucesso) {
-          $nome.value = '';
-          $telefone.value = '';
-          $email.value = '';
-          $endereco.value = '';
-          render($busca.value);
-        }
-
-        // Reabilita o botão
-        $btn.disabled = false;
-        $btn.textContent = 'Salvar cliente';
-      });
-
-      // Delegação para excluir
+      // Listener para exclusão
       $tbody.addEventListener('click', async (e) => {
         const btn = e.target.closest('button[data-del]');
         if (!btn) return;
-        const id = btn.getAttribute('data-del');
-        const ok = confirm('Excluir este cliente?');
-        if (!ok) return;
 
-        // Desabilita o botão durante a requisição
+        const id = btn.getAttribute('data-del');
+        if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+
         btn.disabled = true;
         btn.textContent = 'Excluindo...';
 
-        const sucesso = await excluirCliente(id);
-        
-        if (sucesso) {
-          render($busca.value);
+        try {
+          if (await excluirCliente(id)) {
+            const clientes = await carregarClientes();
+            renderizarClientes(clientes, $busca.value);
+          }
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+              <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+            </svg>
+            Excluir
+          `;
         }
-
-        // Reabilita o botão
-        btn.disabled = false;
-        btn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
-          Excluir
-        `;
       });
 
-      // Busca
-      $busca.addEventListener('input', (e) => {
-        render(e.target.value);
-      });
+      // Listener para busca
+      if ($busca) {
+        $busca.addEventListener('input', async () => {
+          const clientes = await carregarClientes();
+          renderizarClientes(clientes, $busca.value);
+        });
+      }
 
-      // Inicializa
-      render();
+      // Carrega a lista inicial
+      carregarClientes().then(clientes => renderizarClientes(clientes));
     </script>
   </body>
 </html>

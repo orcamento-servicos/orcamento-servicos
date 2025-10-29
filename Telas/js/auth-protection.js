@@ -122,3 +122,45 @@ document.addEventListener('DOMContentLoaded', function() {
     protegerPagina();
   }
 });
+
+// ====== Compatibilidade e utilitários globais ======
+// Ajusta botões que não possuem `type` explícito para evitar comportamento de submit por omissão
+(function ensureButtonTypesAndLogging(){
+  try {
+    // roda após pequeno delay para garantir que o DOM das páginas single-file já esteja pronto
+    window.addEventListener('load', () => {
+      const buttons = Array.from(document.querySelectorAll('button'));
+      let fixed = 0;
+      buttons.forEach(btn => {
+        if (!btn.hasAttribute('type')) {
+          btn.setAttribute('type', 'button');
+          fixed++;
+        }
+      });
+      if (fixed > 0) console.info(`[auth-protection] Ajustados ${fixed} botões sem type para type="button"`);
+      console.debug('[auth-protection] script carregado. Número total de botões na página:', buttons.length);
+    });
+  } catch (e) {
+    console.error('[auth-protection] Erro ao ajustar botões:', e);
+  }
+})();
+
+// Pequeno utilitário para logar respostas de fetch para debugging rápido (opcional)
+window.debugFetchResponse = async function(response) {
+  try {
+    console.log('[debugFetch] status', response.status, 'ok', response.ok);
+    const ct = response.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      const data = await response.clone().json();
+      console.log('[debugFetch] json', data);
+      return data;
+    } else {
+      const txt = await response.clone().text();
+      console.log('[debugFetch] text', txt.substring(0, 200));
+      return txt;
+    }
+  } catch (err) {
+    console.error('[debugFetch] erro ao ler resposta:', err);
+    return null;
+  }
+};

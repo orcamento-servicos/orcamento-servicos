@@ -98,6 +98,7 @@
           <div class="mt-auto pt-4">
             <a
               href="/"
+              data-logout="true"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -186,281 +187,76 @@
     <script src="/js/auth-protection.js"></script>
     
     <script>
-      // Configuração da API
-      const API_BASE_URL = '/api';
-
-      // ====== ELEMENTOS ======
+      // Elementos
       const $selCliente = document.getElementById('sel-cliente');
       const $listaServ = document.getElementById('lista-servicos');
-      const $buscaServ = document.getElementById('inp-busca-serv');
+      const $btnPdf = document.getElementById('btn-pdf');
       const $warnCliente = document.getElementById('warn-cliente');
-      const $warnSrv = document.getElementById('warn-serv');
-
+      const $warnServ = document.getElementById('warn-serv');
+      const $msg = document.getElementById('msg');
       const $clienteNome = document.getElementById('cliente-nome');
       const $clienteTelefone = document.getElementById('cliente-telefone');
       const $clienteEmail = document.getElementById('cliente-email');
       const $clienteEndereco = document.getElementById('cliente-endereco');
-
       const $prevCliente = document.getElementById('prev-cliente');
       const $prevQtd = document.getElementById('prev-qtd');
       const $prevTotal = document.getElementById('prev-total');
       const $tbodyPrev = document.getElementById('tbody-preview');
 
-      const $btnPDF = document.getElementById('btn-pdf');
-      const $msg = document.getElementById('msg');
-
-      // ====== UTILS ======
-      function moeda(v) { 
-        return new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(Number(v||0)); 
-      }
-      function escapeHtml(s) { 
-        return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); 
-      }
-      function showMsg(text, ok=true) { 
-        $msg.textContent=text; 
-        $msg.className='text-sm ' + (ok?'text-emerald-300':'text-red-300'); 
-        setTimeout(()=>{$msg.textContent='';$msg.className='text-sm text-white/70'},2200); 
+      function showMsg(text, ok = true) {
+        if (!$msg) return console.log(text);
+        $msg.textContent = text;
+        $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
+        setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
       }
 
-      // ====== CLIENTES ======
+      function moeda(v) { return new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(Number(v||0)); }
+      function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+      // Clientes
       let cacheClientes = [];
       async function carregarClientes() {
         try {
-          const response = await fetch(`${API_BASE_URL}/clientes/`, {
-            method: 'GET',
-            credentials: 'include'
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            cacheClientes = data.clientes || [];
-            preencherClientes();
-            $warnCliente.classList.toggle('hidden', cacheClientes.length > 0);
-          } else {
-            console.error('Erro ao carregar clientes:', response.status);
-            cacheClientes = [];
-            $warnCliente.classList.remove('hidden');
-          }
-        } catch (error) {
-          console.error('Erro na requisição:', error);
-          showMsg('Erro ao carregar clientes. Verifique se o servidor está rodando.', false);
-          cacheClientes = [];
-          $warnCliente.classList.remove('hidden');
-        }
+          const res = await fetch(`${API_BASE_URL}/clientes/`, { credentials: 'include' });
+          if (!res.ok) { showMsg('Não foi possível carregar clientes', false); $warnCliente.classList.remove('hidden'); return; }
+          const data = await res.json();
+          cacheClientes = data.clientes || [];
+          preencherClientes();
+          $warnCliente.classList.toggle('hidden', cacheClientes.length > 0);
+        } catch (err) { console.error(err); showMsg('Erro ao carregar clientes', false); $warnCliente.classList.remove('hidden'); }
       }
+      function preencherClientes() { $selCliente.innerHTML = '<option value="">Selecione um cliente...</option>'; cacheClientes.forEach(c => { const opt = document.createElement('option'); opt.value = c.id_cliente; opt.textContent = `${c.nome} ${c.telefone ? '— ' + c.telefone : ''}`; $selCliente.appendChild(opt); }); }
+      function getClienteSelecionado() { const id = $selCliente.value; if (!id) return null; return cacheClientes.find(c => String(c.id_cliente) === String(id)) || null; }
 
-      function preencherClientes() {
-        $selCliente.innerHTML = '<option value="">Selecione um cliente...</option>';
-        cacheClientes.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id_cliente;
-          opt.textContent = `${c.nome} ${c.telefone ? '— ' + c.telefone : ''}`;
-          $selCliente.appendChild(opt);
-        });
-      }
-
-      function getClienteSelecionado() {
-        const id = $selCliente.value;
-        if (!id) return null;
-        return cacheClientes.find(c => c.id_cliente == id) || null;
-      }
-
-      // ====== SERVIÇOS ======
+      // Serviços
       let cacheServicos = [];
       async function carregarServicos() {
         try {
-          const response = await fetch(`${API_BASE_URL}/servicos/`, {
-            method: 'GET',
-            credentials: 'include'
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            cacheServicos = data.servicos || [];
-            renderServicos();
-            $warnSrv.classList.toggle('hidden', cacheServicos.length > 0);
-          } else {
-            console.error('Erro ao carregar serviços:', response.status);
-            cacheServicos = [];
-            $warnSrv.classList.remove('hidden');
-          }
-        } catch (error) {
-          console.error('Erro na requisição:', error);
-          showMsg('Erro ao carregar serviços. Verifique se o servidor está rodando.', false);
-          cacheServicos = [];
-          $warnSrv.classList.remove('hidden');
-        }
+          const res = await fetch(`${API_BASE_URL}/servicos/`, { credentials: 'include' });
+          if (!res.ok) { showMsg('Não foi possível carregar serviços', false); $warnServ.classList.remove('hidden'); return; }
+          const data = await res.json(); cacheServicos = data.servicos || []; renderServicos(); $warnServ.classList.toggle('hidden', cacheServicos.length > 0);
+        } catch (err) { console.error(err); showMsg('Erro ao carregar serviços', false); $warnServ.classList.remove('hidden'); }
       }
+      function renderServicos() { const q = (document.getElementById('inp-busca-serv')?.value || '').trim().toLowerCase(); const list = cacheServicos.filter(s => !q || s.nome.toLowerCase().includes(q) || (s.descricao || '').toLowerCase().includes(q)); $listaServ.innerHTML = ''; list.forEach(s => { const card = document.createElement('label'); card.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 hover:bg-white/[0.07]'; card.innerHTML = `<input type="checkbox" class="form-checkbox rounded" data-id="${s.id_servicos}" /> <div class="flex-1"><p class="text-white font-medium leading-tight">${escapeHtml(s.nome)}</p><p class="text-white/70 text-sm line-clamp-2">${escapeHtml(s.descricao || 'Sem descrição')}</p></div><div class="text-right"><p class="text-white font-semibold">${moeda(s.valor)}</p></div>`; $listaServ.appendChild(card); }); bindServicoChecks(); }
+      function bindServicoChecks() { $listaServ.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', syncPreview)); }
+      function getServicosSelecionados() { const ids = Array.from($listaServ.querySelectorAll('input[type="checkbox"]:checked')).map(i => i.getAttribute('data-id')); return cacheServicos.filter(s => ids.includes(String(s.id_servicos))); }
 
-      function renderServicos() {
-        const q = ($buscaServ.value||'').trim().toLowerCase();
-        const data = cacheServicos.filter(s =>
-          !q || s.nome.toLowerCase().includes(q) || (s.descricao||'').toLowerCase().includes(q)
-        );
-        $listaServ.innerHTML = '';
-        data.forEach(s => {
-          const id = `srv-${s.id_servicos}`;
-          const card = document.createElement('label');
-          card.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 hover:bg-white/[0.07]';
-          card.innerHTML = `
-            <input type="checkbox" class="form-checkbox rounded" data-id="${s.id_servicos}" />
-            <div class="flex-1">
-              <p class="text-white font-medium leading-tight">${escapeHtml(s.nome)}</p>
-              <p class="text-white/70 text-sm line-clamp-2">${escapeHtml(s.descricao||'Sem descrição')}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-white font-semibold">${moeda(s.valor)}</p>
-            </div>
-          `;
-          $listaServ.appendChild(card);
-        });
-        bindServicoChecks();
-      }
+      // Preview
+      function syncPreview() { const cliente = getClienteSelecionado(); if (cliente) { $clienteNome.textContent = cliente.nome; $clienteTelefone.textContent = cliente.telefone || '—'; $clienteEmail.textContent = cliente.email || '—'; $clienteEndereco.textContent = cliente.endereco || '—'; $prevCliente.textContent = cliente.nome; } else { $clienteNome.textContent = '—'; $clienteTelefone.textContent = '—'; $clienteEmail.textContent = '—'; $clienteEndereco.textContent = '—'; $prevCliente.textContent = '—'; } const selecionados = getServicosSelecionados(); $prevQtd.textContent = selecionados.length; const total = selecionados.reduce((acc, s) => acc + Number(s.valor || 0), 0); $prevTotal.textContent = moeda(total); $tbodyPrev.innerHTML = ''; selecionados.forEach(s => { const tr = document.createElement('tr'); tr.innerHTML = `<td class="px-4 py-2">${escapeHtml(s.nome)}</td><td class="px-4 py-2">${escapeHtml(s.descricao || '-')}</td><td class="px-4 py-2 text-right">${moeda(s.valor)}</td>`; $tbodyPrev.appendChild(tr); }); }
 
-      function getServicosSelecionados() {
-        const ids = Array.from($listaServ.querySelectorAll('input[type="checkbox"]:checked')).map(i => i.getAttribute('data-id'));
-        return cacheServicos.filter(s => ids.includes(String(s.id_servicos)));
-      }
-
-      function bindServicoChecks() {
-        $listaServ.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', syncPreview);
-        });
-      }
-
-      // ====== PREVIEW ======
-      function syncPreview() {
-        // Cliente selecionado
-        const cliente = getClienteSelecionado();
-        if (cliente) {
-          $clienteNome.textContent = cliente.nome;
-          $clienteTelefone.textContent = cliente.telefone || '—';
-          $clienteEmail.textContent = cliente.email || '—';
-          $clienteEndereco.textContent = cliente.endereco || '—';
-          $prevCliente.textContent = cliente.nome;
-        } else {
-          $clienteNome.textContent = '—';
-          $clienteTelefone.textContent = '—';
-          $clienteEmail.textContent = '—';
-          $clienteEndereco.textContent = '—';
-          $prevCliente.textContent = '—';
-        }
-
-        // Serviços selecionados
-        const selecionados = getServicosSelecionados();
-        $prevQtd.textContent = selecionados.length;
-        const total = selecionados.reduce((acc, s) => acc + Number(s.valor || 0), 0);
-        $prevTotal.textContent = moeda(total);
-
-        // Tabela preview
-        $tbodyPrev.innerHTML = '';
-        selecionados.forEach(s => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="px-4 py-2">${escapeHtml(s.nome)}</td>
-            <td class="px-4 py-2">${escapeHtml(s.descricao||'-')}</td>
-            <td class="px-4 py-2 text-right">${moeda(s.valor)}</td>
-          `;
-          $tbodyPrev.appendChild(tr);
-        });
-      }
-
-      // ====== PDF ======
+      // Gerar PDF
       async function gerarPDF() {
-        const cliente = getClienteSelecionado();
-        const selecionados = getServicosSelecionados();
+        const cliente = getClienteSelecionado(); const selecionados = getServicosSelecionados(); if (!cliente) { showMsg('Selecione um cliente.', false); $selCliente.focus(); return; } if (selecionados.length === 0) { showMsg('Selecione ao menos um serviço.', false); return; }
+        $btnPdf.disabled = true; $btnPdf.textContent = 'Gerando...'; try { const itens = selecionados.map(s => ({ id_servico: s.id_servicos, quantidade: 1 })); const res = await fetch(`${API_BASE_URL}/orcamentos/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id_cliente: cliente.id_cliente, itens }) }); const data = await res.json(); if (!res.ok) { showMsg(data.erro || 'Erro ao criar orçamento', false); return; } const idOrc = data.orcamento?.id_orcamento; if (!idOrc) { showMsg('Resposta inesperada do servidor', false); return; } const pdfRes = await fetch(`${API_BASE_URL}/orcamentos/${idOrc}/pdf`, { credentials: 'include' }); if (!pdfRes.ok) { const err = await pdfRes.json().catch(() => ({ erro: 'Erro ao gerar PDF' })); showMsg(err.erro || 'Erro ao gerar PDF', false); return; } const blob = await pdfRes.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `orcamento_${idOrc}.pdf`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); showMsg('PDF gerado com sucesso!'); } catch (err) { console.error(err); showMsg('Erro de conexão. Verifique se o servidor está rodando.', false); } finally { $btnPdf.disabled = false; $btnPdf.textContent = 'Gerar PDF'; } }
 
-        if (!cliente) { 
-          showMsg('Selecione um cliente.', false); 
-          $selCliente.focus(); 
-          return; 
-        }
-        if (selecionados.length === 0) { 
-          showMsg('Selecione ao menos um serviço.', false); 
-          return; 
-        }
-
-        // Desabilita o botão durante a requisição
-        $btnPDF.disabled = true;
-        $btnPDF.textContent = 'Gerando...';
-
-        try {
-          // Primeiro, cria o orçamento na API
-          const itens = selecionados.map(s => ({
-            id_servico: s.id_servicos,
-            quantidade: 1
-          }));
-
-          const response = await fetch(`${API_BASE_URL}/orcamentos/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-              id_cliente: cliente.id_cliente,
-              itens: itens
-            })
-          });
-
-          const data = await response.json();
-          
-          if (response.ok) {
-            // Agora gera o PDF
-            const idOrcamento = data.orcamento.id_orcamento;
-            const pdfResponse = await fetch(`${API_BASE_URL}/orcamentos/${idOrcamento}/pdf`, {
-              method: 'GET',
-              credentials: 'include'
-            });
-
-            if (pdfResponse.ok) {
-              // Baixa o PDF
-              const blob = await pdfResponse.blob();
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `orcamento_${idOrcamento}.pdf`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              window.URL.revokeObjectURL(url);
-              
-              showMsg('PDF gerado com sucesso!');
-            } else {
-              const errorData = await pdfResponse.json();
-              showMsg(errorData.erro || 'Erro ao gerar PDF', false);
-            }
-          } else {
-            showMsg(data.erro || 'Erro ao criar orçamento', false);
-          }
-        } catch (error) {
-          console.error('Erro na requisição:', error);
-          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
-        } finally {
-          // Reabilita o botão
-          $btnPDF.disabled = false;
-          $btnPDF.textContent = 'Gerar PDF';
-        }
-      }
-
-      // ====== EVENTOS ======
-      document.getElementById('sidebar')?.querySelectorAll('.menu-item').forEach(a => {
-        const href = a.getAttribute('href') || '';
-        if (href === (location.pathname.split('/').pop() || '')) a.classList.add("bg-[#243647]", "ring-1", "ring-white/10");
-      });
-
+      // Eventos
+      document.getElementById('sidebar')?.querySelectorAll('.menu-item').forEach(a => { const href = a.getAttribute('href') || ''; if (href === (location.pathname.split('/').pop() || '')) a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10'); });
       $selCliente.addEventListener('change', syncPreview);
-      $buscaServ.addEventListener('input', () => { 
-        renderServicos(); 
-        syncPreview(); 
-      });
+      document.getElementById('inp-busca-serv')?.addEventListener('input', () => { renderServicos(); syncPreview(); });
+      $btnPdf.addEventListener('click', gerarPDF);
 
-      $btnPDF.addEventListener('click', gerarPDF);
-
-      // ====== INIT ======
-      carregarClientes();
-      carregarServicos();
-      syncPreview();
+      // Init
+      carregarClientes(); carregarServicos(); setTimeout(syncPreview, 250);
     </script>
   </body>
 </html>

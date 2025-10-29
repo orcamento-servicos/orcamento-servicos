@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detalhe do Orçamento</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+    href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-[#111a22]" style='font-family: Inter, "Noto Sans", sans-serif'>
+  <div class="flex min-h-screen w-full">
+    <!-- Sidebar -->
+    <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+      <div class="p-5 flex flex-col h-full">
+        <div class="flex flex-col items-center gap-3">
+          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10"
+               style='background-image:url("../Imagens/usuario.jpg");'></div>
+          <div class="text-center">
+            <p class="text-white text-lg font-bold leading-tight">Usuário exemplo</p>
+            <p class="text-[#b9cee3] text-sm">Online</p>
+          </div>
+          <a href="/MenuPrincipal/TelaEditarPerfil.html" class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">Editar Perfil</a>
+        </div>
+        <div class="mt-6">
+          <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+          <p class="text-[#9fbbd4] text-xs">v1.0</p>
+        </div>
+        <nav class="mt-4 grid gap-1" id="sidebar">
+          <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor"><path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/></svg>
+    </span>
+    <span class="text-white text-sm font-medium">Home</span>
+  </a>
+  <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+    <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/></svg></span>
+    <span class="text-white text-sm font-medium">Registrar cliente</span>
+  </a>
+  <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+    <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg></span>
+    <span class="text-white text-sm font-medium">Registrar serviço</span>
+  </a>
+  <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+    <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/></svg></span>
+    <span class="text-white text-sm font-medium">Agendar serviço</span>
+  </a>
+  <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg bg-[#243647] ring-1 ring-white/10">
+    <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/></svg></span>
+    <span class="text-white text-sm font-medium">Ver histórico</span>
+  </a>
+  <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+    <span class="text-white"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg></span>
+    <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+  </a>
+</nav>
+        <div class="mt-auto pt-4">
+          <a href="#" data-logout="true" class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition">Sair</a>
+        </div>
+      </div>
+    </aside>
+    <!-- Conteúdo -->
+    <main class="flex-1 max-w-[900px] w-full mx-auto px-6 py-8">
+      <div id="orcamento-detalhe" class="bg-[#1a2a38] rounded-xl p-8 shadow-lg border border-white/10 text-white">
+        <h2 class="text-2xl font-bold mb-2">Orçamento <span id="orcamento-id"></span></h2>
+        <div class="mb-4 text-[#93adc8]" id="orcamento-status"></div>
+        <div class="mb-4">
+          <span class="font-semibold">Cliente:</span> <span id="cliente-nome"></span><br>
+          <span class="font-semibold">Telefone:</span> <span id="cliente-telefone"></span><br>
+          <span class="font-semibold">Email:</span> <span id="cliente-email"></span><br>
+          <span class="font-semibold">Endereço:</span> <span id="cliente-endereco"></span>
+        </div>
+        <div class="mb-4">
+          <span class="font-semibold">Data de criação:</span> <span id="orcamento-data"></span>
+        </div>
+        <div class="mb-6">
+          <table class="min-w-full divide-y divide-white/10">
+            <thead class="bg-white/5">
+              <tr class="text-[#b9cee3] text-sm">
+                <th class="px-4 py-3 text-left font-medium">Serviço</th>
+                <th class="px-4 py-3 text-left font-medium">Descrição</th>
+                <th class="px-4 py-3 text-right font-medium">Qtd.</th>
+                <th class="px-4 py-3 text-right font-medium">Valor Unitário</th>
+                <th class="px-4 py-3 text-right font-medium">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="itens-tbody" class="divide-y divide-white/5 text-white/90"></tbody>
+          </table>
+        </div>
+        <div class="text-right text-lg font-bold mb-4">
+          Valor Total: <span id="orcamento-total"></span>
+        </div>
+        <div class="flex gap-4">
+          <button id="btn-aprovar" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded-lg">Aprovar</button>
+          <button id="btn-recusar" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg">Recusar</button>
+          <a id="btn-pdf" href="#" target="_blank" class="bg-[#1773cf] hover:bg-[#145ca1] text-white font-semibold px-6 py-2 rounded-lg">Baixar PDF</a>
+        </div>
+        <div id="msg" class="mt-4 text-sm"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/auth-protection.js"></script>
+  <script>
+    // Utilidades
+    function moeda(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0)); }
+    function fmtDataHora(iso){
+      const d = new Date(iso);
+      if (isNaN(d)) return '-';
+      const dd = d.toLocaleDateString('pt-BR');
+      const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      return dd+' '+hh;
+    }
+    // Pega ID do orçamento da URL (?id=123)
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) {
+      document.getElementById('orcamento-detalhe').innerHTML = '<p class="text-red-400">ID do orçamento não informado.</p>';
+    } else {
+      carregarOrcamento(id);
+    }
+    async function carregarOrcamento(id) {
+      try {
+        const resp = await fetch(`/api/orcamentos/${id}`, { credentials: 'include' });
+        if (!resp.ok) throw new Error('Erro ao buscar orçamento');
+        const data = await resp.json();
+        const o = data.orcamento;
+        document.getElementById('orcamento-id').textContent = '#' + o.id_orcamento;
+        document.getElementById('orcamento-status').textContent = 'Status: ' + o.status;
+        document.getElementById('cliente-nome').textContent = o.cliente_nome || '-';
+        document.getElementById('cliente-telefone').textContent = o.cliente_telefone || '-';
+        document.getElementById('cliente-email').textContent = o.cliente_email || '-';
+        document.getElementById('cliente-endereco').textContent = o.cliente_endereco || '-';
+        document.getElementById('orcamento-data').textContent = fmtDataHora(o.data_criacao);
+        document.getElementById('orcamento-total').textContent = moeda(o.valor_total);
+        // Itens
+        const $itens = document.getElementById('itens-tbody');
+        $itens.innerHTML = '';
+        (data.itens||[]).forEach(item => {
+          $itens.innerHTML += `<tr>
+            <td class="px-4 py-3">${item.servico_nome||'-'}</td>
+            <td class="px-4 py-3">${item.servico_descricao||'-'}</td>
+            <td class="px-4 py-3 text-right">${item.quantidade}</td>
+            <td class="px-4 py-3 text-right">${moeda(item.valor_unitario)}</td>
+            <td class="px-4 py-3 text-right">${moeda(item.subtotal)}</td>
+          </tr>`;
+        });
+        // PDF
+        document.getElementById('btn-pdf').href = `/api/orcamentos/${o.id_orcamento}/pdf`;
+        // Aprovar/Recusar
+        document.getElementById('btn-aprovar').onclick = () => atualizarStatus(o.id_orcamento, 'Aprovado');
+        document.getElementById('btn-recusar').onclick = () => atualizarStatus(o.id_orcamento, 'Recusado');
+      } catch (e) {
+        document.getElementById('orcamento-detalhe').innerHTML = '<p class="text-red-400">Erro ao carregar orçamento.</p>';
+      }
+    }
+    async function atualizarStatus(id, status) {
+      try {
+        const resp = await fetch(`/api/orcamentos/${id}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ status })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          document.getElementById('msg').textContent = 'Status atualizado com sucesso!';
+          carregarOrcamento(id);
+        } else {
+          document.getElementById('msg').textContent = data.erro || 'Erro ao atualizar status.';
+        }
+      } catch (e) {
+        document.getElementById('msg').textContent = 'Erro ao atualizar status.';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -99,6 +99,7 @@
           <div class="mt-auto pt-4">
             <a
               href="/"
+              data-logout="true"
               class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
             >
               Sair
@@ -161,9 +162,6 @@
     <script src="/js/auth-protection.js"></script>
     
     <script>
-      // Configuração da API
-      const API_BASE_URL = '/api';
-
       // Destaca item ativo conforme URL
       (function () {
         const path = location.pathname.split('/').pop() || '';
@@ -223,6 +221,9 @@
       // Função para salvar serviço na API
       async function salvarServico(nome, descricao, preco) {
         try {
+          // Limpar telefone antes de enviar
+          const valorNumerico = Number(preco.replace(/[^0-9.,]/g, '').replace(',', '.'));
+          
           const response = await fetch(`${API_BASE_URL}/servicos/`, {
             method: 'POST',
             headers: {
@@ -230,24 +231,28 @@
             },
             credentials: 'include',
             body: JSON.stringify({
-              nome: nome,
-              descricao: descricao,
-              valor: Number(preco)
+              nome: nome.trim(),
+              descricao: descricao.trim(),
+              valor: valorNumerico
             })
           });
 
-          const data = await response.json();
-          
-          if (response.ok) {
-            showMsg('Serviço salvo com sucesso!');
-            return true;
-          } else {
-            showMsg(data.erro || 'Erro ao salvar serviço', false);
-            return false;
+          if (!response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              throw new Error(data.erro || 'Erro ao salvar serviço');
+            } else {
+              throw new Error('Erro ao salvar serviço');
+            }
           }
+
+          const data = await response.json();
+          showMsg('Serviço salvo com sucesso!');
+          return true;
         } catch (error) {
           console.error('Erro na requisição:', error);
-          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false);
+          showMsg(error.message || 'Erro de conexão. Verifique se o servidor está rodando.', false);
           return false;
         }
       }
@@ -317,29 +322,38 @@
 
       // Salvar
       $btn.addEventListener('click', async () => {
-        const nome = $nome.value.trim();
-        const descricao = $desc.value.trim();
-        const preco = $preco.value.trim();
+        const nome = $nome.value;
+        const descricao = $desc.value;
+        const preco = $preco.value;
 
-        if (!nome) { showMsg('Informe o nome do serviço.', false); $nome.focus(); return; }
-        if (preco === '' || Number(preco) < 0) { showMsg('Informe um preço válido.', false); $preco.focus(); return; }
-
-        // Desabilita o botão durante a requisição
-        $btn.disabled = true;
-        $btn.textContent = 'Salvando...';
-
-        const sucesso = await salvarServico(nome, descricao, preco);
-        
-        if (sucesso) {
-          $nome.value = '';
-          $desc.value = '';
-          $preco.value = '';
-          render($busca.value);
+        if (!nome.trim()) { showMsg('Informe o nome do serviço.', false); $nome.focus(); return; }
+        if (!preco || isNaN(Number(preco.replace(/[^0-9.,]/g, '').replace(',', '.')))) { 
+          showMsg('Informe um preço válido.', false); 
+          $preco.focus(); 
+          return; 
         }
 
-        // Reabilita o botão
-        $btn.disabled = false;
-        $btn.textContent = 'Salvar serviço';
+        try {
+          // Desabilita o botão durante a requisição
+          $btn.disabled = true;
+          $btn.textContent = 'Salvando...';
+
+          const sucesso = await salvarServico(nome, descricao, preco);
+          
+          if (sucesso) {
+            $nome.value = '';
+            $desc.value = '';
+            $preco.value = '';
+            render($busca.value);
+          }
+        } catch (error) {
+          console.error('Erro ao salvar:', error);
+          showMsg(error.message || 'Erro ao salvar serviço', false);
+        } finally {
+          // Reabilita o botão
+          $btn.disabled = false;
+          $btn.textContent = 'Salvar serviço';
+        }
       });
 
       // Excluir (delegação)

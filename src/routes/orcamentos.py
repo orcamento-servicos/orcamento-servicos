@@ -314,110 +314,100 @@ def converter_em_venda(id_orcamento):
 def gerar_pdf_orcamento(id_orcamento):
     """
     Gera um PDF formatado com dados do cliente, serviços selecionados e valor total.
-    Requer WeasyPrint instalado no ambiente.
+    Usa ReportLab para gerar o PDF.
     """
     try:
-        if not WEASYPRINT_AVAILABLE:
-            return jsonify({'erro': 'Geração de PDF indisponível: WeasyPrint não instalado'}), 503
-
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import cm
+        from io import BytesIO
+        
         orcamento = Orcamento.query.get_or_404(id_orcamento)
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
 
-        # Função auxiliar para formatar moeda em pt-BR
         def formatar_brl(valor_decimal):
             valor = float(valor_decimal)
             txt = f"{valor:,.2f}"
             txt = txt.replace(',', 'X').replace('.', ',').replace('X', '.')
             return f"R$ {txt}"
 
-        # Tenta embutir logo se existir em src/static/logo.png
-        logo_data_uri = ''
-        try:
-            base_dir = os.path.dirname(os.path.dirname(__file__))
-            logo_path = os.path.join(base_dir, 'static', 'logo.png')
-            if os.path.exists(logo_path):
-                with open(logo_path, 'rb') as f:
-                    b64 = base64.b64encode(f.read()).decode('utf-8')
-                    logo_data_uri = f"data:image/png;base64,{b64}"
-        except Exception:
-            logo_data_uri = ''
-
-        EMPRESA_NOME = 'Sua Empresa Ltda.'
-        EMPRESA_ENDERECO = 'Rua Exemplo, 123 - Cidade/UF'
-        EMPRESA_CONTATO = 'contato@empresa.com | (11) 0000-0000'
-
-        # HTML com header/footer e estilos
-        html_conteudo = f"""
-        <html>
-        <head>
-            <meta charset='utf-8'>
-            <style>
-                @page {{
-                    size: A4;
-                    margin: 20mm 15mm 20mm 15mm;
-                    @top-center {{ content: element(header); }}
-                    @bottom-center {{ content: 'Página ' counter(page) ' de ' counter(pages); font-size: 10px; color: #666; }}
-                }}
-                body {{ font-family: Arial, sans-serif; font-size: 12px; color: #222; }}
-                header.header {{ padding-bottom: 8px; border-bottom: 2px solid #333; }}
-                .header-content {{ display: flex; align-items: center; gap: 12px; }}
-                .logo {{ height: 40px; }}
-                .empresa {{ font-size: 14px; font-weight: bold; }}
-                .sub {{ font-size: 11px; color: #555; }}
-                h1 {{ font-size: 18px; margin: 14px 0 6px 0; }}
-                .meta {{ margin: 0 0 8px 0; }}
-                table {{ width: 100%; border-collapse: collapse; margin-top: 10px; }}
-                th, td {{ border: 1px solid #ccc; padding: 8px; text-align: left; }}
-                th {{ background: #f5f5f5; }}
-                .right {{ text-align: right; }}
-                .total {{ margin-top: 12px; font-weight: bold; text-align: right; }}
-                thead {{ display: table-header-group; }}
-                tr {{ page-break-inside: avoid; }}
-            </style>
-        </head>
-        <body>
-            <header class="header" style="position: running(header);">
-                <div class="header-content">
-                    {f'<img class="logo" src="{logo_data_uri}">' if logo_data_uri else ''}
-                    <div>
-                        <div class="empresa">{EMPRESA_NOME}</div>
-                        <div class="sub">{EMPRESA_ENDERECO}</div>
-                        <div class="sub">{EMPRESA_CONTATO}</div>
-                    </div>
-                </div>
-            </header>
-
-            <h1>Orçamento #{orcamento.id_orcamento}</h1>
-            <p class="meta"><strong>Data:</strong> {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}</p>
-            <p class="meta"><strong>Status:</strong> {orcamento.status}</p>
-            <p class="meta"><strong>Cliente:</strong> {cliente.nome} — {cliente.telefone or '-'} | {cliente.email or '-'}</p>
-            <p class="meta"><strong>Endereço:</strong> {cliente.endereco or '-'}</p>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Serviço</th>
-                        <th>Descrição</th>
-                        <th class="right">Qtd.</th>
-                        <th class="right">Valor Unitário</th>
-                        <th class="right">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {''.join([
-                        f"<tr><td>{rel.servico.nome}</td><td>{rel.servico.descricao or '-'}</td><td class='right'>{rel.quantidade}</td><td class='right'>{formatar_brl(rel.valor_unitario)}</td><td class='right'>{formatar_brl(rel.subtotal)}</td></tr>"
-                        for rel in itens
-                    ])}
-                </tbody>
-            </table>
-
-            <p class='total'>Valor Total: {formatar_brl(orcamento.valor_total)}</p>
-        </body>
-        </html>
-        """
-
-        pdf_bytes = HTML(string=html_conteudo).write_pdf()
+        # Configuração do documento
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1*cm, leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
+        
+        # Estilos
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            spaceAfter=30
+        )
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=12,
+            spaceAfter=20
+        )
+        normal_style = styles["Normal"]
+        
+        # Conteúdo do documento
+        elements = []
+        
+        # Título
+        elements.append(Paragraph(f"Orçamento #{orcamento.id_orcamento}", title_style))
+        
+        # Informações do cliente
+        elements.append(Paragraph(f"Data: {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}", normal_style))
+        elements.append(Paragraph(f"Status: {orcamento.status}", normal_style))
+        elements.append(Paragraph(f"Cliente: {cliente.nome}", normal_style))
+        if cliente.telefone:
+            elements.append(Paragraph(f"Telefone: {cliente.telefone}", normal_style))
+        if cliente.email:
+            elements.append(Paragraph(f"Email: {cliente.email}", normal_style))
+        if cliente.endereco:
+            elements.append(Paragraph(f"Endereço: {cliente.endereco}", normal_style))
+        
+        elements.append(Spacer(1, 20))
+        
+        # Tabela de serviços
+        table_data = [['Serviço', 'Descrição', 'Qtd.', 'Valor Unit.', 'Subtotal']]
+        for item in itens:
+            table_data.append([
+                item.servico.nome,
+                item.servico.descricao or '-',
+                str(item.quantidade),
+                formatar_brl(item.valor_unitario),
+                formatar_brl(item.subtotal)
+            ])
+            
+        # Adiciona linha do total
+        table_data.append(['', '', '', 'Total:', formatar_brl(orcamento.valor_total)])
+        
+        # Estilo da tabela
+        table = Table(table_data, colWidths=[4*cm, 6*cm, 2*cm, 3*cm, 3*cm])
+        table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),  # Alinha números à direita
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Cabeçalho em negrito
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('GRID', (0, 0), (-1, -2), 1, colors.black),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Total em negrito
+            ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),  # Linha acima do total
+        ]))
+        
+        elements.append(table)
+        
+        # Gera o PDF
+        doc.build(elements)
+        pdf_bytes = buffer.getvalue()
+        buffer.close()
 
         # Log de sucesso
         try:
