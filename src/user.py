@@ -1,18 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
+"""
+DEPRECATED: this simple `src/user.py` module was used for quick tests.
+The project uses `src/models/models.py` (SQLAlchemy models) and this file
+is not referenced by the application. Keep it only temporarily; it can be
+removed safely in a later cleanup once CI confirms no references remain.
 
-db = SQLAlchemy()
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email
-        }
+If you want it deleted now, tell me and I'll remove this file from the repo.
+"""

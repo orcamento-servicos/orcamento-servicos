@@ -73,50 +73,48 @@ Sistema completo de gerenciamento de orçamentos de serviços com API REST em Fl
     - Workflow de aprovação configurável
     - Templates de orçamento personalizáveis
 
-## 🚀 Executando com Docker Compose
-
-Instruções rápidas para rodar a aplicação com PostgreSQL via Docker Compose (recomendado):
-
-1. Copie o arquivo de exemplo e edite valores sensíveis (opcional):
-
-```powershell
-cp .env.example .env
-# Edite .env se precisar (ex.: SECRET_KEY)
-```
-
-2. Build e subir os containers:
-
-```powershell
 docker compose up --build
-```
-
-3. Subir em background:
-
-```powershell
 docker compose up -d --build
-```
+docker compose logs -f backend db
+## ▶️ Executando localmente (sem Docker)
 
-4. Ver logs:
+Se você prefere rodar a aplicação diretamente no Windows (sem Docker), siga estas instruções rápidas.
+
+1) Crie um ambiente virtual e ative (PowerShell):
 
 ```powershell
-docker compose logs -f backend db
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
 ```
 
-Notas:
-- Se quiser usar SQLite localmente, comente `DATABASE_URL` no `.env` e a aplicação usará o arquivo `src/database/app.db` como fallback.
-- Para produção, recomendo configurar variáveis reais (SECRET_KEY, POSTGRES_PASSWORD) e usar migrations (Alembic) em vez de `db.create_all()`.
+2) Instale dependências:
+
+```powershell
+pip install -r requirements.txt
+```
+
+3) Crie o arquivo de variáveis de ambiente a partir do exemplo e edite se necessário:
+
+```powershell
+Copy-Item .env.example .env
+# Abra .env e ajuste SECRET_KEY, SMTP_* e (opcional) DATABASE_URL
+```
+
+Observações sobre o banco de dados:
+- Por padrão a aplicação usa a variável `DATABASE_URL`. Se não definida, ela cairá para um SQLite local (`sqlite:///banco.db`).
+- Se quiser usar um Postgres local/hosted, defina `DATABASE_URL` no formato: `postgresql://user:password@host:5432/dbname`.
+
+4) Execute a aplicação:
+
+```powershell
+python .\src\main.py
+```
+
+5) Acesse a API pelo navegador em: http://localhost:5000
+
+Notas de produção:
+- Em produção, configure variáveis reais (SECRET_KEY, credenciais do banco e SMTP) e use migrations (Alembic) em vez de confiar apenas em `db.create_all()` no startup.
 
 ---
-
-## 🗂️ Organização dos arquivos Docker
-
-Todos os arquivos relacionados ao Docker agora ficam na pasta `docker/`:
-- `docker/Dockerfile` — arquivo principal de build
-- `docker/docker-entrypoint.sh` — script de inicialização
-
-O `docker-compose.yml` na raiz já está configurado para usar o Dockerfile dentro da pasta `docker/`.
-
-Se você encontrar arquivos antigos como `dockerfile` ou `docker-entrypoint.sh` na raiz, pode removê-los com segurança.
 
 ## 📦 Sobre requirements
 

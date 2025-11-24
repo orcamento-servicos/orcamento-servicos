@@ -2,6 +2,9 @@
 venv/
 .env
 
+# Virtual environment commonly used by this project
+.venv/
+
 #  Arquivos de cache do Python
 __pycache__/
 *.pyc
@@ -17,3 +20,12 @@ __pycache__/
 #  Arquivos temporários
 *.log
 *.tmp
+
+# Editor and OS
+.DS_Store
+
+# Temporary development files
+tmp-requirements.txt
+
+# Uploaded files (should not be committed)
+static/uploads/avatars/
