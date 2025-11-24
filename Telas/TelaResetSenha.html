@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OrçaTech — Redefinir senha</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body style='font-family: Inter, "Noto Sans", sans-serif;'>
+    <div class="min-h-screen flex flex-col bg-slate-50">
+      <header class="flex items-center justify-between border-b border-solid border-b-[#e7edf3] px-6 py-3 h-16">
+        <a href="TelaSobre.html" class="flex items-center gap-3 text-[#0d141b]">
+          <div class="size-24 flex items-center justify-center">
+            <img src="Imagens/OTLogoHeader.png" alt="Logo" class="w-24 h-24 object-contain" />
+          </div>
+          <h1 class="text-[#0d141b] text-lg font-bold">OrçaTech</h1>
+        </a>
+        <div class="flex gap-4">
+          <a href="TelaRegistrar.html" class="px-4 py-2 bg-[#1380ec] text-white rounded-lg">Registrar-se</a>
+          <a href="TelaLogin.html" class="px-4 py-2 bg-[#e7edf3] text-[#0d141b] rounded-lg">Entrar</a>
+        </div>
+      </header>
+
+      <main class="flex flex-1 items-center justify-center py-12 px-4">
+        <div class="w-full max-w-md bg-white rounded-lg p-8 shadow">
+          <h2 class="text-2xl font-bold text-center mb-3">Redefinir senha</h2>
+          <p class="text-center text-sm text-gray-600 mb-6">Insira sua nova senha abaixo. O link expira em 1 hora.</p>
+
+          <form id="reset-form" class="flex flex-col gap-4">
+            <input id="token-input" type="hidden" />
+
+            <label class="text-sm">Nova senha</label>
+            <input id="nova_senha" type="password" required class="w-full rounded-lg border px-3 py-2" placeholder="Digite a nova senha" />
+
+            <label class="text-sm">Confirme a nova senha</label>
+            <input id="confirma_senha" type="password" required class="w-full rounded-lg border px-3 py-2" placeholder="Confirme a nova senha" />
+
+            <button id="btn-reset" type="submit" class="w-full bg-[#1380ec] text-white rounded-lg py-2 font-bold">Redefinir senha</button>
+
+            <div id="reset-feedback" class="text-sm text-center mt-2"></div>
+          </form>
+
+          <p class="text-center text-sm mt-4">Lembrou a senha? <a href="TelaLogin.html" class="text-[#1380ec]">Voltar ao login</a></p>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      (function(){
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token') || '';
+        const tokenInput = document.getElementById('token-input');
+        const form = document.getElementById('reset-form');
+        const btn = document.getElementById('btn-reset');
+        const feedback = document.getElementById('reset-feedback');
+
+        tokenInput.value = token;
+
+        function setFeedback(text, ok=true){
+          feedback.textContent = text;
+          feedback.style.color = ok ? '#0b7a3b' : '#b91c1c';
+        }
+
+        form.addEventListener('submit', async function(e){
+          e.preventDefault();
+          feedback.textContent = '';
+          const nova = document.getElementById('nova_senha').value || '';
+          const conf = document.getElementById('confirma_senha').value || '';
+
+          if(nova.length < 6){ setFeedback('Senha deve ter ao menos 6 caracteres.', false); return; }
+          if(nova !== conf){ setFeedback('As senhas não conferem.', false); return; }
+          if(!token){ setFeedback('Token ausente na URL. Peça um novo link de recuperação.', false); return; }
+
+          btn.disabled = true; btn.textContent = 'Aguarde...';
+
+          try{
+            const res = await fetch('/api/auth/reset-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: token, nova_senha: nova })
+            });
+            const data = await res.json().catch(()=>({}));
+            if(res.ok){
+              setFeedback('Senha redefinida com sucesso! Você pode fazer login agora.');
+              // opcional: redireciona para login após 2s
+              setTimeout(()=>{ window.location.href = 'TelaLogin.html'; }, 2000);
+            } else {
+              const err = data && data.erro ? data.erro : ('Erro: ' + res.status);
+              setFeedback(err, false);
+            }
+          } catch(err){
+            setFeedback('Erro ao contatar o servidor. Tente novamente mais tarde.', false);
+          } finally{
+            btn.disabled = false; btn.textContent = 'Redefinir senha';
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

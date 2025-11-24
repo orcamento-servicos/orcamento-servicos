@@ -68,7 +68,7 @@
               Informe o e-mail associado à sua conta e enviaremos um link para redefinição de senha.
             </p>
 
-            <form action="#" method="post" class="flex flex-col items-center gap-4" novalidate>
+            <form id="forgot-form" class="flex flex-col items-center gap-4" novalidate>
               <label for="email" class="w-full max-w-[420px]">
                 <span class="sr-only">E-mail</span>
                 <input
@@ -85,12 +85,15 @@
               </label>
 
               <button
+                id="btn-forgot"
                 type="submit"
                 class="w-full max-w-[420px] h-11 rounded-lg bg-[#1380ec]
                        text-slate-50 text-sm font-bold tracking-[0.015em] flex items-center justify-center"
               >
                 Enviar link de redefinição
               </button>
+
+              <div id="forgot-feedback" class="text-sm mt-2 text-center"></div>
 
               <!-- link de retorno ao login, opcional -->
               <p class="text-[#4c739a] text-sm">
@@ -102,5 +105,61 @@
         </main>
       </div>
     </div>
+    <script>
+      // Intercepta o submit e chama a API REST para solicitar recuperação de senha
+      (function(){
+        const form = document.getElementById('forgot-form');
+        const btn = document.getElementById('btn-forgot');
+        const feedback = document.getElementById('forgot-feedback');
+
+        function setFeedback(text, ok=true){
+          feedback.textContent = text;
+          feedback.style.color = ok ? '#0b7a3b' : '#b91c1c';
+        }
+
+        form.addEventListener('submit', async function(e){
+          e.preventDefault();
+          feedback.textContent = '';
+          const email = (document.getElementById('email').value || '').trim();
+          if(!email){
+            setFeedback('Por favor informe um e-mail válido.', false);
+            return;
+          }
+
+          btn.disabled = true;
+          const originalText = btn.textContent;
+          btn.textContent = 'Enviando...';
+
+          try{
+            const res = await fetch('/api/auth/forgot-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email })
+            });
+
+            const data = await res.json().catch(()=>({}));
+
+            // Mensagem amigável (não expõe se o email existe)
+            if(res.ok){
+              let msg = 'Se o e-mail existir, enviaremos instruções para redefinição.';
+              // Em ambiente de desenvolvimento o servidor pode retornar token_teste
+              if(data && data.token_teste){
+                msg += '\nToken (apenas dev): ' + data.token_teste;
+              }
+              setFeedback(msg, true);
+            } else {
+              const err = data && data.erro ? data.erro : `Erro: ${res.status}`;
+              setFeedback(err, false);
+            }
+
+          } catch(err){
+            setFeedback('Erro ao contatar o servidor. Verifique se o backend está rodando.', false);
+          } finally{
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

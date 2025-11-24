@@ -13,6 +13,7 @@ import base64
 import secrets
 import smtplib
 from email.message import EmailMessage
+from src.utils.email_utils import send_email, get_smtp_config
 
 from src.models.models import (
     db,
@@ -317,13 +318,7 @@ def gerar_pdf_orcamento(id_orcamento):
     Usa ReportLab para gerar o PDF.
     """
     try:
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-        from reportlab.lib import colors
-        from reportlab.lib.pagesizes import A4
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.units import cm
-        from io import BytesIO
-        
+        # Busca dados do orçamento
         orcamento = Orcamento.query.get_or_404(id_orcamento)
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
@@ -334,80 +329,149 @@ def gerar_pdf_orcamento(id_orcamento):
             txt = txt.replace(',', 'X').replace('.', ',').replace('X', '.')
             return f"R$ {txt}"
 
-        # Configuração do documento
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1*cm, leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
-        
-        # Estilos
-        styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=16,
-            spaceAfter=30
-        )
-        heading_style = ParagraphStyle(
-            'CustomHeading',
-            parent=styles['Heading2'],
-            fontSize=12,
-            spaceAfter=20
-        )
-        normal_style = styles["Normal"]
-        
-        # Conteúdo do documento
-        elements = []
-        
-        # Título
-        elements.append(Paragraph(f"Orçamento #{orcamento.id_orcamento}", title_style))
-        
-        # Informações do cliente
-        elements.append(Paragraph(f"Data: {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}", normal_style))
-        elements.append(Paragraph(f"Status: {orcamento.status}", normal_style))
-        elements.append(Paragraph(f"Cliente: {cliente.nome}", normal_style))
-        if cliente.telefone:
-            elements.append(Paragraph(f"Telefone: {cliente.telefone}", normal_style))
-        if cliente.email:
-            elements.append(Paragraph(f"Email: {cliente.email}", normal_style))
-        if cliente.endereco:
-            elements.append(Paragraph(f"Endereço: {cliente.endereco}", normal_style))
-        
-        elements.append(Spacer(1, 20))
-        
-        # Tabela de serviços
-        table_data = [['Serviço', 'Descrição', 'Qtd.', 'Valor Unit.', 'Subtotal']]
-        for item in itens:
-            table_data.append([
-                item.servico.nome,
-                item.servico.descricao or '-',
-                str(item.quantidade),
-                formatar_brl(item.valor_unitario),
-                formatar_brl(item.subtotal)
-            ])
-            
-        # Adiciona linha do total
-        table_data.append(['', '', '', 'Total:', formatar_brl(orcamento.valor_total)])
-        
-        # Estilo da tabela
-        table = Table(table_data, colWidths=[4*cm, 6*cm, 2*cm, 3*cm, 3*cm])
-        table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),  # Alinha números à direita
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Cabeçalho em negrito
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('GRID', (0, 0), (-1, -2), 1, colors.black),
-            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Total em negrito
-            ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),  # Linha acima do total
-        ]))
-        
-        elements.append(table)
-        
-        # Gera o PDF
-        doc.build(elements)
-        pdf_bytes = buffer.getvalue()
-        buffer.close()
+        # Primeiro tenta usar WeasyPrint (HTML -> PDF) para um layout rico
+        if WEASYPRINT_AVAILABLE:
+            # Tenta carregar logo da empresa em static (qualquer formato suportado)
+            logo_data_uri = ''
+            try:
+                base_dir = os.path.dirname(os.path.dirname(__file__))
+                # procura por logo.png, logo.jpg ou logo.svg
+                for fname in ('logo.png', 'logo.jpg', 'logo.svg'):
+                    logo_path = os.path.join(base_dir, 'static', fname)
+                    if os.path.exists(logo_path):
+                        with open(logo_path, 'rb') as f:
+                            b64 = base64.b64encode(f.read()).decode('utf-8')
+                            mime = 'image/png' if fname.endswith('.png') else ('image/jpeg' if fname.endswith('.jpg') else 'image/svg+xml')
+                            logo_data_uri = f"data:{mime};base64,{b64}"
+                        break
+            except Exception:
+                logo_data_uri = ''
+
+            EMPRESA_NOME = os.environ.get('EMPRESA_NOME', 'ORCATECH')
+            EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', '')
+            EMPRESA_CONTATO = os.environ.get('EMPRESA_CONTATO', '')
+
+            html_conteudo = f"""
+            <html>
+            <head>
+                <meta charset='utf-8'>
+                <style>
+                    @page {{ size: A4; margin: 18mm 12mm; }}
+                    :root {{ --accent: #0b57a4; --text: #222; --muted: #666; }}
+                    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: var(--text); font-size:12px; }}
+                    header.header {{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:10px; border-bottom:2px solid #eee; }}
+                    header.header .company {{ text-align:right; font-size:11px; color:var(--muted); }}
+                    header.header img {{ height:72px; object-fit:contain; }}
+                    h1 {{ text-align:center; color:var(--accent); margin:12px 0 6px 0; font-size:20px; }}
+                    .meta {{ display:flex; justify-content:space-between; margin-bottom:12px; gap:12px; font-size:11px; color:var(--muted); }}
+                    .box {{ border:2px solid var(--accent); border-radius:14px; padding:10px; margin-bottom:12px; }}
+                    table.items {{ width:100%; border-collapse:collapse; margin-top:6px; }}
+                    table.items th {{ background:var(--accent); color:#fff; padding:8px 6px; font-weight:600; font-size:11px; text-align:left; }}
+                    table.items td {{ padding:8px 6px; border-bottom:1px solid #eee; vertical-align:top; font-size:11px; }}
+                    table.items tr:nth-child(even) td {{ background:#fbfbfb; }}
+                    .total {{ margin-top:8px; text-align:right; font-size:13px; font-weight:700; color:var(--accent); }}
+                    footer {{ margin-top:18px; font-size:10px; color:var(--muted); text-align:center; }}
+                </style>
+            </head>
+            <body>
+                <header class="header">
+                    <div class="logo">{f'<img src="{logo_data_uri}"/>' if logo_data_uri else ''}</div>
+                    <div class="company">
+                        <div style="font-weight:700; color:var(--text)">{EMPRESA_NOME}</div>
+                        <div>{EMPRESA_ENDERECO}</div>
+                        <div>{EMPRESA_CONTATO}</div>
+                    </div>
+                </header>
+                <div class="box">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div><strong>Data:</strong> {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}</div>
+                        <div><strong>Orçamento:</strong> #{orcamento.id_orcamento}</div>
+                    </div>
+                    <div style="margin-top:8px"><strong>Cliente:</strong> {cliente.nome}</div>
+                    <div style="margin-top:4px"><strong>Endereço:</strong> {cliente.endereco or ''}</div>
+                </div>
+                <h1>Itens</h1>
+                <table class="items" cellpadding="0" cellspacing="0">
+                    <thead>
+                        <tr><th style="width:60px; text-align:center">Qtd</th><th>Descrição do Item</th><th style="width:120px; text-align:right">Valor Unit.</th><th style="width:140px; text-align:right">Valor Total</th></tr>
+                    </thead>
+                    <tbody>
+                    {''.join([
+                        f"<tr><td style='text-align:center'>{rel.quantidade}</td><td>{rel.servico.nome}<br/><small>{(rel.servico.descricao or '')}</small></td><td style='text-align:right'>{formatar_brl(rel.valor_unitario)}</td><td style='text-align:right'>{formatar_brl(rel.subtotal)}</td></tr>"
+                        for rel in itens
+                    ])}
+                    </tbody>
+                </table>
+                <div class="total">TOTAL GERAL: {formatar_brl(orcamento.valor_total)}</div>
+                <footer>Assinatura: ____________________________________________</footer>
+            </body>
+            </html>
+            """
+
+            try:
+                from weasyprint import HTML
+                pdf_bytes = HTML(string=html_conteudo).write_pdf()
+            except Exception as e:
+                return jsonify({'erro': f'WeasyPrint falhou ao gerar o PDF: {str(e)}'}), 500
+
+        else:
+            # Fallback: tenta usar ReportLab (versão já estilizada)
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.units import cm
+            from reportlab.lib.utils import ImageReader
+            from io import BytesIO
+
+            # Configuração do documento
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1*cm, leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
+
+            # Estilos
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=18, spaceAfter=12, alignment=1)
+            normal_style = styles["Normal"]
+            normal_style.fontSize = 10
+            small_style = ParagraphStyle('Small', parent=normal_style, fontSize=9)
+
+            # Cabeçalho
+            EMPRESA_NOME = os.environ.get('EMPRESA_NOME', 'ORCATECH')
+            EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', '')
+            EMPRESA_CONTATO = os.environ.get('EMPRESA_CONTATO', '')
+
+            elements = []
+            elements.append(Paragraph(f"Orçamento #{orcamento.id_orcamento}", title_style))
+            elements.append(Paragraph(f"Cliente: {cliente.nome}", normal_style))
+            elements.append(Spacer(1, 12))
+
+            table_data = [['Serviço', 'Descrição', 'Qtd.', 'Valor Unit.', 'Subtotal']]
+            for item in itens:
+                table_data.append([
+                    item.servico.nome,
+                    item.servico.descricao or '-',
+                    str(item.quantidade),
+                    formatar_brl(item.valor_unitario),
+                    formatar_brl(item.subtotal)
+                ])
+            table_data.append(['', '', '', 'Total:', formatar_brl(orcamento.valor_total)])
+
+            col_widths = [4*cm, 8*cm, 2*cm, 3*cm, 3*cm]
+            table = Table(table_data, colWidths=col_widths)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1773cf')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('ALIGN', (2, 1), (4, -2), 'RIGHT'),
+                ('INNERGRID', (0, 0), (-1, -2), 0.25, colors.grey),
+                ('BOX', (0, 0), (-1, -2), 0.25, colors.grey),
+                ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
+            ]))
+            elements.append(table)
+
+            doc.build(elements)
+            pdf_bytes = buffer.getvalue()
+            buffer.close()
 
         # Log de sucesso
         try:
@@ -789,23 +853,15 @@ def enviar_email_orcamento(id_orcamento):
         if not isinstance(emails, list) or len(emails) == 0:
             return jsonify({'erro': 'Informe uma lista de emails válida'}), 400
 
-        # Validação da disponibilidade do WeasyPrint
-        if not WEASYPRINT_AVAILABLE:
-            return jsonify({'erro': 'Geração de PDF indisponível: WeasyPrint não instalado'}), 503
-
-        # Validação da configuração SMTP
-        smtp_host = os.environ.get('SMTP_HOST')
-        smtp_user = os.environ.get('SMTP_USER')
-        smtp_pass = os.environ.get('SMTP_PASS')
-        smtp_from = os.environ.get('SMTP_FROM')
-        
-        if not all([smtp_host, smtp_user, smtp_pass, smtp_from]):
-            return jsonify({'erro': 'Serviço de e-mail não configurado no servidor'}), 503
-
         # Busca o orçamento
         orcamento = Orcamento.query.get_or_404(id_orcamento)
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
+
+        # Validação da configuração SMTP (não falha imediatamente — apenas validaremos ao enviar)
+        smtp_cfg = get_smtp_config()
+        if not smtp_cfg['host'] or not smtp_cfg['user'] or not smtp_cfg['password']:
+            return jsonify({'erro': 'Serviço de e-mail não configurado no servidor (variáveis SMTP ausentes)'}), 503
 
         # Função auxiliar para formatar valores em BRL
         def formatar_brl(valor_decimal):
@@ -831,105 +887,138 @@ def enviar_email_orcamento(id_orcamento):
         EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', 'Rua Exemplo, 123 - Cidade/UF')
         EMPRESA_CONTATO = os.environ.get('EMPRESA_CONTATO', 'contato@empresa.com | (11) 0000-0000')
 
-        # Gera HTML do orçamento
+        # Gera HTML do orçamento (estilizado)
         html_conteudo = f"""
         <html>
         <head>
             <meta charset='utf-8'>
             <style>
-                @page {{ size: A4; margin: 20mm 15mm 20mm 15mm; }}
-                body {{ font-family: Arial, sans-serif; font-size: 12px; color: #222; }}
-                header.header {{ padding-bottom: 8px; border-bottom: 2px solid #333; }}
+                @page {{ size: A4; margin: 18mm 12mm; }}
+                :root {{ --accent: #1773cf; --text: #222; --muted: #666; }}
+                body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: var(--text); font-size:12px; }}
+                header.header {{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:10px; border-bottom:2px solid #eee; }}
+                header.header .company {{ text-align:right; font-size:11px; color:var(--muted); }}
+                header.header img {{ height:64px; object-fit:contain; }}
+                h1 {{ text-align:center; color:var(--accent); margin:18px 0 6px 0; font-size:20px; }}
+                .meta {{ display:flex; justify-content:space-between; margin-bottom:12px; gap:12px; font-size:11px; color:var(--muted); }}
+                table.items {{ width:100%; border-collapse:collapse; margin-top:6px; }}
+                table.items th {{ background:var(--accent); color:#fff; padding:8px 6px; font-weight:600; font-size:11px; text-align:left; }}
+                table.items td {{ padding:8px 6px; border-bottom:1px solid #eee; vertical-align:top; font-size:11px; }}
+                table.items tr:nth-child(even) td {{ background:#fbfbfb; }}
+                .total {{ margin-top:8px; text-align:right; font-size:13px; font-weight:700; color:var(--accent); }}
+                footer {{ margin-top:18px; font-size:10px; color:var(--muted); text-align:center; }}
             </style>
         </head>
         <body>
             <header class="header">
-                {f'<img style="height:40px" src="{logo_data_uri}">' if logo_data_uri else ''}
-                <div><div style="font-weight:bold">{EMPRESA_NOME}</div><div>{EMPRESA_ENDERECO}</div><div>{EMPRESA_CONTATO}</div></div>
+                <div class="logo">{f'<img src="{logo_data_uri}"/>' if logo_data_uri else ''}</div>
+                <div class="company">
+                    <div style="font-weight:700; color:var(--text)">{EMPRESA_NOME}</div>
+                    <div>{EMPRESA_ENDERECO}</div>
+                    <div>{EMPRESA_CONTATO}</div>
+                </div>
             </header>
             <h1>Orçamento #{orcamento.id_orcamento}</h1>
-            <p><strong>Cliente:</strong> {cliente.nome}</p>
-            <table style="width:100%; border-collapse:collapse" border="1" cellpadding="6">
-                <tr><th>Serviço</th><th>Descrição</th><th>Qtd</th><th>Unitário</th><th>Subtotal</th></tr>
+            <div class="meta">
+                <div class="cliente"><strong>Cliente:</strong> {cliente.nome} {f'<br/>{cliente.email}' if cliente.email else ''} {f'<br/>{cliente.telefone}' if cliente.telefone else ''}</div>
+                <div class="info"><strong>Data:</strong> {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}<br/><strong>Status:</strong> {orcamento.status}</div>
+            </div>
+            <table class="items" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr><th>Serviço</th><th>Descrição</th><th style="width:60px; text-align:center">Qtd</th><th style="width:100px; text-align:right">Unitário</th><th style="width:120px; text-align:right">Subtotal</th></tr>
+                </thead>
+                <tbody>
                 {''.join([
-                    f"<tr><td>{rel.servico.nome}</td><td>{rel.servico.descricao or '-'}</td><td>{rel.quantidade}</td><td>{formatar_brl(rel.valor_unitario)}</td><td>{formatar_brl(rel.subtotal)}</td></tr>"
+                    f"<tr><td>{rel.servico.nome}</td><td>{(rel.servico.descricao or '-')}</td><td style='text-align:center'>{rel.quantidade}</td><td style='text-align:right'>{formatar_brl(rel.valor_unitario)}</td><td style='text-align:right'>{formatar_brl(rel.subtotal)}</td></tr>"
                     for rel in itens
                 ])}
+                </tbody>
             </table>
-            <p style="text-align:right; font-weight:bold">Valor Total: {formatar_brl(orcamento.valor_total)}</p>
+            <div class="total">Valor Total: {formatar_brl(orcamento.valor_total)}</div>
+            <footer>Este documento é uma proposta de serviço e não constitui fatura. Obrigado por escolher {EMPRESA_NOME}.</footer>
         </body>
         </html>
         """
 
-        # Gera PDF
-        pdf_bytes = HTML(string=html_conteudo).write_pdf()
+        # Gera PDF: tenta WeasyPrint e, se não disponível ou falhar, usa ReportLab
+        pdf_bytes = None
+        if WEASYPRINT_AVAILABLE:
+            try:
+                from weasyprint import HTML as _HTML
+                pdf_bytes = _HTML(string=html_conteudo).write_pdf()
+            except Exception:
+                pdf_bytes = None
 
-        # Configuração SMTP
-        smtp_port = int(os.environ.get('SMTP_PORT', '587'))
-        smtp_tls = os.environ.get('SMTP_TLS', 'true').lower() == 'true'
-        remetente = smtp_from
+        if not pdf_bytes:
+            # fallback ReportLab (pega do mesmo bloco existente no endpoint de geração de PDF)
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.units import cm
+            from io import BytesIO
 
-        # Monta mensagem de e-mail
-        msg = EmailMessage()
-        msg['From'] = remetente
-        msg['To'] = ', '.join(emails)
-        msg['Subject'] = f'Orçamento #{orcamento.id_orcamento}'
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1*cm, leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=8, alignment=1)
+            normal_style = styles['Normal']
+            normal_style.fontSize = 10
+
+            elements = []
+            elements.append(Paragraph(f"Orçamento #{orcamento.id_orcamento}", title_style))
+            elements.append(Paragraph(f"Cliente: {cliente.nome}", normal_style))
+            elements.append(Spacer(1, 8))
+
+            table_data = [['Serviço', 'Descrição', 'Qtd.', 'Valor Unit.', 'Subtotal']]
+            for item in itens:
+                table_data.append([
+                    item.servico.nome,
+                    item.servico.descricao or '-',
+                    str(item.quantidade),
+                    formatar_brl(item.valor_unitario),
+                    formatar_brl(item.subtotal)
+                ])
+            table_data.append(['', '', '', 'Total:', formatar_brl(orcamento.valor_total)])
+
+            col_widths = [4*cm, 8*cm, 2*cm, 3*cm, 3*cm]
+            table = Table(table_data, colWidths=col_widths)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1773cf')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('ALIGN', (2, 1), (4, -2), 'RIGHT'),
+                ('INNERGRID', (0, 0), (-1, -2), 0.25, colors.grey),
+                ('BOX', (0, 0), (-1, -2), 0.25, colors.grey),
+            ]))
+            elements.append(table)
+            doc.build(elements)
+            pdf_bytes = buffer.getvalue()
+            buffer.close()
+
+        # Envia e-mail com anexo via utilitário compartilhado
+        attachments = [{'filename': f'orcamento_{orcamento.id_orcamento}.pdf', 'content': pdf_bytes, 'maintype': 'application', 'subtype': 'pdf'}]
         corpo = mensagem or f'Segue em anexo o orçamento #{orcamento.id_orcamento}.'
-        msg.set_content(corpo)
-        msg.add_attachment(pdf_bytes, maintype='application', subtype='pdf', filename=f'orcamento_{orcamento.id_orcamento}.pdf')
+        ok, msg = send_email(subject=f'Orçamento #{orcamento.id_orcamento}', body=corpo, to=emails, attachments=attachments)
+        if not ok:
+            # registra log detalhado e devolve erro apropriado
+            try:
+                log = LogsAcesso(
+                    id_usuario=current_user.id_usuario,
+                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: {msg}',
+                    data_hora=datetime.utcnow()
+                )
+                db.session.add(log)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        # Envia e-mail com tratamento específico de erros SMTP
-        try:
-            with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
-                if smtp_tls:
-                    server.starttls()
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg)
-                
-        except smtplib.SMTPAuthenticationError as e:
-            # Log de erro de autenticação
-            try:
-                log = LogsAcesso(
-                    id_usuario=current_user.id_usuario,
-                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: Erro de autenticação SMTP - {str(e)}',
-                    data_hora=datetime.utcnow()
-                )
-                db.session.add(log)
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-            
-            return jsonify({'erro': 'Falha na autenticação do servidor de e-mail. Verifique as credenciais SMTP.'}), 401
-            
-        except smtplib.SMTPConnectError as e:
-            # Log de erro de conexão
-            try:
-                log = LogsAcesso(
-                    id_usuario=current_user.id_usuario,
-                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: Erro de conexão SMTP - {str(e)}',
-                    data_hora=datetime.utcnow()
-                )
-                db.session.add(log)
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-            
-            return jsonify({'erro': 'Não foi possível conectar ao servidor de e-mail. Verifique as configurações SMTP.'}), 503
-            
-        except smtplib.SMTPException as e:
-            # Log de outros erros SMTP
-            try:
-                log = LogsAcesso(
-                    id_usuario=current_user.id_usuario,
-                    acao=f'Falha ao enviar e-mail do orçamento {orcamento.id_orcamento}: Erro SMTP - {str(e)}',
-                    data_hora=datetime.utcnow()
-                )
-                db.session.add(log)
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-            
-            return jsonify({'erro': f'Erro no servidor de e-mail: {str(e)}'}), 502
+            # traduz mensagens comuns em códigos HTTP
+            if 'Autenticação' in msg or 'Autenticação SMTP' in msg:
+                return jsonify({'erro': 'Falha na autenticação do servidor de e-mail. Verifique as credenciais SMTP.'}), 401
+            if 'conex' in msg.lower():
+                return jsonify({'erro': 'Não foi possível conectar ao servidor de e-mail. Verifique as configurações SMTP.'}), 503
+            return jsonify({'erro': f'Erro ao enviar e-mail: {msg}'}), 502
 
         # Log de sucesso com detalhes dos destinatários
         try:

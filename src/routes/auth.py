@@ -10,6 +10,7 @@ from src.models.models import db, Usuario, LogsAcesso, PasswordResetToken
 from datetime import datetime, timedelta
 import secrets
 import os
+from src.utils.email_utils import send_email, get_smtp_config
 
 # Cria um blueprint (grupo de rotas) para autenticação
 auth_bp = Blueprint('auth', __name__)
@@ -233,8 +234,41 @@ def forgot_password():
             except Exception:
                 db.session.rollback()
 
-            # Aqui apenas retornamos o token no corpo para facilitar testes localmente.
             # Em produção, o token deve ser enviado por e-mail com link seguro.
+            # Tentamos enviar o e-mail; se falhar, ainda retornamos 200 para não vazar existência de contas.
+            frontend = os.environ.get('FRONTEND_URL', 'http://localhost:5000')
+            reset_path = os.environ.get('RESET_PATH', '/TelaResetSenha.html')
+            reset_link = f"{frontend.rstrip('/')}{reset_path}?token={token}"
+            assunto = 'Recuperação de senha - Orçamento Serviços'
+            corpo = f"Olá {usuario.nome},\n\nRecebemos uma solicitação para redefinir sua senha. Acesse o link abaixo para criar uma nova senha (válido por 1 hora):\n\n{reset_link}\n\nSe você não solicitou, ignore esta mensagem.\n\nAtenciosamente,\nEquipe"
+
+            try:
+                ok, msg = send_email(subject=assunto, body=corpo, to=[usuario.email])
+                if not ok:
+                    # registra no log, mas não falha a resposta para o cliente (idempotência)
+                    try:
+                        log = LogsAcesso(
+                            id_usuario=usuario.id_usuario,
+                            acao=f'Falha ao enviar email de recuperação para {usuario.email}: {msg}',
+                            data_hora=datetime.utcnow()
+                        )
+                        db.session.add(log)
+                        db.session.commit()
+                    except Exception:
+                        db.session.rollback()
+            except Exception:
+                # qualquer erro de envio não impede a resposta (mantemos idempotência)
+                try:
+                    log = LogsAcesso(
+                        id_usuario=usuario.id_usuario,
+                        acao=f'Exceção ao tentar enviar email de recuperação para {usuario.email}',
+                        data_hora=datetime.utcnow()
+                    )
+                    db.session.add(log)
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
+
             return jsonify({'mensagem': 'Se o email existir, enviaremos instruções.', 'token_teste': token}), 200
 
         return jsonify({'mensagem': 'Se o email existir, enviaremos instruções.'}), 200
