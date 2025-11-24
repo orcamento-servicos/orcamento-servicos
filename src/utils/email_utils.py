@@ -33,11 +33,6 @@ def get_smtp_config():
 
 
 def send_email(subject: str, body: str, to: List[str], attachments: Optional[List[dict]] = None) -> (bool, str):
-    """
-    Envia um e-mail simples com opcionais attachments.
-    attachments: lista de dicts com keys: filename, content (bytes), maintype, subtype
-    Retorna (ok: bool, mensagem: str)
-    """
     cfg = get_smtp_config()
     if not cfg['host'] or not cfg['user'] or not cfg['password']:
         return False, 'Configuração SMTP incompleta (host/user/password)'
@@ -56,9 +51,15 @@ def send_email(subject: str, body: str, to: List[str], attachments: Optional[Lis
                 return False, f'Falha ao anexar arquivo: {e}'
 
     try:
-        with smtplib.SMTP(cfg['host'], cfg['port'], timeout=cfg['timeout']) as server:
+        # Lógica INTELIGENTE: Se for porta 465, usa conexão segura direta (SSL)
+        if cfg['port'] == 465:
+            server = smtplib.SMTP_SSL(cfg['host'], cfg['port'], timeout=cfg['timeout'])
+        else:
+            server = smtplib.SMTP(cfg['host'], cfg['port'], timeout=cfg['timeout'])
             if cfg['tls']:
                 server.starttls()
+        
+        with server:
             server.login(cfg['user'], cfg['password'])
             server.send_message(msg)
         return True, 'OK'
