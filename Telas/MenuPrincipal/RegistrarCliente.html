@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planejador de Orçamento — Registrar Cliente</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = {
+        darkMode: 'class',
+        theme: { extend: {} }
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+
+  <body class="bg-[#111a22] dark:bg-[#0a1015] transition-colors duration-300" style='font-family: Inter, "Noto Sans", sans-serif'>
+  <script src="../js/auth-protection.js"></script>
+  <div class="relative flex min-h-screen w-full overflow-x-hidden">
+      <!-- SIDEBAR -->
+      <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+        <div class="p-5 flex flex-col h-full">
+          <!-- Perfil -->
+          <div class="flex flex-col items-center gap-3">
+            <div id="avatarPreview" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10" style='background-image:url("../imagens/usuario.jpg");'></div>
+            <div class="text-center">
+              <p class="text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm" id="statusTopo">Online</p>
+            </div>
+            <a href="TelaEditarPerfil.html"
+               class="mt-1 inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1773cf] text-white text-sm font-semibold hover:bg-[#1773cf]/90 transition">
+              Editar Perfil
+            </a>
+          </div>
+
+          <!-- Info -->
+          <div class="mt-6">
+            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+          </div>
+
+          <!-- Menu -->
+          <nav class="mt-4 grid gap-1" id="sidebar">
+            <a href="TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- ícone: casa -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                  <path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Home</span>
+            </a>
+
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- prédios -->
+           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true">
+           <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/>
+           </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
+            </a>
+
+            <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- arquivo -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar serviço</span>
+            </a>
+
+            <a href="AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- calendário -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Agendar serviço</span>
+            </a>
+
+            <a href="VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- relógio sólido (branco) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Ver histórico</span>
+            </a>
+
+            <a href="CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <!-- plus -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+            </a>
+          </nav>
+
+          <!-- Sair -->
+          <div class="mt-auto pt-4">
+            <a
+              href="#"
+              data-logout="true"
+              class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+            >
+              Sair
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTEÚDO PRINCIPAL -->
+      <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
+        <h2 class="text-white text-2xl font-bold">Registrar Cliente</h2>
+        <p class="text-[#93adc8] mt-1">Cadastre seus clientes para criar orçamentos.</p>
+
+        <!-- FORMULÁRIO DE CLIENTE NO TOPO -->
+        <form id="formCliente" class="mt-6 grid max-w-xl gap-4">
+          <input id="nomeCliente" placeholder="Nome do cliente" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required autocomplete="off" />
+          <input id="telefoneCliente" placeholder="Telefone" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required maxlength="15" autocomplete="off" />
+          <input id="enderecoCliente" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required />
+          <input id="emailCliente" placeholder="E-mail" type="email" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required />
+          <div class="flex items-center justify-between">
+            <p id="alertCliente" class="text-sm text-white/70"></p>
+            <button type="submit" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar cliente</button>
+          </div>
+        </form>
+
+        <!-- CAMPO DE PESQUISA E LISTA DE CLIENTES -->
+        <div class="mt-10">
+          <div class="flex items-end justify-between">
+            <div>
+              <h3 class="text-white text-xl font-semibold">Buscar cliente</h3>
+              <p class="text-[#93adc8] text-sm mt-1">Digite o nome e pressione Enter ou clique em Pesquisar.</p>
+            </div>
+            <div class="flex gap-2">
+              <input id="inp-busca" placeholder="Pesquisar cliente..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+              <button id="btn-pesquisar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Pesquisar</button>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-hidden rounded-xl border border-white/10">
+            <table class="min-w-full divide-y divide-white/10">
+              <thead class="bg-white/5">
+                <tr class="text-[#b9cee3] text-sm">
+                  <th class="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th class="px-4 py-3 text-left font-medium">Telefone</th>
+                  <th class="px-4 py-3 text-left font-medium">Endereço</th>
+                  <th class="px-4 py-3 text-left font-medium">E-mail</th>
+                  <th class="px-4 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-clientes" class="divide-y divide-white/5 text-white/90">
+                <!-- itens gerados via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- VAZIO -->
+          <div id="empty-state" class="mt-4 hidden">
+            <p class="text-white/70">Nenhum cliente cadastrado ainda.</p>
+          </div>
+        </div>
+    <!-- Script de clientes e validação -->
+    <script>
+      // Validação do formulário de cliente
+      if (!window._formClienteScriptLoaded) {
+        window._formClienteScriptLoaded = true;
+        const form = document.getElementById('formCliente');
+        const alertCliente = document.getElementById('alertCliente');
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          // Coleta dados
+          const nome = document.getElementById('nomeCliente').value.trim();
+          const telefone = document.getElementById('telefoneCliente').value.trim();
+          const endereco = document.getElementById('enderecoCliente').value.trim();
+          const email = document.getElementById('emailCliente').value.trim();
+
+          // Validação de nome: não pode conter números
+          if (/[0-9]/.test(nome)) {
+            alertCliente.textContent = 'O nome não pode conter números.';
+            alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+            return;
+          }
+
+          // Validação de telefone: (XX) XXXXX-XXXX, DDD obrigatório, máximo 11 dígitos, não pode conter letras
+          const telefoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
+          const telefoneNumeros = telefone.replace(/\D/g, '');
+          if (!telefoneRegex.test(telefone) || telefoneNumeros.length !== 11) {
+            alertCliente.textContent = 'Telefone inválido. Use o formato (XX) XXXXX-XXXX.';
+            alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+            return;
+          }
+
+          // Validação de email: deve conter @ e formato básico
+          const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+          if (!emailRegex.test(email)) {
+            alertCliente.textContent = 'E-mail inválido. Informe um e-mail válido.';
+            alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+            return;
+          }
+
+          const dados = { nome, telefone, endereco, email };
+          // Envia para backend
+          try {
+            const response = await fetch('/api/clientes/', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(dados)
+            });
+            if (!response.ok) throw new Error('Erro ao salvar cliente');
+            alertCliente.textContent = 'Cliente cadastrado com sucesso!';
+            alertCliente.className = 'bg-emerald-600/10 text-emerald-300 p-4 rounded-md mt-2';
+          } catch (err) {
+            alertCliente.textContent = err.message || 'Erro ao salvar cliente';
+            alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+          }
+        });
+      }
+
+      // Script de busca/listagem de clientes
+      const $busca = document.getElementById('inp-busca');
+      const $btnPesquisar = document.getElementById('btn-pesquisar');
+      const $tbody = document.getElementById('tbody-clientes');
+      const $empty = document.getElementById('empty-state');
+
+      function escapeHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+
+      async function carregarClientes() {
+        try {
+          const response = await fetch('/api/clientes/', {
+            method: 'GET',
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const data = await response.json();
+            return data.clientes || [];
+          } else {
+            return [];
+          }
+        } catch (error) {
+          return [];
+        }
+      }
+
+      async function excluirCliente(id) {
+        try {
+          const response = await fetch(`/api/clientes/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+          return response.ok;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function renderizarClientes(clientes, filtro = '') {
+        const filtroLower = filtro.toLowerCase();
+        let clientesFiltrados = clientes.filter(cliente => 
+          cliente.nome.toLowerCase().includes(filtroLower) ||
+          (cliente.email && cliente.email.toLowerCase().includes(filtroLower)) ||
+          (cliente.telefone && cliente.telefone.toLowerCase().includes(filtroLower)) ||
+          (cliente.endereco && cliente.endereco.toLowerCase().includes(filtroLower))
+        );
+
+        // Se há filtro, mostra apenas o primeiro cliente encontrado
+        if (filtro && clientesFiltrados.length > 0) {
+          clientesFiltrados = [clientesFiltrados[0]];
+        }
+
+        $tbody.innerHTML = '';
+        $empty.classList.toggle('hidden', clientesFiltrados.length > 0);
+
+        if (clientesFiltrados.length === 0) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td colspan="5" class="px-4 py-6 text-center text-white/60">
+              Nenhum resultado encontrado para "${escapeHtml(filtro)}"
+            </td>
+          `;
+          $tbody.appendChild(tr);
+          return;
+        }
+
+        clientesFiltrados.forEach(cliente => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-3 font-bold">${escapeHtml(cliente.nome)}</td>
+            <td class="px-4 py-3">${escapeHtml(cliente.telefone || '')}</td>
+            <td class="px-4 py-3">${escapeHtml(cliente.endereco || '')}</td>
+            <td class="px-4 py-3">${escapeHtml(cliente.email || '')}</td>
+            <td class="px-4 py-3 text-right">
+              <a href="EditarCliente.html?id=${cliente.id_cliente}" class="inline-flex items-center gap-2 h-9 px-3 mr-2 rounded-lg bg-[#1773cf] hover:bg-[#1773cf]/80 text-white text-sm font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A16,16,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A16,16,0,0,0,104,219.31l123.31-123.31A16,16,0,0,0,227.31,73.37Z"/></svg>
+                Editar
+              </a>
+              <button data-del="${cliente.id_cliente}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-red-600/80 hover:bg-red-700 text-white text-sm font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+                  <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+                </svg>
+                Excluir
+              </button>
+            </td>
+          `;
+          $tbody.appendChild(tr);
+        });
+      }
+
+      $tbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-del]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-del');
+        if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+        btn.disabled = true;
+        btn.textContent = 'Excluindo...';
+        try {
+          if (await excluirCliente(id)) {
+            const clientes = await carregarClientes();
+            renderizarClientes(clientes, $busca.value);
+          }
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+              <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+            </svg>
+            Excluir
+          `;
+        }
+      });
+
+      // Só mostra clientes após pesquisa
+      let clientesCache = [];
+      async function buscarClientes() {
+        if (!$busca.value.trim()) {
+          $tbody.innerHTML = '';
+          $empty.classList.remove('hidden');
+          return;
+        }
+        if (clientesCache.length === 0) {
+          clientesCache = await carregarClientes();
+        }
+        renderizarClientes(clientesCache, $busca.value);
+      }
+
+      $btnPesquisar.addEventListener('click', buscarClientes);
+      $busca.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          buscarClientes();
+        }
+      });
+    </script>
+    </script>
+       
+
+       
+
+    <!-- Script de proteção de autenticação -->
+    <script src="/js/auth-protection.js"></script>
+    <script>
+      const form = document.getElementById('formCliente');
+      const alertCliente = document.getElementById('alertCliente');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // Coleta dados
+        const nome = document.getElementById('nomeCliente').value.trim();
+        const telefone = document.getElementById('telefoneCliente').value.trim();
+        const endereco = document.getElementById('enderecoCliente').value.trim();
+        const email = document.getElementById('emailCliente').value.trim();
+
+        // Validação de telefone: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX, DDD obrigatório, máximo 15 caracteres
+        const telefoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+        if (!telefoneRegex.test(telefone)) {
+          alertCliente.textContent = 'Telefone inválido. Use o formato (XX) XXXXX-XXXX.';
+          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+          return;
+        }
+        if (telefone.replace(/\D/g, '').length < 10 || telefone.replace(/\D/g, '').length > 11) {
+          alertCliente.textContent = 'Telefone deve conter DDD e até 11 dígitos.';
+          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+          return;
+        }
+
+        // Validação de email: deve conter @ e formato básico
+        const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!emailRegex.test(email)) {
+          alertCliente.textContent = 'E-mail inválido. Informe um e-mail válido.';
+          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+          return;
+        }
+
+        const dados = { nome, telefone, endereco, email };
+        // Envia para backend
+        try {
+          const response = await fetch('/api/clientes/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+          });
+          if (!response.ok) throw new Error('Erro ao salvar cliente');
+          alertCliente.textContent = 'Cliente cadastrado com sucesso!';
+          alertCliente.className = 'bg-emerald-600/10 text-emerald-300 p-4 rounded-md mt-2';
+        } catch (err) {
+          alertCliente.textContent = err.message || 'Erro ao salvar cliente';
+          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -165,27 +165,25 @@ function atualizarInterfaceUsuario() {
   });
   
   // Atualiza avatar do usuário onde houver elementos com id="avatarPreview" ou id="avatarLarge"
-  const avatarUrl = dadosUsuarioGlobal.avatar_url || '../imagens/usuario.jpg';
+  let avatarUrl = dadosUsuarioGlobal.avatar_url;
+  // Se não tem avatar personalizado, usa imagem padrão absoluta
+  if (!avatarUrl || typeof avatarUrl !== 'string' || avatarUrl.trim() === '') {
+    avatarUrl = '/imagens/usuario.jpg';
+  }
+  // Garante que o caminho seja absoluto (evita problemas de path relativo)
+  if (avatarUrl && !avatarUrl.startsWith('/')) {
+    avatarUrl = '/' + avatarUrl.replace(/^\/+/, '');
+  }
   const elementosAvatar = document.querySelectorAll('[id="avatarPreview"], [id="avatarLarge"]');
   elementosAvatar.forEach(el => {
     el.style.backgroundImage = `url('${avatarUrl}')`;
+    // Corrige avatar quebrado: tenta carregar, se falhar, usa imagem padrão absoluta
+    const img = new window.Image();
+    img.onerror = () => {
+      el.style.backgroundImage = `url('/imagens/usuario.jpg')`;
+    };
+    img.src = avatarUrl;
   });
-  
-  // Corrige avatar quebrado: tenta carregar, se falhar, usa imagem padrão
-  function corrigirAvatarFallback() {
-    const elementosAvatar = document.querySelectorAll('[id="avatarPreview"], [id="avatarLarge"]');
-    elementosAvatar.forEach(el => {
-      const url = el.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
-      if (url && url !== '../imagens/usuario.jpg') {
-        const img = new window.Image();
-        img.onerror = () => {
-          el.style.backgroundImage = `url('../imagens/usuario.jpg')`;
-        };
-        img.src = url;
-      }
-    });
-  }
-  corrigirAvatarFallback();
 }
 
 // Carrega os dados do usuário quando o script é inicializado
@@ -237,20 +235,7 @@ function atualizarIconeTema() {
 
 
 // Injeta o botão de alternância de tema no canto superior direito absoluto
-function injetarBotaoTema() {
-  if (document.getElementById('btnTema')) return; // já existe
-  const btn = document.createElement('button');
-  btn.id = 'btnTema';
-  btn.type = 'button';
-  btn.className = 'fixed z-50 top-4 right-6 p-2 rounded-full bg-white/20 hover:bg-white/40 text-gray-800 dark:text-white dark:bg-white/10 dark:hover:bg-white/20 shadow transition flex items-center justify-center';
-  btn.style = 'width:2.5rem;height:2.5rem;';
-  btn.title = 'Alternar tema escuro/claro';
-  btn.addEventListener('click', alternarTema);
-  document.body.appendChild(btn);
-  aplicarTemaSalvo();
-}
-
-document.addEventListener('DOMContentLoaded', injetarBotaoTema);
+// Removido botão de alternância de tema conforme solicitado
 
 // ====== Compatibilidade e utilitários globais ======
 // Ajusta botões que não possuem `type` explícito para evitar comportamento de submit por omissão

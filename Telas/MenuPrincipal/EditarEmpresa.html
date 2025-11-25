@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Editar Empresa</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = { darkMode: 'class', theme: { extend: {} } };
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body class="bg-[#111a22] dark:bg-[#0a1015] transition-colors duration-300" style='font-family: Inter, "Noto Sans", sans-serif'>
+  <script src="../js/auth-protection.js"></script>
+  <div class="relative flex min-h-screen w-full overflow-x-hidden">
+      <!-- Sidebar -->
+      <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+        <div class="p-5 flex flex-col h-full">
+          <div class="flex flex-col items-center gap-3">
+            <div id="avatarPreview" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10" style='background-image:url("../imagens/usuario.jpg");'></div>
+            <div class="text-center">
+              <p class="text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
+              <p class="text-[#b9cee3] text-sm" id="statusTopo">Online</p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+            <p class="text-[#9fbbd4] text-xs">v1.0</p>
+          </div>
+
+          <nav class="mt-4 grid gap-1" id="sidebar">
+            <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                  <path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Home</span>
+            </a>
+
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
+            </a>
+
+            <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar serviço</span>
+            </a>
+
+            <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Agendar serviço</span>
+            </a>
+
+            <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Ver histórico</span>
+            </a>
+
+            <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+            </a>
+
+            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+              <span class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8,8,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8,8,0,0,0,239.73,208Z"/>
+                </svg>
+              </span>
+              <span class="text-white text-sm font-medium">Registrar empresa</span>
+            </a>
+          </nav>
+
+          <div class="mt-auto pt-4">
+            <a href="#" data-logout="true" class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition">
+              Sair
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <main class="flex-1 max-w-[900px] w-full mx-auto px-6 py-8">
+        <div class="mb-6">
+          <a href="/MenuPrincipal/RegistrarEmpresa.html" class="text-[#1773cf] hover:text-[#1773cf]/80 text-sm font-medium flex items-center gap-1">
+            ← Voltar para Empresas
+          </a>
+        </div>
+
+        <h2 class="text-white text-2xl font-bold">Editar Empresa</h2>
+        <p class="text-[#93adc8] mt-1">Atualize os dados da empresa selecionada.</p>
+
+        <form id="formEmpresa" class="mt-6 grid max-w-xl gap-4">
+          <input id="nomeEmpresa" placeholder="Nome da empresa" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required autocomplete="off" />
+          <input id="cnpjEmpresa" placeholder="CNPJ" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required maxlength="18" autocomplete="off" />
+          <input id="telefoneEmpresa" placeholder="Telefone" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required maxlength="15" autocomplete="off" />
+          <input id="enderecoEmpresa" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required />
+          <input id="emailEmpresa" placeholder="E-mail" type="email" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required />
+          <div>
+            <label for="logoEmpresa" class="block text-white mb-1">Atualizar logo (opcional)</label>
+            <input id="logoEmpresa" type="file" accept="image/*" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" />
+            <p id="logoAtual" class="text-xs text-white/60 mt-1 hidden">Logo atual: <span id="logoAtualPath"></span></p>
+          </div>
+          <div class="flex items-center justify-between">
+            <p id="msg" class="text-sm text-white/70"></p>
+            <button type="submit" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar alterações</button>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        const currentLast = (location.pathname || '').split('/').pop() || '';
+        document.querySelectorAll('#sidebar .menu-item').forEach(a => {
+          const href = a.getAttribute('href') || '';
+          const hrefLast = href.split('/').pop() || '';
+          if (href === location.pathname || hrefLast === currentLast) {
+            a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10');
+          }
+        });
+      })();
+
+      const params = new URLSearchParams(location.search);
+      const idEmpresa = params.get('id');
+      if (!idEmpresa) {
+        alert('ID da empresa não informado.');
+        location.href = '/MenuPrincipal/RegistrarEmpresa.html';
+      }
+
+      const form = document.getElementById('formEmpresa');
+      const msgBox = document.getElementById('msg');
+      const nomeInput = document.getElementById('nomeEmpresa');
+      const cnpjInput = document.getElementById('cnpjEmpresa');
+      const telefoneInput = document.getElementById('telefoneEmpresa');
+      const enderecoInput = document.getElementById('enderecoEmpresa');
+      const emailInput = document.getElementById('emailEmpresa');
+      const logoInput = document.getElementById('logoEmpresa');
+      const logoAtual = document.getElementById('logoAtual');
+      const logoAtualPath = document.getElementById('logoAtualPath');
+
+      function setMsg(text, ok = true) {
+        msgBox.textContent = text;
+        msgBox.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
+        if (text) {
+          setTimeout(() => { msgBox.textContent = ''; msgBox.className = 'text-sm text-white/70'; }, 2500);
+        }
+      }
+
+      function mascararCNPJ(value) {
+        let v = value.replace(/\D/g, '').slice(0, 14);
+        v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+        v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+        v = v.replace(/(\d{4})(\d)/, '$1-$2');
+        return v;
+      }
+
+      function mascararTelefone(value) {
+        let v = value.replace(/\D/g, '').slice(0, 11);
+        if (v.length > 2) {
+          v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+        }
+        if (v.length > 9) {
+          v = v.slice(0, 10) + '-' + v.slice(10);
+        }
+        return v;
+      }
+
+      cnpjInput.addEventListener('input', () => {
+        cnpjInput.value = mascararCNPJ(cnpjInput.value);
+      });
+
+      telefoneInput.addEventListener('input', () => {
+        telefoneInput.value = mascararTelefone(telefoneInput.value);
+      });
+
+      nomeInput.addEventListener('input', () => {
+        nomeInput.value = nomeInput.value.replace(/[0-9]/g, '');
+      });
+
+      async function carregarEmpresa() {
+        try {
+          const res = await fetch(`/api/empresas/${idEmpresa}`, { credentials: 'include' });
+          if (!res.ok) throw new Error('Empresa não encontrada');
+          const data = await res.json();
+          const empresa = data.empresa || {};
+          nomeInput.value = empresa.nome || '';
+          cnpjInput.value = mascararCNPJ(empresa.cnpj || '');
+          telefoneInput.value = mascararTelefone(empresa.telefone || '');
+          enderecoInput.value = empresa.endereco || '';
+          emailInput.value = empresa.email || '';
+          if (empresa.logo) {
+            logoAtual.classList.remove('hidden');
+            logoAtualPath.textContent = empresa.logo;
+          }
+        } catch (err) {
+          console.error(err);
+          setMsg('Erro ao carregar empresa', false);
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = nomeInput.value.trim();
+        const cnpjNumeros = cnpjInput.value.replace(/\D/g, '');
+        const telefoneNumeros = telefoneInput.value.replace(/\D/g, '');
+        const endereco = enderecoInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!nome || /[0-9]/.test(nome)) {
+          setMsg('Informe um nome válido (sem números).', false);
+          nomeInput.focus();
+          return;
+        }
+        if (cnpjNumeros.length !== 14) {
+          setMsg('CNPJ inválido. Informe 14 dígitos.', false);
+          cnpjInput.focus();
+          return;
+        }
+        if (telefoneNumeros.length !== 11) {
+          setMsg('Telefone inválido. Informe 11 dígitos.', false);
+          telefoneInput.focus();
+          return;
+        }
+        const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!emailRegex.test(email)) {
+          setMsg('E-mail inválido.', false);
+          emailInput.focus();
+          return;
+        }
+
+        try {
+          setMsg('Salvando...', true);
+          const formData = new FormData();
+          formData.append('nome', nome);
+          formData.append('cnpj', cnpjNumeros);
+          formData.append('telefone', telefoneNumeros);
+          formData.append('endereco', endereco);
+          formData.append('email', email);
+          if (logoInput.files.length > 0) {
+            formData.append('logo', logoInput.files[0]);
+          }
+          const res = await fetch(`/api/empresas/${idEmpresa}`, {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData
+          });
+          const data = await res.json().catch(() => null);
+          if (!res.ok) {
+            throw new Error((data && (data.erro || data.mensagem)) || 'Erro ao salvar');
+          }
+          setMsg('Empresa atualizada com sucesso!', true);
+          setTimeout(() => location.href = '/MenuPrincipal/RegistrarEmpresa.html', 1200);
+        } catch (err) {
+          console.error(err);
+          setMsg(err.message || 'Erro ao salvar empresa', false);
+        }
+      });
+
+      carregarEmpresa();
+    </script>
+  </body>
+</html>
+

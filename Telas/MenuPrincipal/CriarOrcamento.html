@@ -50,7 +50,7 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -119,13 +119,42 @@
         <h2 class="text-white text-2xl font-bold">Criar Plano de Orçamento</h2>
         <p class="text-[#93adc8] mt-1">Selecione empresa, serviços e os dados do cliente para gerar um PDF.</p>
 
-        <!-- SELEÇÃO DE CLIENTE -->
+        <!-- SELEÇÃO DE EMPRESA COM PESQUISA -->
+        <section class="mt-6 grid gap-3 max-w-4xl">
+          <h3 class="text-white font-semibold">Empresa</h3>
+          <div class="relative">
+            <input 
+              id="inp-empresa" 
+              type="text" 
+              placeholder="Procure o nome da empresa..." 
+              class="form-input h-11 w-full rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" 
+            />
+            <!-- Dropdown de sugestões -->
+            <div id="dropdown-empresas" class="absolute top-full left-0 right-0 mt-1 bg-[#243647] border border-white/10 rounded-lg shadow-lg max-h-80 overflow-y-auto hidden z-50">
+              <!-- preenchido via JS -->
+            </div>
+          </div>
+          <p id="warn-empresa" class="text-amber-300 text-sm hidden">⚠️ Nenhuma empresa cadastrada. Cadastre em "Registrar empresa".</p>
+          <div id="empresa-selecionada" class="text-sm text-white/70 hidden">Empresa selecionada: <span id="empresa-selecionada-nome" class="text-white font-medium">—</span></div>
+        </section>
+
+        <!-- SELEÇÃO DE CLIENTE COM PESQUISA -->
         <section class="mt-6 grid gap-3 max-w-4xl">
           <h3 class="text-white font-semibold">Cliente</h3>
-          <select id="sel-cliente" class="form-select h-11 rounded-lg border-none bg-[#243647] text-white">
-            <option value="">Selecione um cliente...</option>
-          </select>
+          <div class="relative">
+            <input 
+              id="inp-cliente" 
+              type="text" 
+              placeholder="Procure o nome do cliente..." 
+              class="form-input h-11 w-full rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" 
+            />
+            <!-- Dropdown de sugestões -->
+            <div id="dropdown-clientes" class="absolute top-full left-0 right-0 mt-1 bg-[#243647] border border-white/10 rounded-lg shadow-lg max-h-80 overflow-y-auto hidden z-50">
+              <!-- preenchido via JS -->
+            </div>
+          </div>
           <p id="warn-cliente" class="text-amber-300 text-sm hidden">⚠️ Nenhum cliente cadastrado. Cadastre em "Registrar cliente".</p>
+          <div id="cliente-selecionado" class="text-sm text-white/70 hidden">Cliente selecionado: <span id="cliente-selecionado-nome" class="text-white font-medium">—</span></div>
         </section>
 
         <!-- SELEÇÃO DE SERVIÇOS -->
@@ -154,6 +183,7 @@
           <div class="grid gap-3">
             <h3 class="text-white font-semibold">Resumo do Orçamento</h3>
             <div class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
+              <p class="text-[#b9cee3] text-sm">Empresa emissora: <span id="prev-empresa" class="text-white/90">—</span></p>
               <p class="text-[#b9cee3] text-sm">Cliente: <span id="prev-cliente" class="text-white/90">—</span></p>
               <p class="text-[#b9cee3] text-sm">Serviços selecionados: <span id="prev-qtd" class="text-white/90">0</span></p>
               <p class="text-[#b9cee3] text-sm">Total estimado: <span id="prev-total" class="text-white font-semibold">R$ 0,00</span></p>
@@ -195,7 +225,15 @@
     
     <script>
       // Elementos
-      const $selCliente = document.getElementById('sel-cliente');
+      const $inpEmpresa = document.getElementById('inp-empresa');
+      const $dropdownEmpresas = document.getElementById('dropdown-empresas');
+      const $empresaSelecionadaDiv = document.getElementById('empresa-selecionada');
+      const $empresaSelecionadaNome = document.getElementById('empresa-selecionada-nome');
+      const $warnEmpresa = document.getElementById('warn-empresa');
+      const $inpCliente = document.getElementById('inp-cliente');
+      const $dropdownClientes = document.getElementById('dropdown-clientes');
+      const $clienteSelecionadoDiv = document.getElementById('cliente-selecionado');
+      const $clienteSelecionadoNome = document.getElementById('cliente-selecionado-nome');
       const $listaServ = document.getElementById('lista-servicos');
       const $btnPdf = document.getElementById('btn-pdf');
       const $warnCliente = document.getElementById('warn-cliente');
@@ -208,6 +246,7 @@
       const $prevCliente = document.getElementById('prev-cliente');
       const $prevQtd = document.getElementById('prev-qtd');
       const $prevTotal = document.getElementById('prev-total');
+      const $prevEmpresa = document.getElementById('prev-empresa');
       const $tbodyPrev = document.getElementById('tbody-preview');
 
       function showMsg(text, ok = true) {
@@ -220,20 +259,139 @@
       function moeda(v) { return new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(Number(v||0)); }
       function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+      // Empresas
+      let cacheEmpresas = [];
+      let empresaSelecionada = null;
+
+      async function carregarEmpresas() {
+        if (!$warnEmpresa) return;
+        try {
+          const res = await fetch(`${API_BASE_URL}/empresas/`, { credentials: 'include' });
+          if (!res.ok) {
+            showMsg('Não foi possível carregar empresas', false);
+            $warnEmpresa.classList.remove('hidden');
+            return;
+          }
+          const data = await res.json();
+          cacheEmpresas = data.empresas || [];
+          $warnEmpresa.classList.toggle('hidden', cacheEmpresas.length > 0);
+        } catch (err) {
+          console.error(err);
+          showMsg('Erro ao carregar empresas', false);
+          $warnEmpresa.classList.remove('hidden');
+        }
+      }
+
+      function filtrarEmpresas(termo) {
+        const q = (termo || '').trim().toLowerCase();
+        const lista = q
+          ? cacheEmpresas.filter(e =>
+          e.nome.toLowerCase().includes(q) ||
+          (e.cnpj && e.cnpj.toLowerCase().includes(q)) ||
+          (e.email && e.email.toLowerCase().includes(q))
+        )
+          : cacheEmpresas;
+        return lista.slice(0, 15);
+      }
+
+      function renderDropdownEmpresas(termo) {
+        if (!$dropdownEmpresas) return;
+        const filtradas = filtrarEmpresas(termo);
+        $dropdownEmpresas.innerHTML = '';
+        if (filtradas.length === 0) {
+          $dropdownEmpresas.classList.add('hidden');
+          return;
+        }
+        filtradas.forEach(emp => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'w-full text-left px-4 py-2 hover:bg-white/10 transition text-white border-b border-white/5 last:border-b-0';
+          item.innerHTML = `
+            <div class="font-medium">${escapeHtml(emp.nome)}</div>
+            <div class="text-xs text-white/60">${emp.cnpj ? '🧾 ' + escapeHtml(emp.cnpj) : ''} ${emp.email ? '📧 ' + escapeHtml(emp.email) : ''}</div>
+          `;
+          item.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            selecionarEmpresa(emp);
+          });
+          $dropdownEmpresas.appendChild(item);
+        });
+        $dropdownEmpresas.classList.remove('hidden');
+      }
+
+      function selecionarEmpresa(empresa) {
+        empresaSelecionada = empresa;
+        if ($inpEmpresa) $inpEmpresa.value = empresa.nome;
+        if ($dropdownEmpresas) $dropdownEmpresas.classList.add('hidden');
+        if ($empresaSelecionadaDiv) $empresaSelecionadaDiv.classList.remove('hidden');
+        if ($empresaSelecionadaNome) $empresaSelecionadaNome.textContent = empresa.nome;
+        syncPreview();
+      }
+
+      function getEmpresaSelecionada() {
+        return empresaSelecionada;
+      }
+
       // Clientes
       let cacheClientes = [];
+      let clienteSelecionado = null;
+
       async function carregarClientes() {
         try {
           const res = await fetch(`${API_BASE_URL}/clientes/`, { credentials: 'include' });
           if (!res.ok) { showMsg('Não foi possível carregar clientes', false); $warnCliente.classList.remove('hidden'); return; }
           const data = await res.json();
           cacheClientes = data.clientes || [];
-          preencherClientes();
           $warnCliente.classList.toggle('hidden', cacheClientes.length > 0);
         } catch (err) { console.error(err); showMsg('Erro ao carregar clientes', false); $warnCliente.classList.remove('hidden'); }
       }
-      function preencherClientes() { $selCliente.innerHTML = '<option value="">Selecione um cliente...</option>'; cacheClientes.forEach(c => { const opt = document.createElement('option'); opt.value = c.id_cliente; opt.textContent = `${c.nome} ${c.telefone ? '— ' + c.telefone : ''}`; $selCliente.appendChild(opt); }); }
-      function getClienteSelecionado() { const id = $selCliente.value; if (!id) return null; return cacheClientes.find(c => String(c.id_cliente) === String(id)) || null; }
+
+      function filtrarClientes(termo) {
+        if (!termo.trim()) return [];
+        const q = termo.trim().toLowerCase();
+        return cacheClientes.filter(c => 
+          c.nome.toLowerCase().includes(q) || 
+          (c.telefone && c.telefone.toLowerCase().includes(q)) ||
+          (c.email && c.email.toLowerCase().includes(q))
+        );
+      }
+
+      function renderDropdownClientes(termo) {
+        const filtrados = filtrarClientes(termo);
+        $dropdownClientes.innerHTML = '';
+        if (filtrados.length === 0) {
+          $dropdownClientes.classList.add('hidden');
+          return;
+        }
+        filtrados.forEach(c => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'w-full text-left px-4 py-2 hover:bg-white/10 transition text-white border-b border-white/5 last:border-b-0';
+          item.innerHTML = `
+            <div class="font-medium">${escapeHtml(c.nome)}</div>
+            <div class="text-xs text-white/60">${c.telefone ? '📞 ' + escapeHtml(c.telefone) : ''} ${c.email ? '📧 ' + escapeHtml(c.email) : ''}</div>
+          `;
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            selecionarCliente(c);
+          });
+          $dropdownClientes.appendChild(item);
+        });
+        $dropdownClientes.classList.remove('hidden');
+      }
+
+      function selecionarCliente(cliente) {
+        clienteSelecionado = cliente;
+        $inpCliente.value = cliente.nome;
+        $dropdownClientes.classList.add('hidden');
+        $clienteSelecionadoDiv.classList.remove('hidden');
+        $clienteSelecionadoNome.textContent = cliente.nome;
+        syncPreview();
+      }
+
+      function getClienteSelecionado() {
+        return clienteSelecionado;
+      }
 
       // Serviços
       let cacheServicos = [];
@@ -249,21 +407,128 @@
       function getServicosSelecionados() { const ids = Array.from($listaServ.querySelectorAll('input[type="checkbox"]:checked')).map(i => i.getAttribute('data-id')); return cacheServicos.filter(s => ids.includes(String(s.id_servicos))); }
 
       // Preview
-      function syncPreview() { const cliente = getClienteSelecionado(); if (cliente) { $clienteNome.textContent = cliente.nome; $clienteTelefone.textContent = cliente.telefone || '—'; $clienteEmail.textContent = cliente.email || '—'; $clienteEndereco.textContent = cliente.endereco || '—'; $prevCliente.textContent = cliente.nome; } else { $clienteNome.textContent = '—'; $clienteTelefone.textContent = '—'; $clienteEmail.textContent = '—'; $clienteEndereco.textContent = '—'; $prevCliente.textContent = '—'; } const selecionados = getServicosSelecionados(); $prevQtd.textContent = selecionados.length; const total = selecionados.reduce((acc, s) => acc + Number(s.valor || 0), 0); $prevTotal.textContent = moeda(total); $tbodyPrev.innerHTML = ''; selecionados.forEach(s => { const tr = document.createElement('tr'); tr.innerHTML = `<td class="px-4 py-2">${escapeHtml(s.nome)}</td><td class="px-4 py-2">${escapeHtml(s.descricao || '-')}</td><td class="px-4 py-2 text-right">${moeda(s.valor)}</td>`; $tbodyPrev.appendChild(tr); }); }
+      function syncPreview() { 
+        const empresa = getEmpresaSelecionada();
+        if ($prevEmpresa) $prevEmpresa.textContent = empresa ? empresa.nome : '—';
+        const cliente = getClienteSelecionado(); 
+        if (cliente) { 
+          $clienteNome.textContent = cliente.nome; 
+          $clienteTelefone.textContent = cliente.telefone || '—'; 
+          $clienteEmail.textContent = cliente.email || '—'; 
+          $clienteEndereco.textContent = cliente.endereco || '—'; 
+          $prevCliente.textContent = cliente.nome; 
+        } else { 
+          $clienteNome.textContent = '—'; 
+          $clienteTelefone.textContent = '—'; 
+          $clienteEmail.textContent = '—'; 
+          $clienteEndereco.textContent = '—'; 
+          $prevCliente.textContent = '—'; 
+        } 
+        const selecionados = getServicosSelecionados(); 
+        $prevQtd.textContent = selecionados.length; 
+        const total = selecionados.reduce((acc, s) => acc + Number(s.valor || 0), 0); 
+        $prevTotal.textContent = moeda(total); 
+        $tbodyPrev.innerHTML = ''; 
+        selecionados.forEach(s => { 
+          const tr = document.createElement('tr'); 
+          tr.innerHTML = `<td class="px-4 py-2">${escapeHtml(s.nome)}</td><td class="px-4 py-2">${escapeHtml(s.descricao || '-')}</td><td class="px-4 py-2 text-right">${moeda(s.valor)}</td>`; 
+          $tbodyPrev.appendChild(tr); 
+        }); 
+      }
 
       // Gerar PDF
       async function gerarPDF() {
-        const cliente = getClienteSelecionado(); const selecionados = getServicosSelecionados(); if (!cliente) { showMsg('Selecione um cliente.', false); $selCliente.focus(); return; } if (selecionados.length === 0) { showMsg('Selecione ao menos um serviço.', false); return; }
-        $btnPdf.disabled = true; $btnPdf.textContent = 'Gerando...'; try { const itens = selecionados.map(s => ({ id_servico: s.id_servicos, quantidade: 1 })); const res = await fetch(`${API_BASE_URL}/orcamentos/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id_cliente: cliente.id_cliente, itens }) }); const data = await res.json(); if (!res.ok) { showMsg(data.erro || 'Erro ao criar orçamento', false); return; } const idOrc = data.orcamento?.id_orcamento; if (!idOrc) { showMsg('Resposta inesperada do servidor', false); return; } const pdfRes = await fetch(`${API_BASE_URL}/orcamentos/${idOrc}/pdf`, { credentials: 'include' }); if (!pdfRes.ok) { const err = await pdfRes.json().catch(() => ({ erro: 'Erro ao gerar PDF' })); showMsg(err.erro || 'Erro ao gerar PDF', false); return; } const blob = await pdfRes.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `orcamento_${idOrc}.pdf`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); showMsg('PDF gerado com sucesso!'); } catch (err) { console.error(err); showMsg('Erro de conexão. Verifique se o servidor está rodando.', false); } finally { $btnPdf.disabled = false; $btnPdf.textContent = 'Gerar PDF'; } }
+        const empresa = getEmpresaSelecionada();
+        const cliente = getClienteSelecionado(); 
+        const selecionados = getServicosSelecionados(); 
+        if (!empresa) { showMsg('Selecione a empresa que emitirá o orçamento.', false); $inpEmpresa?.focus(); return; }
+        if (!cliente) { showMsg('Selecione um cliente.', false); $inpCliente.focus(); return; } 
+        if (selecionados.length === 0) { showMsg('Selecione ao menos um serviço.', false); return; }
+        $btnPdf.disabled = true; 
+        $btnPdf.textContent = 'Gerando...'; 
+        try { 
+          const itens = selecionados.map(s => ({ id_servico: s.id_servicos, quantidade: 1 }));
+          const payload = { id_cliente: cliente.id_cliente, id_empresa: empresa.id_empresa, itens };
+          const res = await fetch(`${API_BASE_URL}/orcamentos/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) }); 
+          const data = await res.json(); 
+          if (!res.ok) { showMsg(data.erro || 'Erro ao criar orçamento', false); return; } 
+          const idOrc = data.orcamento?.id_orcamento; 
+          if (!idOrc) { showMsg('Resposta inesperada do servidor', false); return; } 
+          const pdfRes = await fetch(`${API_BASE_URL}/orcamentos/${idOrc}/pdf`, { credentials: 'include' }); 
+          if (!pdfRes.ok) { const err = await pdfRes.json().catch(() => ({ erro: 'Erro ao gerar PDF' })); showMsg(err.erro || 'Erro ao gerar PDF', false); return; } 
+          const blob = await pdfRes.blob(); 
+          const url = URL.createObjectURL(blob); 
+          const a = document.createElement('a'); a.href = url; a.download = `orcamento_${idOrc}.pdf`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); showMsg('PDF gerado com sucesso!'); 
+        } catch (err) { 
+          console.error(err); 
+          showMsg('Erro de conexão. Verifique se o servidor está rodando.', false); 
+        } finally { 
+          $btnPdf.disabled = false; 
+          $btnPdf.textContent = 'Gerar PDF'; 
+        } 
+      }
 
-      // Eventos
-      document.getElementById('sidebar')?.querySelectorAll('.menu-item').forEach(a => { const href = a.getAttribute('href') || ''; if (href === (location.pathname.split('/').pop() || '')) a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10'); });
-      $selCliente.addEventListener('change', syncPreview);
+      // Marca o item ativo no menu comparando o último segmento da URL
+      (function () {
+        const currentLast = (location.pathname || '').split('/').pop() || '';
+        document.querySelectorAll('#sidebar .menu-item').forEach(a => {
+          const href = a.getAttribute('href') || '';
+          const hrefLast = href.split('/').pop() || '';
+          if (href === location.pathname || hrefLast === currentLast) {
+            a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10');
+          }
+        });
+      })();
+      
+      $inpEmpresa?.addEventListener('input', (e) => {
+        const termo = e.target.value;
+        if (termo.trim()) {
+          renderDropdownEmpresas(termo);
+        } else {
+          $dropdownEmpresas?.classList.add('hidden');
+        }
+      });
+
+      $inpEmpresa?.addEventListener('focus', (e) => {
+        if (e.target.value.trim()) {
+          renderDropdownEmpresas(e.target.value);
+        } else if (cacheEmpresas.length > 0) {
+          renderDropdownEmpresas('');
+        }
+      });
+
+      $inpCliente.addEventListener('input', (e) => {
+        const termo = e.target.value;
+        if (termo.trim()) {
+          renderDropdownClientes(termo);
+        } else {
+          $dropdownClientes.classList.add('hidden');
+        }
+      });
+
+      $inpCliente.addEventListener('focus', (e) => {
+        if (e.target.value.trim()) {
+          renderDropdownClientes(e.target.value);
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if ($inpEmpresa && !$inpEmpresa.contains(e.target) && !$dropdownEmpresas?.contains(e.target)) {
+          $dropdownEmpresas?.classList.add('hidden');
+        }
+        if (!$inpCliente.contains(e.target) && !$dropdownClientes.contains(e.target)) {
+          $dropdownClientes.classList.add('hidden');
+        }
+      });
+
       document.getElementById('inp-busca-serv')?.addEventListener('input', () => { renderServicos(); syncPreview(); });
       $btnPdf.addEventListener('click', gerarPDF);
 
       // Init
-      carregarClientes(); carregarServicos(); setTimeout(syncPreview, 250);
+      carregarEmpresas();
+      carregarClientes();
+      carregarServicos();
+      setTimeout(syncPreview, 250);
     </script>
   </body>
 </html>

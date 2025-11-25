@@ -25,6 +25,7 @@ from flask import Flask, jsonify, send_from_directory, send_file
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_migrate import Migrate
+from sqlalchemy import inspect, text
 
 # Importações dos nossos módulos
 from src.models.models import db, Usuario
@@ -34,6 +35,7 @@ from src.routes.servicos import servicos_bp
 from src.routes.orcamentos import orcamentos_bp
 from src.routes.vendas import vendas_bp
 from src.routes.agendamentos import agendamentos_bp
+from src.routes.empresas import empresas_bp
 
 # ========================================
 # CONFIGURAÇÃO DO FLASK
@@ -78,6 +80,7 @@ app.register_blueprint(servicos_bp, url_prefix='/api/servicos') # Rotas de servi
 app.register_blueprint(orcamentos_bp, url_prefix='/api/orcamentos') # Rotas de orçamentos
 app.register_blueprint(vendas_bp, url_prefix='/api/vendas') # Rotas de vendas
 app.register_blueprint(agendamentos_bp, url_prefix='/api/agendamentos') # Rotas de agendamentos
+app.register_blueprint(empresas_bp, url_prefix='/api/empresas') # Rotas de empresas
 
 # ========================================
 # CONFIGURAÇÃO DO BANCO DE DADOS
@@ -98,6 +101,19 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Cria as tabelas se não existirem
+def garantir_coluna_logo_empresas():
+    """Garante que a coluna logo exista mesmo em bancos antigos sem migração."""
+    try:
+        inspector = inspect(db.engine)
+        colunas = [col['name'] for col in inspector.get_columns('empresas')]
+        if 'logo' not in colunas:
+            with db.engine.connect() as conn:
+                conn.execute(text("ALTER TABLE empresas ADD COLUMN logo VARCHAR(255)"))
+            print("Coluna 'logo' adicionada na tabela empresas.")
+    except Exception as e:
+        print(f"Aviso: não foi possível sincronizar coluna 'logo' em empresas: {e}")
+
+
 with app.app_context():
     try:
         # Garante que o diretório para o arquivo SQLite exista (útil em execução local)
@@ -106,6 +122,7 @@ with app.app_context():
             os.makedirs(db_dir, exist_ok=True)
             print(f"Diretório do banco criado: {db_dir}")
         db.create_all()
+        garantir_coluna_logo_empresas()
         print("Banco de dados inicializado!")
     except Exception as e:
         # Se a criação falhar (por exemplo; banco não disponível), apenas logamos a mensagem.

@@ -14,12 +14,27 @@
         darkMode: 'class',
         theme: { extend: {} }
       };
+      document.addEventListener('DOMContentLoaded', function() {
+        const telefoneEmpresaInput = document.getElementById('telefoneEmpresa');
+        if (telefoneEmpresaInput) {
+          telefoneEmpresaInput.addEventListener('input', function(e) {
+            let v = telefoneEmpresaInput.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length >= 2) {
+              v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+            }
+            if (v.length > 9) {
+              v = v.slice(0,10) + '-' + v.slice(10);
+            }
+            telefoneEmpresaInput.value = v;
+          });
+        }
+      });
     </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   </head>
 
   <body class="bg-[#111a22] dark:bg-[#0a1015] transition-colors duration-300" style='font-family: Inter, "Noto Sans", sans-serif'>
-  <script src="../js/auth-protection.js"></script>
   <div class="relative flex min-h-screen w-full overflow-x-hidden">
       <!-- SIDEBAR -->
       <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
@@ -56,7 +71,7 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true">
@@ -122,339 +137,261 @@
 
       <!-- CONTEÚDO -->
       <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
-        <h2 class="text-white text-2xl font-bold">Registrar Cliente</h2>
-        <p class="text-[#93adc8] mt-1">Cadastre seus clientes para criar orçamentos.</p>
+        <h2 class="text-white text-2xl font-bold">Registrar Empresa</h2>
+        <p class="text-[#93adc8] mt-1">Cadastre os dados da sua empresa para aparecer nos orçamentos.</p>
 
-        <!-- FORMULÁRIO -->
-        <div class="mt-6 grid max-w-xl gap-4">
-          <input id="inp-nome" placeholder="Nome do cliente" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
-          <input id="inp-telefone" placeholder="Telefone" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
-          <input id="inp-email" placeholder="E-mail" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
-          <input id="inp-endereco" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
-          <div class="flex items-center justify-between">
-            <p id="msg" class="text-sm text-white/70"></p>
-            <!-- explicit type to avoid default form/submit behaviors in some browsers -->
-            <button type="button" id="btn-salvar" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar cliente</button>
+        <!-- FORMULÁRIO DE EMPRESA NO TOPO -->
+        <form id="formEmpresa" class="mt-6 grid max-w-xl gap-4">
+          <input id="nomeEmpresa" placeholder="Nome da empresa" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required autocomplete="off" />
+          <input id="cnpjEmpresa" placeholder="CNPJ" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required maxlength="18" autocomplete="off" />
+          <input id="telefoneEmpresa" placeholder="Telefone" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required maxlength="15" autocomplete="off" />
+          <input id="enderecoEmpresa" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required />
+          <input id="emailEmpresa" placeholder="E-mail" type="email" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" required />
+          <div>
+            <label for="logoEmpresa" class="block text-white mb-1">Logo da empresa (opcional)</label>
+            <input id="logoEmpresa" type="file" accept="image/*" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white" />
           </div>
-        </div>
+          <div class="flex items-center justify-between">
+            <p id="alertEmpresa" class="text-sm text-white/70"></p>
+            <button type="submit" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar empresa</button>
+          </div>
+        </form>
 
-        <!-- LISTA DE CLIENTES -->
+        <!-- CAMPO DE PESQUISA E LISTA DE EMPRESAS -->
         <div class="mt-10">
           <div class="flex items-end justify-between">
             <div>
-              <h3 class="text-white text-xl font-semibold">Clientes registrados</h3>
-              <p class="text-[#93adc8] text-sm mt-1">Gerencie seus clientes cadastrados.</p>
+              <h3 class="text-white text-xl font-semibold">Buscar empresa</h3>
+              <p class="text-[#93adc8] text-sm mt-1">Digite o nome e pressione Enter ou clique em Pesquisar.</p>
             </div>
-            <input id="inp-busca" placeholder="Pesquisar..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+            <div class="flex gap-2">
+              <input id="inp-busca-empresa" placeholder="Pesquisar empresa..." class="form-input h-10 w-56 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+              <button id="btn-pesquisar-empresa" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Pesquisar</button>
+            </div>
           </div>
 
           <div class="mt-4 overflow-hidden rounded-xl border border-white/10">
             <table class="min-w-full divide-y divide-white/10">
               <thead class="bg-white/5">
                 <tr class="text-[#b9cee3] text-sm">
-                  <th class="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th class="px-4 py-3 text-left font-medium">Empresa</th>
+                  <th class="px-4 py-3 text-left font-medium">CNPJ</th>
                   <th class="px-4 py-3 text-left font-medium">Telefone</th>
-                  <th class="px-4 py-3 text-left font-medium">E-mail</th>
                   <th class="px-4 py-3 text-left font-medium">Endereço</th>
+                  <th class="px-4 py-3 text-left font-medium">E-mail</th>
                   <th class="px-4 py-3 text-right font-medium">Ações</th>
                 </tr>
               </thead>
-              <tbody id="tbody-clientes" class="divide-y divide-white/5 text-white/90">
+              <tbody id="tbody-empresas" class="divide-y divide-white/5 text-white/90">
                 <!-- itens gerados via JS -->
               </tbody>
             </table>
           </div>
 
           <!-- VAZIO -->
-          <div id="empty-state" class="mt-4 hidden">
-            <p class="text-white/70">Nenhum cliente cadastrado ainda.</p>
+          <div id="empty-state-empresa" class="mt-4 hidden">
+            <p class="text-white/70">Nenhuma empresa cadastrada ainda.</p>
           </div>
         </div>
+
       </main>
     </div>
 
     <!-- Script de proteção de autenticação -->
     <script src="/js/auth-protection.js"></script>
     <script>
-      // API_BASE_URL já está definido em auth-protection.js
-
-      // marca item ativo conforme URL
       (function () {
-        const path = location.pathname.split('/').pop() || '';
-        document.querySelectorAll('#sidebar .menu-item').forEach(a => {
-          const href = a.getAttribute('href') || '';
-          if (href === path) {
-            a.classList.add("bg-[#243647]", "ring-1", "ring-white/10");
+        const formEmpresa = document.getElementById('formEmpresa');
+        const alertEmpresa = document.getElementById('alertEmpresa');
+        const buscaEmpresa = document.getElementById('inp-busca-empresa');
+        const btnPesquisarEmpresa = document.getElementById('btn-pesquisar-empresa');
+        const tbodyEmpresas = document.getElementById('tbody-empresas');
+        const emptyEmpresa = document.getElementById('empty-state-empresa');
+        let empresasCache = [];
+
+        function setAlert(message, ok = false) {
+          alertEmpresa.textContent = message;
+          alertEmpresa.className = ok
+            ? 'bg-emerald-600/10 text-emerald-300 p-4 rounded-md mt-2'
+            : 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
+        }
+
+        formEmpresa.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const nome = document.getElementById('nomeEmpresa').value.trim();
+          const cnpj = document.getElementById('cnpjEmpresa').value.trim();
+          const telefone = document.getElementById('telefoneEmpresa').value.trim();
+          const endereco = document.getElementById('enderecoEmpresa').value.trim();
+          const email = document.getElementById('emailEmpresa').value.trim();
+          const logoInput = document.getElementById('logoEmpresa');
+          const logoFile = logoInput && logoInput.files.length > 0 ? logoInput.files[0] : null;
+
+          if (/[0-9]/.test(nome)) {
+            setAlert('O nome não pode conter números.');
+            return;
           }
-        });
-      })();
+          const cnpjNumeros = cnpj.replace(/\D/g, '');
+          if (cnpjNumeros.length !== 14) {
+            setAlert('CNPJ inválido. Informe 14 dígitos.');
+            return;
+          }
+          const telefoneNumeros = telefone.replace(/\D/g, '');
+          if (telefoneNumeros.length !== 11) {
+            setAlert('Telefone inválido. Informe 11 dígitos (com DDD).');
+            return;
+          }
+          const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+          if (!emailRegex.test(email)) {
+            setAlert('E-mail inválido. Informe um e-mail válido.');
+            return;
+          }
 
-      // ====== CLIENTES (API) ======
-      const $nome = document.getElementById('inp-nome');
-      const $telefone = document.getElementById('inp-telefone');
-      const $email = document.getElementById('inp-email');
-      const $endereco = document.getElementById('inp-endereco');
-      const $btn = document.getElementById('btn-salvar');
-      const $tbody = document.getElementById('tbody-clientes');
-      const $msg = document.getElementById('msg');
-      const $busca = document.getElementById('inp-busca');
-      const $empty = document.getElementById('empty-state');
-
-      function escapeHtml(s) {
-        return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      }
-
-      function showMsg(text, ok = true) {
-        // also log messages to the console to help debug when UI updates are not visible
-        console.log('[showMsg]', text, ok);
-        $msg.textContent = text;
-        $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
-        setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
-      }
-
-      // ====== MÁSCARAS DE ENTRADA ======
-      function aplicarMascaraTelefone(input) {
-        input.addEventListener('input', function(e) {
-          let value = e.target.value.replace(/\D/g, '');
-          if (value.length <= 11) {
-            if (value.length <= 2) {
-              e.target.value = value;
-            } else if (value.length <= 7) {
-              e.target.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
-            } else {
-              e.target.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+          try {
+            const formData = new FormData();
+            formData.append('nome', nome);
+            formData.append('cnpj', cnpjNumeros);
+            formData.append('telefone', telefoneNumeros);
+            formData.append('endereco', endereco);
+            formData.append('email', email);
+            if (logoFile) {
+              formData.append('logo', logoFile);
             }
+            const response = await fetch('/api/empresas/', {
+              method: 'POST',
+              credentials: 'include',
+              body: formData
+            });
+            const data = await response.json().catch(() => null);
+            if (!response.ok) {
+              throw new Error((data && (data.erro || data.mensagem)) || 'Erro ao salvar empresa');
+            }
+            setAlert('Empresa cadastrada com sucesso!', true);
+            formEmpresa.reset();
+            await carregarEmpresas();
+          } catch (err) {
+            setAlert(err.message || 'Erro ao salvar empresa');
           }
         });
-      }
 
-      // Aplica máscara no campo de telefone
-      aplicarMascaraTelefone($telefone);
-
-      // Função para carregar clientes da API
-      async function carregarClientes() {
-        try {
-          const response = await fetch(`${API_BASE_URL}/clientes/`, {
-            method: 'GET',
-            credentials: 'include'
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            return data.clientes || [];
-          } else {
-            console.error('Erro ao carregar clientes:', response.status);
-            return [];
-          }
-        } catch (error) {
-          console.error('Erro na requisição:', error);
-          showMsg('Erro ao carregar clientes. Verifique se o servidor está rodando.', false);
-          return [];
+        function escapeHtml(s) {
+          return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
-      }
 
-      // Função para salvar cliente na API
-      async function salvarCliente(nome, telefone, email, endereco) {
-        try {
-          // Remove todos os caracteres não numéricos do telefone
-          const telefoneLimpo = telefone ? telefone.replace(/\D/g, '') : '';
-          
-          console.log('Enviando dados:', { nome, telefone: telefoneLimpo, email, endereco });
-          
-          const response = await fetch(`${API_BASE_URL}/clientes/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-              nome,
-              telefone: telefoneLimpo,
-              email,
-              endereco
-            })
-          });
-
-          const contentType = response.headers.get('content-type');
-          let data;
-          
-          if (contentType && contentType.includes('application/json')) {
-            data = await response.json();
-          } else {
-            const text = await response.text();
-            console.error('Resposta não-JSON:', text);
-            throw new Error('Resposta inesperada do servidor');
+        async function carregarEmpresas() {
+          try {
+            const response = await fetch('/api/empresas/', {
+              method: 'GET',
+              credentials: 'include'
+            });
+            if (response.ok) {
+              const data = await response.json();
+              empresasCache = data.empresas || [];
+              renderizarEmpresas(empresasCache, buscaEmpresa.value);
+            } else {
+              empresasCache = [];
+              renderizarEmpresas([], buscaEmpresa.value);
+            }
+          } catch (error) {
+            empresasCache = [];
+            renderizarEmpresas([], buscaEmpresa.value);
           }
-
-          if (response.ok) {
-            console.log('Cliente salvo:', data);
-            showMsg('Cliente cadastrado com sucesso!');
-            return true;
-          } else {
-            console.error('Erro ao salvar:', data);
-            showMsg(data.erro || 'Erro ao cadastrar cliente', false);
-            return false;
-          }
-        } catch (error) {
-          console.error('Erro na requisição:', error);
-          showMsg('Erro ao cadastrar cliente. Verifique o console para mais detalhes.', false);
-          return false;
         }
-      }
 
-      // Função para excluir cliente
-      async function excluirCliente(id) {
-        try {
-          const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
-            method: 'DELETE',
-            credentials: 'include'
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-            showMsg('Cliente excluído com sucesso!');
-            return true;
-          } else {
-            showMsg(data.erro || 'Erro ao excluir cliente', false);
-            return false;
+        function renderizarEmpresas(empresas, filtro = '') {
+          const filtroLower = filtro.toLowerCase();
+          let empresasFiltradas = empresas.filter(empresa => 
+            empresa.nome.toLowerCase().includes(filtroLower) ||
+            (empresa.cnpj && empresa.cnpj.toLowerCase().includes(filtroLower)) ||
+            (empresa.email && empresa.email.toLowerCase().includes(filtroLower)) ||
+            (empresa.telefone && empresa.telefone.toLowerCase().includes(filtroLower)) ||
+            (empresa.endereco && empresa.endereco.toLowerCase().includes(filtroLower))
+          );
+          if (filtro && empresasFiltradas.length > 0) {
+            empresasFiltradas = [empresasFiltradas[0]];
           }
-        } catch (error) {
-          console.error('Erro ao excluir:', error);
-          showMsg('Erro ao excluir cliente', false);
-          return false;
-        }
-      }
-
-      // Função para renderizar lista de clientes
-      function renderizarClientes(clientes, filtro = '') {
-        const filtroLower = filtro.toLowerCase();
-        const clientesFiltrados = clientes.filter(cliente => 
-          cliente.nome.toLowerCase().includes(filtroLower) ||
-          (cliente.email && cliente.email.toLowerCase().includes(filtroLower)) ||
-          (cliente.telefone && cliente.telefone.toLowerCase().includes(filtroLower)) ||
-          (cliente.endereco && cliente.endereco.toLowerCase().includes(filtroLower))
-        );
-
-        $tbody.innerHTML = '';
-        $empty.classList.toggle('hidden', clientes.length > 0);
-
-        if (clientesFiltrados.length === 0) {
-          if (clientes.length > 0) {
+          tbodyEmpresas.innerHTML = '';
+          emptyEmpresa.classList.toggle('hidden', empresasFiltradas.length > 0);
+          if (empresasFiltradas.length === 0) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td colspan="5" class="px-4 py-6 text-center text-white/60">
+              <td colspan="6" class="px-4 py-6 text-center text-white/60">
                 Nenhum resultado encontrado para "${escapeHtml(filtro)}"
               </td>
             `;
-            $tbody.appendChild(tr);
+            tbodyEmpresas.appendChild(tr);
+            return;
           }
-          return;
+          empresasFiltradas.forEach(empresa => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="px-4 py-3 font-bold">${escapeHtml(empresa.nome)}</td>
+              <td class="px-4 py-3">${escapeHtml(empresa.cnpj || '')}</td>
+              <td class="px-4 py-3">${escapeHtml(empresa.telefone || '')}</td>
+              <td class="px-4 py-3">${escapeHtml(empresa.endereco || '')}</td>
+              <td class="px-4 py-3">${escapeHtml(empresa.email || '')}</td>
+              <td class="px-4 py-3 text-right">
+                <a href="/MenuPrincipal/EditarEmpresa.html?id=${empresa.id_empresa}" class="inline-flex items-center gap-2 h-9 px-3 mr-2 rounded-lg bg-[#1773cf] hover:bg-[#1773cf]/80 text-white text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A16,16,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A16,16,0,0,0,104,219.31l123.31-123.31A16,16,0,0,0,227.31,73.37Z"/></svg>
+                  Editar
+                </a>
+                <button data-del="${empresa.id_empresa}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-red-600/80 hover:bg-red-700 text-white text-sm font-bold">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+                    <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+                  </svg>
+                  Excluir
+                </button>
+              </td>
+            `;
+            tbodyEmpresas.appendChild(tr);
+          });
         }
 
-        clientesFiltrados.forEach(cliente => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="px-4 py-3">${escapeHtml(cliente.nome)}</td>
-            <td class="px-4 py-3">${escapeHtml(cliente.telefone || '')}</td>
-            <td class="px-4 py-3">${escapeHtml(cliente.email || '')}</td>
-            <td class="px-4 py-3">${escapeHtml(cliente.endereco || '')}</td>
-            <td class="px-4 py-3 text-right">
-              <button data-del="${cliente.id_cliente}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
-                  <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
-                </svg>
-                Excluir
-              </button>
-            </td>
-          `;
-          $tbody.appendChild(tr);
-        });
-      }
-
-      // Event Listeners
-      if ($btn) {
-        $btn.addEventListener('click', async () => {
-          // Validação dos campos
-          const nome = $nome.value.trim();
-          const telefone = $telefone.value.trim();
-          const email = $email.value.trim();
-          const endereco = $endereco.value.trim();
-
-          if (!nome) {
-            showMsg('Nome do cliente é obrigatório', false);
-            $nome.focus();
-            return;
-          }
-
-          if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            showMsg('Email inválido', false);
-            $email.focus();
-            return;
-          }
-
-          // Desabilita o botão durante o salvamento
-          $btn.disabled = true;
-          $btn.textContent = 'Salvando...';
-
+        tbodyEmpresas.addEventListener('click', async (e) => {
+          const btn = e.target.closest('button[data-del]');
+          if (!btn) return;
+          const id = btn.getAttribute('data-del');
+          if (!confirm('Tem certeza que deseja excluir esta empresa?')) return;
+          btn.disabled = true;
+          btn.textContent = 'Excluindo...';
           try {
-            const sucesso = await salvarCliente(nome, telefone, email, endereco);
-            if (sucesso) {
-              // Limpa o formulário
-              $nome.value = '';
-              $telefone.value = '';
-              $email.value = '';
-              $endereco.value = '';
-
-              // Recarrega a lista
-              const clientes = await carregarClientes();
-              renderizarClientes(clientes, $busca.value);
+            const response = await fetch(`/api/empresas/${id}`, {
+              method: 'DELETE',
+              credentials: 'include'
+            });
+            if (response.ok) {
+              await carregarEmpresas();
             }
           } finally {
-            // Sempre reabilita o botão
-            $btn.disabled = false;
-            $btn.textContent = 'Salvar cliente';
+            btn.disabled = false;
+            btn.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+              </svg>
+              Excluir
+            `;
           }
         });
-      }
 
-      // Listener para exclusão
-      $tbody.addEventListener('click', async (e) => {
-        const btn = e.target.closest('button[data-del]');
-        if (!btn) return;
-
-        const id = btn.getAttribute('data-del');
-        if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
-
-        btn.disabled = true;
-        btn.textContent = 'Excluindo...';
-
-        try {
-          if (await excluirCliente(id)) {
-            const clientes = await carregarClientes();
-            renderizarClientes(clientes, $busca.value);
+        btnPesquisarEmpresa.addEventListener('click', () => renderizarEmpresas(empresasCache, buscaEmpresa.value));
+        buscaEmpresa.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            renderizarEmpresas(empresasCache, buscaEmpresa.value);
           }
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
-              <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
-            </svg>
-            Excluir
-          `;
-        }
-      });
-
-      // Listener para busca
-      if ($busca) {
-        $busca.addEventListener('input', async () => {
-          const clientes = await carregarClientes();
-          renderizarClientes(clientes, $busca.value);
         });
-      }
 
-      // Carrega a lista inicial
-      carregarClientes().then(clientes => renderizarClientes(clientes));
+        carregarEmpresas();
+
+        // Marca o item ativo no menu
+        const currentLast = (location.pathname || '').split('/').pop() || '';
+        document.querySelectorAll('#sidebar .menu-item').forEach(a => {
+          const href = a.getAttribute('href') || '';
+          const hrefLast = href.split('/').pop() || '';
+          if (href === location.pathname || hrefLast === currentLast) {
+            a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10');
+          }
+        });
+      })();
     </script>
   </body>
 </html>

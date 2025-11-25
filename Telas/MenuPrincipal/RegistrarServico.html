@@ -51,7 +51,7 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -305,8 +305,11 @@
               <td class="px-4 py-3 align-top">${escapeHtml(s.descricao || '')}</td>
               <td class="px-4 py-3 text-right align-top">${moeda(s.valor)}</td>
               <td class="px-4 py-3 text-right align-top">
+                <a href="/MenuPrincipal/EditarServico.html?id=${s.id_servicos}" class="inline-flex items-center gap-2 h-9 px-3 mr-2 rounded-lg bg-[#1773cf] hover:bg-[#1773cf]/80 text-white text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A16,16,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A16,16,0,0,0,104,219.31l123.31-123.31A16,16,0,0,0,227.31,73.37Z"/></svg>
+                  Editar
+                </a>
                 <button data-del="${s.id_servicos}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm">
-                  <!-- lixeira -->
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/></svg>
                   Excluir
                 </button>

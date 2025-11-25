@@ -234,6 +234,86 @@ def obter_agendamento(id_agendamento):
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
 
 # ========================================
+# ROTA: ATUALIZAR AGENDAMENTO (COMPLETO)
+# PUT /api/agendamentos/<id>
+# ========================================
+@agendamentos_bp.route('/<int:id_agendamento>', methods=['PUT'])
+@login_required
+def atualizar_agendamento(id_agendamento):
+    """
+    Atualiza os detalhes completos de um agendamento
+    Recebe: data_hora, status, observacoes, endereco, tecnico, id_cliente, 
+            lembrete_cliente, lembrete_tecnico, solicitar_confirmacao, recorrencia
+    Retorna: dados do agendamento atualizado ou erro
+    """
+    try:
+        dados = request.get_json()
+        if not dados:
+            return jsonify({'erro': 'Nenhum dado foi enviado'}), 400
+        
+        # Busca o agendamento
+        agendamento = Agendamento.query.filter_by(
+            id_agendamento=id_agendamento,
+            id_usuario=current_user.id_usuario
+        ).first()
+        
+        if not agendamento:
+            return jsonify({'erro': 'Agendamento não encontrado'}), 404
+        
+        # Atualiza campos permitidos
+        if 'data_hora' in dados and dados['data_hora']:
+            try:
+                data_hora = datetime.fromisoformat(dados['data_hora'].replace('Z', '+00:00'))
+                agendamento.data_hora = data_hora
+            except ValueError:
+                return jsonify({'erro': 'Formato de data/hora inválido'}), 400
+        
+        if 'status' in dados:
+            status_validos = ['Agendado', 'Confirmado', 'Em Andamento', 'Concluído', 'Cancelado']
+            if dados['status'] not in status_validos:
+                return jsonify({'erro': f'Status inválido. Use: {", ".join(status_validos)}'}), 400
+            agendamento.status = dados['status']
+        
+        if 'observacoes' in dados:
+            agendamento.observacoes = dados.get('observacoes', '')
+        
+        # Campos adicionais (armazenados como observações ou em novos campos se necessário)
+        # Para agora, vamos apenas registrar no histórico
+        if 'endereco' in dados:
+            endereco_info = f"\n[Endereço: {dados['endereco']}]" if dados['endereco'] else ""
+            if endereco_info and endereco_info not in (agendamento.observacoes or ''):
+                agendamento.observacoes = (agendamento.observacoes or '') + endereco_info
+        
+        if 'tecnico' in dados:
+            tecnico_info = f"\n[Técnico: {dados['tecnico']}]" if dados['tecnico'] else ""
+            if tecnico_info and tecnico_info not in (agendamento.observacoes or ''):
+                agendamento.observacoes = (agendamento.observacoes or '') + tecnico_info
+        
+        # Atualiza timestamp
+        agendamento.updated_at = datetime.utcnow()
+        
+        # Salva
+        db.session.commit()
+        
+        # Registra log
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Agendamento atualizado: {agendamento.servico.nome if agendamento.servico else "N/A"}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+        
+        return jsonify({
+            'mensagem': 'Agendamento atualizado com sucesso!',
+            'agendamento': agendamento.para_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+# ========================================
 # ROTA: EXCLUIR AGENDAMENTO
 # DELETE /api/agendamentos/<id>
 # ========================================

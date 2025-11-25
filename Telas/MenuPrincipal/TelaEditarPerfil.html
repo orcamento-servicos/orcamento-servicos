@@ -71,14 +71,14 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/>
                 </svg>
               </span>
-              <span class="text-white text-sm font-medium">Registrar empresa</span>
+              <span class="text-white text-sm font-medium">Registrar cliente</span>
             </a>
 
             <a href="RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
@@ -137,6 +137,11 @@
 
       <!-- CONTEÚDO PRINCIPAL -->
       <main class="flex-1 max-w-[1100px] w-full mx-auto px-6 py-8">
+        <div class="flex justify-end mb-6">
+          <a href="RegistrarEmpresa.html" class="h-10 px-5 rounded-lg bg-[#1773cf] text-white font-bold hover:bg-[#1773cf]/90 transition flex items-center justify-center">
+            Registrar empresa
+          </a>
+        </div>
         <header class="flex items-center justify-between">
           <div>
             <h2 class="text-white text-3xl font-bold">Editar Perfil</h2>
@@ -217,11 +222,6 @@
               <span class="text-white text-sm">Telefone</span>
               <input id="inpTelefone" class="form-input h-11 rounded-lg border-none bg-[#243647] text-white" placeholder="(00) 00000-0000" />
             </label>
-
-            <label class="md:col-span-2 grid gap-1">
-              <span class="text-white text-sm">Bio</span>
-              <textarea id="inpBio" class="form-textarea min-h-28 rounded-lg border-none bg-[#243647] text-white" placeholder="Conte um pouco sobre você"></textarea>
-            </label>
           </section>
 
           <!-- Card: Alterar senha -->
@@ -251,13 +251,14 @@
           <div class="flex items-center gap-3">
             <button
               type="submit"
-              class="h-11 px-5 rounded-lg bg-[#1773cf] text-white font-bold hover:bg-[#1773cf]/90 transition"
+              class="h-11 px-5 rounded-lg bg-[#1773cf] text-white font-bold hover:bg-[#1773cf]/90 transition flex items-center justify-center"
             >
               Salvar alterações
             </button>
             <a
               href="TelaMenuPrincipal.html"
-              class="h-11 px-5 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+              class="h-11 px-5 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition flex items-center justify-center"
+              style="display: inline-flex; align-items: center; justify-content: center;"
             >
               Cancelar
             </a>
@@ -332,11 +333,24 @@
           inpTelefone.value = usuario.telefone || '';
           inpStatus.value = usuario.status || 'Online';
           
-          // Se tem avatar personalizado, exibe
-          if (usuario.avatar_url) {
-            avatarLarge.style.backgroundImage = `url('${usuario.avatar_url}')`;
-            avatarPreview.style.backgroundImage = `url('${usuario.avatar_url}')`;
+          // Se tem avatar personalizado, exibe, garantindo caminho absoluto
+          let avatarUrl = usuario.avatar_url;
+          if (!avatarUrl || typeof avatarUrl !== 'string' || avatarUrl.trim() === '') {
+            avatarUrl = '/imagens/usuario.jpg';
           }
+          if (avatarUrl && !avatarUrl.startsWith('/')) {
+            avatarUrl = '/' + avatarUrl.replace(/^\/+/, '');
+          }
+          avatarLarge.style.backgroundImage = `url('${avatarUrl}')`;
+          avatarPreview.style.backgroundImage = `url('${avatarUrl}')`;
+          // Corrige avatar quebrado: tenta carregar, se falhar, usa imagem padrão absoluta
+          [avatarLarge, avatarPreview].forEach(el => {
+            const img = new window.Image();
+            img.onerror = () => {
+              el.style.backgroundImage = `url('/imagens/usuario.jpg')`;
+            };
+            img.src = avatarUrl;
+          });
         } catch (error) {
           console.error('Erro ao carregar perfil:', error);
           showMsg('Erro ao carregar dados do perfil', false);
@@ -374,10 +388,10 @@
       });
 
       btnRemoverAvatar?.addEventListener('click', () => {
-        inputAvatar.value = '';
-        const fallback = '../imagens/usuario.jpg';
-        avatarLarge.style.backgroundImage = `url('${fallback}')`;
-        avatarPreview.style.backgroundImage = `url('${fallback}')`;
+  inputAvatar.value = '';
+  const fallback = '/imagens/usuario.jpg';
+  avatarLarge.style.backgroundImage = `url('${fallback}')`;
+  avatarPreview.style.backgroundImage = `url('${fallback}')`;
       });
 
       form?.addEventListener('submit', async (e) => {

@@ -120,6 +120,7 @@ class Orcamento(db.Model):
     id_orcamento = db.Column(db.Integer, primary_key=True)  # ID único
     id_cliente = db.Column(db.Integer, db.ForeignKey('clientes.id_cliente'), nullable=False)  # Cliente
     id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)   # Usuário que criou
+    id_empresa = db.Column(db.Integer, db.ForeignKey('empresas.id_empresa'), nullable=True)   # Empresa emissora
     # Endereço selecionado no momento do orçamento (opcional)
     id_endereco = db.Column(db.Integer, db.ForeignKey('enderecos.id_endereco'), nullable=True)
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)  # Data de criação
@@ -130,6 +131,7 @@ class Orcamento(db.Model):
     orcamento_servicos = db.relationship('OrcamentoServicos', backref='orcamento', lazy=True, cascade='all, delete-orphan')
     # Relacionamento com Endereco
     endereco = db.relationship('Endereco', backref='orcamentos', lazy=True)
+    empresa = db.relationship('Empresa', backref='orcamentos', lazy=True)
     
     # Converte o orçamento para formato JSON
     def para_dict(self):
@@ -137,11 +139,13 @@ class Orcamento(db.Model):
             'id_orcamento': self.id_orcamento,
             'id_cliente': self.id_cliente,
             'id_usuario': self.id_usuario,
+            'id_empresa': self.id_empresa,
             'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
             'valor_total': float(self.valor_total),
             'status': self.status,
             'cliente_nome': self.cliente.nome if self.cliente else None,
             'usuario_nome': self.usuario.nome if self.usuario else None,
+            'empresa_nome': self.empresa.nome if self.empresa else None,
             'id_endereco': self.id_endereco
         }
 
@@ -235,6 +239,30 @@ Cliente.enderecos = db.relationship('Endereco', backref='cliente', lazy=True, ca
 
 # ========================================
 # MODELOS: VENDAS (conversão de orçamento)
+# ========================================
+# MODELO: EMPRESA
+# Representa as empresas cadastradas
+# ========================================
+class Empresa(db.Model):
+    __tablename__ = 'empresas'
+    id_empresa = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(80), nullable=False)
+    cnpj = db.Column(db.String(14), nullable=False, unique=True)
+    telefone = db.Column(db.String(11))
+    endereco = db.Column(db.String(55))
+    email = db.Column(db.String(50))
+    logo = db.Column(db.String(255))  # Caminho do arquivo da logo
+
+    def para_dict(self):
+        return {
+            'id_empresa': self.id_empresa,
+            'nome': self.nome,
+            'cnpj': self.cnpj,
+            'telefone': self.telefone,
+            'endereco': self.endereco,
+            'email': self.email,
+            'logo': self.logo
+        }
 # ========================================
 class Venda(db.Model):
     __tablename__ = 'vendas'

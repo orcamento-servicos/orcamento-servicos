@@ -6,13 +6,14 @@
 # Importações necessárias
 from flask import Blueprint, request, jsonify, make_response
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 import os
 import base64
 import secrets
 import smtplib
 from email.message import EmailMessage
+from html import escape
 from src.utils.email_utils import send_email, get_smtp_config
 
 from src.models.models import (
@@ -24,6 +25,7 @@ from src.models.models import (
     LogsAcesso,
     Venda,
     VendaItem,
+    Empresa,
 )
 
 try:
@@ -64,16 +66,20 @@ def criar_orcamento():
             return jsonify({'erro': 'Nenhum dado foi enviado'}), 400
 
         id_cliente = dados.get('id_cliente')
+        id_empresa = dados.get('id_empresa')
         itens = dados.get('itens', [])
 
         # Validações básicas
         if not id_cliente:
             return jsonify({'erro': 'id_cliente é obrigatório'}), 400
+        if not id_empresa:
+            return jsonify({'erro': 'id_empresa é obrigatório'}), 400
         if not isinstance(itens, list) or len(itens) == 0:
             return jsonify({'erro': 'Lista de itens é obrigatória e não pode ser vazia'}), 400
 
-        # Verifica cliente
+        # Verifica cliente e empresa
         cliente = Cliente.query.get_or_404(id_cliente)
+        empresa = Empresa.query.get_or_404(id_empresa)
 
         # Agrega itens duplicados somando quantidades e valida IDs e quantidades
         mapa_quantidades = {}
@@ -107,6 +113,7 @@ def criar_orcamento():
         novo_orcamento = Orcamento(
             id_cliente=cliente.id_cliente,
             id_usuario=current_user.id_usuario,
+            id_empresa=empresa.id_empresa,
             data_criacao=datetime.utcnow(),
             valor_total=valor_total
         )
@@ -322,6 +329,60 @@ def gerar_pdf_orcamento(id_orcamento):
         orcamento = Orcamento.query.get_or_404(id_orcamento)
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
+        empresa = orcamento.empresa or Empresa.query.first()
+
+        def format_phone(value):
+            digits = ''.join(filter(str.isdigit, str(value or '')))
+            if len(digits) == 11:
+                return f"({digits[:2]}) {digits[2:7]}-{digits[7:]}"
+            if len(digits) == 10:
+                return f"({digits[:2]}) {digits[2:6]}-{digits[6:]}"
+            return digits
+
+        def format_cnpj(value):
+            digits = ''.join(filter(str.isdigit, str(value or '')))
+            if len(digits) == 14:
+                return f"{digits[:2]}.{digits[2:5]}.{digits[5:8]}/{digits[8:12]}-{digits[12:]}"
+            return digits
+
+        def format_cpf(value):
+            digits = ''.join(filter(str.isdigit, str(value or '')))
+            if len(digits) == 11:
+                return f"{digits[:3]}.{digits[3:6]}.{digits[6:9]}-{digits[9:]}"
+            return digits
+
+        def esc(value):
+            return escape(value or '')
+
+        empresa_nome = (empresa.nome if empresa else os.environ.get('EMPRESA_NOME')) or 'ORCATECH'
+        empresa_endereco = (empresa.endereco if empresa and empresa.endereco else os.environ.get('EMPRESA_ENDERECO')) or 'Não informado'
+        empresa_email = (empresa.email if empresa and empresa.email else os.environ.get('EMPRESA_EMAIL')) or 'Não informado'
+        empresa_phone = format_phone(empresa.telefone if empresa else os.environ.get('EMPRESA_TELEFONE')) or 'Não informado'
+        empresa_cnpj = format_cnpj(empresa.cnpj if empresa else os.environ.get('EMPRESA_CNPJ')) or 'Não informado'
+
+        cliente_nome = cliente.nome if cliente else 'Cliente'
+        cliente_tel = format_phone(cliente.telefone if cliente else '')
+        cliente_email = (cliente.email if cliente and cliente.email else 'Não informado')
+        cliente_endereco = (cliente.endereco if cliente and cliente.endereco else 'Não informado')
+        cliente_cpf = format_cpf(getattr(cliente, 'cpf', '')) or 'Não informado'
+        responsavel_nome = orcamento.usuario.nome if orcamento.usuario else 'Responsável'
+        validade_data = (orcamento.data_criacao + timedelta(days=15)) if orcamento.data_criacao else None
+        validade_str = validade_data.strftime('%d/%m/%Y') if validade_data else '15 dias após emissão'
+
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        logo_absolute_path = None
+        candidato_logos = []
+        if empresa and empresa.logo:
+            candidato_logos.append(os.path.join(base_dir, 'static', empresa.logo))
+        candidato_logos.extend([
+            os.path.join(base_dir, 'static', 'logo.png'),
+            os.path.join(base_dir, 'static', 'logo.jpg'),
+            os.path.join(base_dir, 'static', 'logo.svg'),
+        ])
+        for caminho in candidato_logos:
+            if caminho and os.path.exists(caminho):
+                logo_absolute_path = caminho
+                break
 
         def formatar_brl(valor_decimal):
             valor = float(valor_decimal)
@@ -331,79 +392,126 @@ def gerar_pdf_orcamento(id_orcamento):
 
         # Primeiro tenta usar WeasyPrint (HTML -> PDF) para um layout rico
         if WEASYPRINT_AVAILABLE:
-            # Tenta carregar logo da empresa em static (qualquer formato suportado)
             logo_data_uri = ''
-            try:
-                base_dir = os.path.dirname(os.path.dirname(__file__))
-                # procura por logo.png, logo.jpg ou logo.svg
-                for fname in ('logo.png', 'logo.jpg', 'logo.svg'):
-                    logo_path = os.path.join(base_dir, 'static', fname)
-                    if os.path.exists(logo_path):
-                        with open(logo_path, 'rb') as f:
-                            b64 = base64.b64encode(f.read()).decode('utf-8')
-                            mime = 'image/png' if fname.endswith('.png') else ('image/jpeg' if fname.endswith('.jpg') else 'image/svg+xml')
-                            logo_data_uri = f"data:{mime};base64,{b64}"
-                        break
-            except Exception:
-                logo_data_uri = ''
+            if logo_absolute_path:
+                try:
+                    with open(logo_absolute_path, 'rb') as f:
+                        b64 = base64.b64encode(f.read()).decode('utf-8')
+                        mime = 'image/png'
+                        if logo_absolute_path.endswith('.jpg') or logo_absolute_path.endswith('.jpeg'):
+                            mime = 'image/jpeg'
+                        elif logo_absolute_path.endswith('.svg'):
+                            mime = 'image/svg+xml'
+                        logo_data_uri = f"data:{mime};base64,{b64}"
+                except Exception:
+                    logo_data_uri = ''
 
-            EMPRESA_NOME = os.environ.get('EMPRESA_NOME', 'ORCATECH')
-            EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', '')
-            EMPRESA_CONTATO = os.environ.get('EMPRESA_CONTATO', '')
+            linhas_itens = ''.join([
+                f"<tr>"
+                f"<td class='center'>{rel.quantidade}</td>"
+                f"<td><div class='title'>{esc(rel.servico.nome if rel.servico else 'Serviço')}</div>"
+                f"<div class='desc'>{esc((rel.servico.descricao or '') if rel.servico else '')}</div></td>"
+                f"<td class='right'>{formatar_brl(rel.valor_unitario)}</td>"
+                f"<td class='right'>{formatar_brl(rel.subtotal)}</td>"
+                f"</tr>"
+                for rel in itens
+            ])
+            if not linhas_itens:
+                linhas_itens = "<tr><td colspan='4' class='center'>Nenhum serviço vinculado</td></tr>"
 
             html_conteudo = f"""
             <html>
             <head>
                 <meta charset='utf-8'>
                 <style>
-                    @page {{ size: A4; margin: 18mm 12mm; }}
-                    :root {{ --accent: #0b57a4; --text: #222; --muted: #666; }}
-                    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: var(--text); font-size:12px; }}
-                    header.header {{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:10px; border-bottom:2px solid #eee; }}
+                    @page {{ size: A4; margin: 18mm 15mm; }}
+                    :root {{ --accent: #0b57a4; --text: #1f2a37; --muted: #556070; }}
+                    body {{ font-family: 'Inter', 'Segoe UI', sans-serif; color: var(--text); font-size:12px; }}
+                    header.header {{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:12px; border-bottom:2px solid #e5e9f2; }}
                     header.header .company {{ text-align:right; font-size:11px; color:var(--muted); }}
-                    header.header img {{ height:72px; object-fit:contain; }}
-                    h1 {{ text-align:center; color:var(--accent); margin:12px 0 6px 0; font-size:20px; }}
-                    .meta {{ display:flex; justify-content:space-between; margin-bottom:12px; gap:12px; font-size:11px; color:var(--muted); }}
-                    .box {{ border:2px solid var(--accent); border-radius:14px; padding:10px; margin-bottom:12px; }}
+                    header.header img {{ max-height:80px; object-fit:contain; }}
+                    h1 {{ text-align:center; color:var(--accent); margin:18px 0 10px; font-size:20px; letter-spacing:1px; }}
+                    .meta {{ display:flex; justify-content:space-between; margin-top:12px; font-size:11px; color:var(--muted); }}
+                    .info-grid {{ display:flex; flex-wrap:wrap; gap:16px; margin:18px 0; }}
+                    .panel {{ flex:1; min-width:220px; border:1px solid #d9e1ef; border-radius:12px; padding:12px; background:#f8fafc; }}
+                    .panel h2 {{ margin:0 0 8px; font-size:13px; color:var(--accent); }}
+                    .panel p {{ margin:3px 0; font-size:11px; }}
                     table.items {{ width:100%; border-collapse:collapse; margin-top:6px; }}
                     table.items th {{ background:var(--accent); color:#fff; padding:8px 6px; font-weight:600; font-size:11px; text-align:left; }}
-                    table.items td {{ padding:8px 6px; border-bottom:1px solid #eee; vertical-align:top; font-size:11px; }}
-                    table.items tr:nth-child(even) td {{ background:#fbfbfb; }}
-                    .total {{ margin-top:8px; text-align:right; font-size:13px; font-weight:700; color:var(--accent); }}
-                    footer {{ margin-top:18px; font-size:10px; color:var(--muted); text-align:center; }}
+                    table.items td {{ padding:8px 6px; border-bottom:1px solid #edf2f7; vertical-align:top; font-size:11px; }}
+                    table.items td.center {{ text-align:center; }}
+                    table.items td.right {{ text-align:right; }}
+                    table.items .title {{ font-weight:600; }}
+                    table.items .desc {{ font-size:10px; color:var(--muted); margin-top:2px; }}
+                    .total {{ margin-top:12px; text-align:right; font-size:14px; font-weight:700; color:var(--accent); }}
+                    .notes {{ margin-top:16px; font-size:10px; color:var(--muted); }}
+                    .signature {{ display:flex; gap:40px; margin-top:30px; }}
+                    .signature .block {{ flex:1; text-align:center; font-size:11px; }}
+                    .signature .line {{ height:1px; background:#333; margin-bottom:6px; }}
+                    footer {{ margin-top:24px; font-size:10px; color:var(--muted); text-align:center; }}
                 </style>
             </head>
             <body>
                 <header class="header">
                     <div class="logo">{f'<img src="{logo_data_uri}"/>' if logo_data_uri else ''}</div>
                     <div class="company">
-                        <div style="font-weight:700; color:var(--text)">{EMPRESA_NOME}</div>
-                        <div>{EMPRESA_ENDERECO}</div>
-                        <div>{EMPRESA_CONTATO}</div>
+                        <div style="font-weight:700; font-size:14px;">{esc(empresa_nome)}</div>
+                        <div>{esc(empresa_endereco)}</div>
+                        <div>CNPJ: {esc(empresa_cnpj)}</div>
+                        <div>Tel: {esc(empresa_phone)} · Email: {esc(empresa_email)}</div>
                     </div>
                 </header>
-                <div class="box">
-                    <div style="display:flex; justify-content:space-between;">
-                        <div><strong>Data:</strong> {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}</div>
-                        <div><strong>Orçamento:</strong> #{orcamento.id_orcamento}</div>
+                <section class="info-grid">
+                    <div class="panel">
+                        <h2>Dados do Orçamento</h2>
+                        <p><strong>Número:</strong> #{orcamento.id_orcamento}</p>
+                        <p><strong>Emissão:</strong> {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}</p>
+                        <p><strong>Validade:</strong> {validade_str}</p>
+                        <p><strong>Responsável:</strong> {esc(responsavel_nome)}</p>
                     </div>
-                    <div style="margin-top:8px"><strong>Cliente:</strong> {cliente.nome}</div>
-                    <div style="margin-top:4px"><strong>Endereço:</strong> {cliente.endereco or ''}</div>
-                </div>
-                <h1>Itens</h1>
-                <table class="items" cellpadding="0" cellspacing="0">
+                    <div class="panel">
+                        <h2>Empresa Prestadora</h2>
+                        <p><strong>Razão Social:</strong> {esc(empresa_nome)}</p>
+                        <p><strong>CNPJ:</strong> {esc(empresa_cnpj)}</p>
+                        <p><strong>Endereço:</strong> {esc(empresa_endereco)}</p>
+                        <p><strong>Telefone:</strong> {esc(empresa_phone)}</p>
+                        <p><strong>E-mail:</strong> {esc(empresa_email)}</p>
+                    </div>
+                    <div class="panel">
+                        <h2>Cliente</h2>
+                        <p><strong>Nome:</strong> {esc(cliente_nome)}</p>
+                        <p><strong>CPF:</strong> {esc(cliente_cpf)}</p>
+                        <p><strong>Telefone:</strong> {esc(cliente_tel or 'Não informado')}</p>
+                        <p><strong>E-mail:</strong> {esc(cliente_email)}</p>
+                        <p><strong>Endereço:</strong> {esc(cliente_endereco)}</p>
+                    </div>
+                </section>
+                <h1>Serviços e Valores</h1>
+                <table class="items">
                     <thead>
-                        <tr><th style="width:60px; text-align:center">Qtd</th><th>Descrição do Item</th><th style="width:120px; text-align:right">Valor Unit.</th><th style="width:140px; text-align:right">Valor Total</th></tr>
+                        <tr><th style="width:70px;">Qtd</th><th>Descrição do Item</th><th style="width:120px;">Valor Unitário</th><th style="width:140px;">Subtotal</th></tr>
                     </thead>
                     <tbody>
-                    {''.join([
-                        f"<tr><td style='text-align:center'>{rel.quantidade}</td><td>{rel.servico.nome}<br/><small>{(rel.servico.descricao or '')}</small></td><td style='text-align:right'>{formatar_brl(rel.valor_unitario)}</td><td style='text-align:right'>{formatar_brl(rel.subtotal)}</td></tr>"
-                        for rel in itens
-                    ])}
+                    {linhas_itens}
                     </tbody>
                 </table>
                 <div class="total">TOTAL GERAL: {formatar_brl(orcamento.valor_total)}</div>
-                <footer>Assinatura: ____________________________________________</footer>
+                <div class="notes">
+                    <p>Este orçamento é válido por 15 dias corridos a partir da data de emissão. Os valores poderão ser ajustados caso haja alteração no escopo dos serviços.</p>
+                </div>
+                <div class="signature">
+                    <div class="block">
+                        <div class="line"></div>
+                        <p>{esc(empresa_nome)}</p>
+                        <small>Responsável</small>
+                    </div>
+                    <div class="block">
+                        <div class="line"></div>
+                        <p>{esc(cliente_nome)}</p>
+                        <small>Cliente</small>
+                    </div>
+                </div>
+                <footer>Documento gerado automaticamente pelo Planejador de Orçamentos.</footer>
             </body>
             </html>
             """
@@ -421,7 +529,6 @@ def gerar_pdf_orcamento(id_orcamento):
             from reportlab.lib.pagesizes import A4
             from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
             from reportlab.lib.units import cm
-            from reportlab.lib.utils import ImageReader
             from io import BytesIO
 
             # Configuração do documento
@@ -435,15 +542,86 @@ def gerar_pdf_orcamento(id_orcamento):
             normal_style.fontSize = 10
             small_style = ParagraphStyle('Small', parent=normal_style, fontSize=9)
 
-            # Cabeçalho
-            EMPRESA_NOME = os.environ.get('EMPRESA_NOME', 'ORCATECH')
-            EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', '')
-            EMPRESA_CONTATO = os.environ.get('EMPRESA_CONTATO', '')
-
             elements = []
+            temp_logo_path = None
+            logo_supported = False
+            logo_source = None
+            if logo_absolute_path:
+                ext = os.path.splitext(logo_absolute_path)[1].lower()
+                if ext in ('.png', '.jpg', '.jpeg'):
+                    logo_supported = True
+                    logo_source = logo_absolute_path
+                elif ext == '.svg':
+                    try:
+                        import tempfile
+                        import cairosvg
+                        tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                        tmp.close()
+                        cairosvg.svg2png(url=logo_absolute_path, write_to=tmp.name)
+                        logo_supported = True
+                        logo_source = tmp.name
+                        temp_logo_path = tmp.name
+                    except Exception:
+                        logo_supported = False
+                        temp_logo_path = None
+            if logo_supported and logo_source:
+                try:
+                    logo_img = Image(logo_source, width=4*cm, height=2*cm)
+                    header_table = Table([[logo_img, Paragraph(f"<b>{esc(empresa_nome)}</b><br/>CNPJ: {esc(empresa_cnpj)}<br/>{esc(empresa_endereco)}<br/>Tel: {esc(empresa_phone)} · Email: {esc(empresa_email)}", small_style)]], colWidths=[5*cm, 11*cm])
+                    header_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP')]))
+                    elements.append(header_table)
+                except Exception:
+                    elements.append(Paragraph(f"<b>{esc(empresa_nome)}</b>", normal_style))
+            else:
+                elements.append(Paragraph(f"<b>{esc(empresa_nome)}</b>", normal_style))
+
             elements.append(Paragraph(f"Orçamento #{orcamento.id_orcamento}", title_style))
-            elements.append(Paragraph(f"Cliente: {cliente.nome}", normal_style))
-            elements.append(Spacer(1, 12))
+            info_table = Table([
+                [
+                    Paragraph("<b>Dados do Orçamento</b>", small_style),
+                    Paragraph(
+                        f"Número: #{orcamento.id_orcamento}<br/>"
+                        f"Emissão: {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}<br/>"
+                        f"Validade: {validade_str}<br/>"
+                        f"Responsável: {esc(responsavel_nome)}",
+                        small_style
+                    )
+                ],
+                [
+                    Paragraph("<b>Empresa Prestadora</b>", small_style),
+                    Paragraph(
+                        f"{esc(empresa_nome)}<br/>"
+                        f"CNPJ: {esc(empresa_cnpj)}<br/>"
+                        f"Endereço: {esc(empresa_endereco)}<br/>"
+                        f"Telefone: {esc(empresa_phone)}<br/>"
+                        f"E-mail: {esc(empresa_email)}",
+                        small_style
+                    )
+                ],
+                [
+                    Paragraph("<b>Cliente</b>", small_style),
+                    Paragraph(
+                        f"{esc(cliente_nome)}<br/>"
+                        f"CPF: {esc(cliente_cpf)}<br/>"
+                        f"Telefone: {esc(cliente_tel or 'Não informado')}<br/>"
+                        f"E-mail: {esc(cliente_email)}<br/>"
+                        f"Endereço: {esc(cliente_endereco)}",
+                        small_style
+                    )
+                ]
+            ], colWidths=[4.5*cm, 11.5*cm])
+            info_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#edf2f7')),
+                ('BACKGROUND', (0,1), (-1,1), colors.white),
+                ('BACKGROUND', (0,2), (-1,2), colors.HexColor('#f8fafc')),
+                ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5f5')),
+                ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                ('LEFTPADDING', (0,0), (-1,-1), 6),
+                ('RIGHTPADDING', (0,0), (-1,-1), 6),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ]))
+            elements.append(info_table)
+            elements.append(Spacer(1, 10))
 
             table_data = [['Serviço', 'Descrição', 'Qtd.', 'Valor Unit.', 'Subtotal']]
             for item in itens:
@@ -468,10 +646,34 @@ def gerar_pdf_orcamento(id_orcamento):
                 ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
             ]))
             elements.append(table)
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Observação: Este orçamento é válido por 15 dias a partir da emissão.", small_style))
+            elements.append(Spacer(1, 24))
+
+            assinatura_table = Table(
+                [
+                    ['_______________________________', '_______________________________'],
+                    [esc(empresa_nome), esc(cliente_nome)],
+                    ['Responsável', 'Cliente']
+                ],
+                colWidths=[8*cm, 8*cm]
+            )
+            assinatura_table.setStyle(TableStyle([
+                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('FONTNAME', (0,2), (-1,2), 'Helvetica-Oblique'),
+                ('FONTSIZE', (0,2), (-1,2), 8),
+                ('TOPPADDING', (0,1), (-1,1), 6)
+            ]))
+            elements.append(assinatura_table)
 
             doc.build(elements)
             pdf_bytes = buffer.getvalue()
             buffer.close()
+            if temp_logo_path:
+                try:
+                    os.remove(temp_logo_path)
+                except Exception:
+                    pass
 
         # Log de sucesso
         try:

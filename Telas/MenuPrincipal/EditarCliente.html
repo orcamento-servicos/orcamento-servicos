@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Editar Cliente</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = { darkMode: 'class', theme: { extend: {} } };
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body class="bg-[#111a22] dark:bg-[#0a1015] transition-colors duration-300" style='font-family: Inter, "Noto Sans", sans-serif'>
+  <script src="../js/auth-protection.js"></script>
+  <div class="relative flex min-h-screen w-full overflow-x-hidden">
+    <!-- Sidebar (estrutura completa com menu) -->
+    <aside class="w-[310px] shrink-0 bg-[#1a2a38]/95 border-r border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 h-screen">
+      <div class="p-5 flex flex-col h-full">
+        <div class="flex flex-col items-center gap-3">
+          <div id="avatarPreview" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 ring-2 ring-white/10" style='background-image:url("../imagens/usuario.jpg");'></div>
+          <div class="text-center">
+            <p class="text-white text-lg font-bold leading-tight" id="nomeTopo">Usuário exemplo</p>
+            <p class="text-[#b9cee3] text-sm" id="statusTopo">Online</p>
+          </div>
+        </div>
+        <div class="mt-6">
+          <h1 class="text-white text-sm font-medium">Planejador de Orçamento</h1>
+          <p class="text-[#9fbbd4] text-xs">v1.0</p>
+        </div>
+        <nav class="mt-4 grid gap-1" id="sidebar">
+          <a href="/MenuPrincipal/TelaMenuPrincipal.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M218.83,103.3,141.17,33.33a16,16,0,0,0-22.34,0L37.17,103.3A16,16,0,0,0,32,114.64V208a16,16,0,0,0,16,16H96a8,8,0,0,0,8-8V160h48v56a8,8,0,0,0,8,8h48a16,16,0,0,0,16-16V114.64A16,16,0,0,0,218.83,103.3Z"/></svg>
+            </span>
+            <span class="text-white text-sm font-medium">Home</span>
+          </a>
+          <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M239.73,208H224V96a16,16,0,0,0-16-16H164a4,4,0,0,0-4,4V208H144V32.41a16.43,16.43,0,0,0-6.16-13,16,16,0,0,0-18.72-.69L39.12,72A16,16,0,0,0,32,85.34V208H16.27A8.18,8.18,0,0,0,8,215.47,8,8,0,0,0,16,224H240a8,8,0,0,0,8-8.53A8.18,8.18,0,0,0,239.73,208Z"/></svg>
+            </span>
+            <span class="text-white text-sm font-medium">Registrar cliente</span>
+          </a>
+          <a href="/MenuPrincipal/RegistrarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34Z"/></svg>
+            </span>
+            <span class="text-white text-sm font-medium">Registrar serviço</span>
+          </a>
+          <a href="/MenuPrincipal/AgendarServico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/></svg>
+            </span>
+            <span class="text-white text-sm font-medium">Agendar serviço</span>
+          </a>
+          <a href="/MenuPrincipal/VerHistorico.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 5a1 1 0 0 0-2 0v5c0 .265.105.52.293.707l3 3a1 1 0 1 0 1.414-1.414L13 11.586V7z"/></svg>
+            </span>
+            <span class="text-white text-sm font-medium">Ver histórico</span>
+          </a>
+          <a href="/MenuPrincipal/CriarOrcamento.html" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <span class="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg>
+            </span>
+            <span class="text-white text-sm font-medium">Criar plano de orçamento</span>
+          </a>
+        </nav>
+        <div class="mt-auto pt-4">
+          <a href="#" data-logout="true" class="w-full inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition">Sair</a>
+        </div>
+      </div>
+    </aside>
+  <script>
+    // Marca o item ativo no menu comparando o último segmento da URL
+    (function () {
+      const currentLast = (location.pathname || '').split('/').pop() || '';
+      document.querySelectorAll('#sidebar .menu-item').forEach(a => {
+        const href = a.getAttribute('href') || '';
+        const hrefLast = href.split('/').pop() || '';
+        if (href === location.pathname || hrefLast === currentLast) {
+          a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10');
+        }
+      });
+    })();
+  </script>
+    <main class="flex-1 max-w-[900px] w-full mx-auto px-6 py-8">
+      <div class="mb-6">
+        <a href="/MenuPrincipal/RegistrarCliente.html" class="text-[#1773cf] hover:text-[#1773cf]/80 text-sm font-medium flex items-center gap-1">
+          ← Voltar para Clientes
+        </a>
+      </div>
+
+      <h2 class="text-white text-2xl font-bold">Editar Cliente</h2>
+      <p class="text-[#93adc8] mt-1">Atualize os dados do cliente.</p>
+
+      <div class="mt-6 grid max-w-xl gap-4">
+        <input id="inp-nome" placeholder="Nome do cliente" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+        <input id="inp-telefone" placeholder="Telefone" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+        <input id="inp-email" placeholder="E-mail" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+        <input id="inp-endereco" placeholder="Endereço" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
+        <div class="flex items-center justify-between">
+          <p id="msg" class="text-sm text-white/70"></p>
+          <div class="flex gap-2">
+            <button id="btn-delete" class="h-10 px-4 rounded-lg bg-white/10 text-white font-bold">Excluir</button>
+            <button id="btn-save" class="h-10 px-4 rounded-lg bg-[#1773cf] text-white font-bold">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const idCliente = params.get('id');
+    const API_BASE_URL = '/api';
+
+    if (!idCliente) {
+      alert('ID do cliente não fornecido');
+      location.href = '/MenuPrincipal/RegistrarEmpresa.html';
+    }
+
+    const $nome = document.getElementById('inp-nome');
+    const $telefone = document.getElementById('inp-telefone');
+    const $email = document.getElementById('inp-email');
+    const $endereco = document.getElementById('inp-endereco');
+    const $btnSave = document.getElementById('btn-save');
+    const $btnDelete = document.getElementById('btn-delete');
+    const $msg = document.getElementById('msg');
+
+    function showMsg(text, ok = true) {
+      $msg.textContent = text;
+      $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
+      setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
+    }
+
+    async function carregarCliente() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/clientes/${idCliente}`, { credentials: 'include' });
+        if (!res.ok) throw new Error('Cliente não encontrado');
+        const data = await res.json();
+        const c = data.cliente;
+        $nome.value = c.nome || '';
+        $telefone.value = c.telefone || '';
+        $email.value = c.email || '';
+        $endereco.value = c.endereco || '';
+      } catch (err) {
+        console.error(err);
+        showMsg('Erro ao carregar cliente', false);
+      }
+    }
+
+    async function salvar() {
+  const nome = $nome.value.trim();
+  const telefone = $telefone.value.trim();
+  const email = $email.value.trim();
+  const endereco = $endereco.value.trim();
+
+      if (!nome) { showMsg('Nome é obrigatório', false); $nome.focus(); return; }
+      if (/[0-9]/.test(nome)) { showMsg('O nome não pode conter números.', false); $nome.focus(); return; }
+      const telefoneNumeros = telefone.replace(/\D/g, '');
+      const telefoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
+      if (!telefoneRegex.test(telefone) || telefoneNumeros.length !== 11) {
+        showMsg('Telefone inválido. Use o formato (XX) XXXXX-XXXX.', false); $telefone.focus(); return;
+      }
+      if (!email) { showMsg('E-mail é obrigatório', false); $email.focus(); return; }
+      const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+      if (!emailRegex.test(email)) { showMsg('E-mail inválido. Informe um e-mail válido.', false); $email.focus(); return; }
+      if (!endereco) { showMsg('Endereço é obrigatório', false); $endereco.focus(); return; }
+
+      try {
+        $btnSave.disabled = true; $btnSave.textContent = 'Salvando...';
+        const res = await fetch(`${API_BASE_URL}/clientes/${idCliente}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ nome, telefone, email, endereco })
+        });
+        const data = await res.json();
+        if (!res.ok) { showMsg(data.erro || 'Erro ao salvar', false); return; }
+        showMsg('Cliente atualizado com sucesso!');
+        setTimeout(() => location.href = '/MenuPrincipal/RegistrarCliente.html', 1200);
+      } catch (err) {
+        console.error(err); showMsg('Erro ao salvar cliente', false);
+      } finally { $btnSave.disabled = false; $btnSave.textContent = 'Salvar'; }
+    }
+
+    async function excluir() {
+      if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+      try {
+        $btnDelete.disabled = true; $btnDelete.textContent = 'Excluindo...';
+        const res = await fetch(`${API_BASE_URL}/clientes/${idCliente}`, { method: 'DELETE', credentials: 'include' });
+        const data = await res.json();
+        if (!res.ok) { showMsg(data.erro || 'Erro ao excluir', false); return; }
+  showMsg('Cliente excluído');
+  setTimeout(() => location.href = '/MenuPrincipal/RegistrarCliente.html', 800);
+      } catch (err) {
+        console.error(err); showMsg('Erro ao excluir cliente', false);
+      } finally { $btnDelete.disabled = false; $btnDelete.textContent = 'Excluir'; }
+    }
+
+    $btnSave.addEventListener('click', salvar);
+  // Garante que o botão está ativando a função corretamente
+  $btnSave.onclick = salvar;
+    // Máscara/validação ao editar
+    $nome.addEventListener('input', function () {
+      this.value = this.value.replace(/[0-9]/g, '');
+    });
+    $telefone.addEventListener('input', function () {
+      let v = this.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+      let formatted = '';
+      if (v.length > 0) { formatted += '(' + v.substring(0, 2); }
+      if (v.length >= 2) { formatted += ') ' + v.substring(2, 7); }
+      if (v.length >= 7) { formatted += '-' + v.substring(7, 11); }
+      this.value = formatted;
+    });
+    $btnDelete.addEventListener('click', excluir);
+
+    carregarCliente();
+  </script>
+  </body>
+</html>

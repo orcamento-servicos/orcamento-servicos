@@ -52,7 +52,7 @@
               <span class="text-white text-sm font-medium">Home</span>
             </a>
 
-            <a href="/MenuPrincipal/RegistrarEmpresa.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+            <a href="RegistrarCliente.html" class="menu-item group text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
               <span class="text-white">
                 <!-- prédios -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
@@ -130,6 +130,25 @@
     <select id="sel-servico" class="form-select h-12 rounded-lg border-none bg-[#243647] text-white">
       <option value="">Selecione um serviço...</option>
     </select>
+    
+    <!-- SELEÇÃO DE CLIENTE (OPCIONAL) -->
+    <div class="grid gap-2">
+      <label class="text-white text-sm font-medium">Cliente <span class="text-[#93adc8]">(opcional)</span></label>
+      <div class="relative">
+        <input 
+          id="inp-cliente" 
+          type="text" 
+          placeholder="Procure o nome do cliente..." 
+          class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" 
+        />
+        <!-- Dropdown de sugestões -->
+        <div id="dropdown-clientes" class="absolute top-full left-0 right-0 mt-1 bg-[#243647] border border-white/10 rounded-lg shadow-lg max-h-80 overflow-y-auto hidden z-50">
+          <!-- preenchido via JS -->
+        </div>
+      </div>
+      <div id="cliente-selecionado" class="text-xs text-white/70 hidden">✓ Cliente selecionado: <span id="cliente-selecionado-nome" class="text-white font-medium">—</span></div>
+    </div>
+
     <input id="inp-usuario" placeholder="Adicionado por (usuário)" class="form-input h-12 rounded-lg border-none bg-[#243647] text-white placeholder:text-[#93adc8]" />
     <div class="flex items-center justify-between">
       <p id="msg" class="text-sm text-white/70"></p>
@@ -185,10 +204,11 @@
     <script>
       // ====== MENU ATIVO + prefill usuário ======
   (function () {
-    const path = location.pathname.split('/').pop() || '';
+    const currentLast = (location.pathname || '').split('/').pop() || '';
     document.querySelectorAll('#sidebar .menu-item').forEach(a => {
       const href = a.getAttribute('href') || '';
-      if (href === path) a.classList.add("bg-[#243647]", "ring-1", "ring-white/10");
+      const hrefLast = href.split('/').pop() || '';
+      if (href === location.pathname || hrefLast === currentLast) a.classList.add('bg-[#243647]', 'ring-1', 'ring-white/10');
     });
     const nomeSidebar = document.querySelector('.text-center > p.text-white.text-lg')?.textContent?.trim();
     const $usuario = document.getElementById('inp-usuario');
@@ -199,6 +219,10 @@
   const $data = document.getElementById('inp-data');
   const $hora = document.getElementById('inp-hora');
   const $selServico = document.getElementById('sel-servico');
+  const $inpCliente = document.getElementById('inp-cliente');
+  const $dropdownClientes = document.getElementById('dropdown-clientes');
+  const $clienteSelecionadoDiv = document.getElementById('cliente-selecionado');
+  const $clienteSelecionadoNome = document.getElementById('cliente-selecionado-nome');
   const $usuario = document.getElementById('inp-usuario');
   const $btnAgendar = document.getElementById('btn-agendar');
   const $tbody = document.getElementById('tbody-agend');
@@ -212,6 +236,71 @@
     $msg.textContent = text;
     $msg.className = 'text-sm ' + (ok ? 'text-emerald-300' : 'text-red-300');
     setTimeout(() => { $msg.textContent = ''; $msg.className = 'text-sm text-white/70'; }, 2200);
+  }
+
+  // ====== CLIENTES (OPCIONAL) ======
+  let cacheClientes = [];
+  let clienteSelecionado = null;
+
+  async function carregarClientes() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/clientes/`, { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+      cacheClientes = data.clientes || [];
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function filtrarClientes(termo) {
+    if (!termo.trim()) return [];
+    const q = termo.trim().toLowerCase();
+    return cacheClientes.filter(c => 
+      c.nome.toLowerCase().includes(q) || 
+      (c.telefone && c.telefone.toLowerCase().includes(q)) ||
+      (c.email && c.email.toLowerCase().includes(q))
+    );
+  }
+
+  function renderDropdownClientes(termo) {
+    const filtrados = filtrarClientes(termo);
+    $dropdownClientes.innerHTML = '';
+    if (filtrados.length === 0) {
+      $dropdownClientes.classList.add('hidden');
+      return;
+    }
+    filtrados.forEach(c => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'w-full text-left px-4 py-2 hover:bg-white/10 transition text-white border-b border-white/5 last:border-b-0';
+      item.innerHTML = `
+        <div class="font-medium">${escapeHtml(c.nome)}</div>
+        <div class="text-xs text-white/60">${c.telefone ? '📞 ' + escapeHtml(c.telefone) : ''} ${c.email ? '📧 ' + escapeHtml(c.email) : ''}</div>
+      `;
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        selecionarCliente(c);
+      });
+      $dropdownClientes.appendChild(item);
+    });
+    $dropdownClientes.classList.remove('hidden');
+  }
+
+  function selecionarCliente(cliente) {
+    clienteSelecionado = cliente;
+    $inpCliente.value = cliente.nome;
+    $dropdownClientes.classList.add('hidden');
+    $clienteSelecionadoDiv.classList.remove('hidden');
+    $clienteSelecionadoNome.textContent = cliente.nome;
+  }
+
+  function limparClienteSelecionado() {
+    clienteSelecionado = null;
+    $inpCliente.value = '';
+    $dropdownClientes.classList.add('hidden');
+    $clienteSelecionadoDiv.classList.add('hidden');
+    $clienteSelecionadoNome.textContent = '—';
   }
 
   flatpickr($data, {
@@ -386,7 +475,13 @@
         <td class="px-4 py-3">${escapeHtml(a.usuario_nome || '-')}</td>
         <td class="px-4 py-3">${fmtDataHora(a.created_at)}</td>
         <td class="px-4 py-3">${statusHtml}</td>
-        <td class="px-4 py-3 text-right flex gap-2 justify-end">
+        <td class="px-4 py-3 text-right flex gap-2 justify-end flex-wrap">
+          <!-- Editar -->
+          <a href="/MenuPrincipal/EditarAgendamento.html?id=${a.id_agendamento}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-[#1773cf] hover:bg-[#1773cf]/80 text-white text-sm">
+            <!-- lápis -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A16,16,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A16,16,0,0,0,104,219.31l123.31-123.31A16,16,0,0,0,227.31,73.37Z"/></svg>
+            Editar
+          </a>
           <!-- Toggle concluir -->
           ${
             concluido
@@ -507,9 +602,30 @@
   $busca.addEventListener('input', carregarAgendamentos);
   $ordenacao.addEventListener('change', carregarAgendamentos);
 
+  // ====== EVENT LISTENERS: CLIENTE ======
+  $inpCliente.addEventListener('input', (e) => {
+    const termo = e.target.value;
+    if (termo.trim()) {
+      renderDropdownClientes(termo);
+    } else {
+      $dropdownClientes.classList.add('hidden');
+    }
+  });
 
+  $inpCliente.addEventListener('focus', (e) => {
+    if (e.target.value.trim()) {
+      renderDropdownClientes(e.target.value);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!$inpCliente.contains(e.target) && !$dropdownClientes.contains(e.target)) {
+      $dropdownClientes.classList.add('hidden');
+    }
+  });
 
   // init
+  carregarClientes();
   carregarServicos();
   carregarAgendamentos();
 </script>
