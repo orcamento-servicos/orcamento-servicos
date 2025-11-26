@@ -335,6 +335,7 @@
       // Clientes
       let cacheClientes = [];
       let clienteSelecionado = null;
+      let carregamentoClientesPromise = null;
 
       async function carregarClientes() {
         try {
@@ -344,16 +345,27 @@
           cacheClientes = data.clientes || [];
           $warnCliente.classList.toggle('hidden', cacheClientes.length > 0);
         } catch (err) { console.error(err); showMsg('Erro ao carregar clientes', false); $warnCliente.classList.remove('hidden'); }
+        return cacheClientes;
+      }
+
+      async function garantirClientesCarregados() {
+        if (cacheClientes.length > 0) return cacheClientes;
+        if (!carregamentoClientesPromise) {
+          carregamentoClientesPromise = carregarClientes().finally(() => { carregamentoClientesPromise = null; });
+        }
+        return carregamentoClientesPromise;
       }
 
       function filtrarClientes(termo) {
-        if (!termo.trim()) return [];
-        const q = termo.trim().toLowerCase();
-        return cacheClientes.filter(c => 
-          c.nome.toLowerCase().includes(q) || 
-          (c.telefone && c.telefone.toLowerCase().includes(q)) ||
-          (c.email && c.email.toLowerCase().includes(q))
-        );
+        const q = (termo || '').trim().toLowerCase();
+        const lista = q
+          ? cacheClientes.filter(c => 
+              c.nome.toLowerCase().includes(q) || 
+              (c.telefone && c.telefone.toLowerCase().includes(q)) ||
+              (c.email && c.email.toLowerCase().includes(q))
+            )
+          : cacheClientes;
+        return lista.slice(0, 20);
       }
 
       function renderDropdownClientes(termo) {
@@ -497,19 +509,19 @@
         }
       });
 
-      $inpCliente.addEventListener('input', (e) => {
+      $inpCliente.addEventListener('input', async (e) => {
+        await garantirClientesCarregados();
         const termo = e.target.value;
         if (termo.trim()) {
           renderDropdownClientes(termo);
         } else {
-          $dropdownClientes.classList.add('hidden');
+          renderDropdownClientes('');
         }
       });
 
-      $inpCliente.addEventListener('focus', (e) => {
-        if (e.target.value.trim()) {
-          renderDropdownClientes(e.target.value);
-        }
+      $inpCliente.addEventListener('focus', async (e) => {
+        await garantirClientesCarregados();
+        renderDropdownClientes(e.target.value || '');
       });
 
       document.addEventListener('click', (e) => {

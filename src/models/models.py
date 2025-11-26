@@ -66,10 +66,12 @@ class Cliente(db.Model):
     
     # Campos da tabela
     id_cliente = db.Column(db.Integer, primary_key=True)  # ID único
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)
     nome = db.Column(db.String(80), nullable=False)       # Nome (obrigatório)
     telefone = db.Column(db.String(11))                   # Telefone (opcional)
     email = db.Column(db.String(50))                      # Email (opcional)
     endereco = db.Column(db.String(55))                   # Endereço (opcional)
+    usuario = db.relationship('Usuario', backref=db.backref('clientes', lazy=True))
     
     # Relacionamento (um cliente pode ter vários orçamentos)
     orcamentos = db.relationship('Orcamento', backref='cliente', lazy=True)
@@ -78,6 +80,7 @@ class Cliente(db.Model):
     def para_dict(self):
         return {
             'id_cliente': self.id_cliente,
+            'id_usuario': self.id_usuario,
             'nome': self.nome,
             'telefone': self.telefone,
             'email': self.email,
@@ -93,9 +96,11 @@ class Servico(db.Model):
     
     # Campos da tabela
     id_servicos = db.Column(db.Integer, primary_key=True)  # ID único
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)
     nome = db.Column(db.String(80), nullable=False)        # Nome do serviço
     descricao = db.Column(db.String(255))                  # Descrição detalhada
     valor = db.Column(db.Numeric(10, 2), nullable=False)   # Preço do serviço
+    usuario = db.relationship('Usuario', backref=db.backref('servicos', lazy=True))
     
     # Relacionamento (um serviço pode estar em vários orçamentos)
     orcamento_servicos = db.relationship('OrcamentoServicos', backref='servico', lazy=True)
@@ -104,6 +109,7 @@ class Servico(db.Model):
     def para_dict(self):
         return {
             'id_servicos': self.id_servicos,
+            'id_usuario': self.id_usuario,
             'nome': self.nome,
             'descricao': self.descricao,
             'valor': float(self.valor)  # Converte Decimal para float
@@ -133,6 +139,16 @@ class Orcamento(db.Model):
     endereco = db.relationship('Endereco', backref='orcamentos', lazy=True)
     empresa = db.relationship('Empresa', backref='orcamentos', lazy=True)
     
+    def numero_usuario(self):
+        if not self.id_usuario:
+            return self.id_orcamento
+        return (Orcamento.query
+                .filter(
+                    Orcamento.id_usuario == self.id_usuario,
+                    Orcamento.id_orcamento <= self.id_orcamento
+                )
+                ).count()
+    
     # Converte o orçamento para formato JSON
     def para_dict(self):
         return {
@@ -144,9 +160,13 @@ class Orcamento(db.Model):
             'valor_total': float(self.valor_total),
             'status': self.status,
             'cliente_nome': self.cliente.nome if self.cliente else None,
+            'cliente_telefone': self.cliente.telefone if self.cliente else None,
+            'cliente_email': self.cliente.email if self.cliente else None,
+            'cliente_endereco': self.cliente.endereco if self.cliente else None,
             'usuario_nome': self.usuario.nome if self.usuario else None,
             'empresa_nome': self.empresa.nome if self.empresa else None,
-            'id_endereco': self.id_endereco
+            'id_endereco': self.id_endereco,
+            'numero_usuario': self.numero_usuario()
         }
 
 # ========================================
@@ -246,16 +266,19 @@ Cliente.enderecos = db.relationship('Endereco', backref='cliente', lazy=True, ca
 class Empresa(db.Model):
     __tablename__ = 'empresas'
     id_empresa = db.Column(db.Integer, primary_key=True)
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)
     nome = db.Column(db.String(80), nullable=False)
     cnpj = db.Column(db.String(14), nullable=False, unique=True)
     telefone = db.Column(db.String(11))
     endereco = db.Column(db.String(55))
     email = db.Column(db.String(50))
     logo = db.Column(db.String(255))  # Caminho do arquivo da logo
+    usuario = db.relationship('Usuario', backref=db.backref('empresas', lazy=True))
 
     def para_dict(self):
         return {
             'id_empresa': self.id_empresa,
+            'id_usuario': self.id_usuario,
             'nome': self.nome,
             'cnpj': self.cnpj,
             'telefone': self.telefone,

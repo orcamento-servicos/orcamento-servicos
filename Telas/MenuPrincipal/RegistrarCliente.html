@@ -177,11 +177,25 @@
         window._formClienteScriptLoaded = true;
         const form = document.getElementById('formCliente');
         const alertCliente = document.getElementById('alertCliente');
+        const telefoneClienteInput = document.getElementById('telefoneCliente');
+
+        const formatarTelefone = (valor = '') => {
+          let v = valor.replace(/\D/g, '').slice(0, 11);
+          if (v.length <= 2) return v;
+          if (v.length <= 7) return `(${v.slice(0, 2)}) ${v.slice(2)}`;
+          return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+        };
+
+        telefoneClienteInput.addEventListener('input', () => {
+          telefoneClienteInput.value = formatarTelefone(telefoneClienteInput.value);
+        });
+
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
           // Coleta dados
           const nome = document.getElementById('nomeCliente').value.trim();
-          const telefone = document.getElementById('telefoneCliente').value.trim();
+          const telefone = telefoneClienteInput.value.trim();
+          const telefoneNumeros = telefone.replace(/\D/g, '');
           const endereco = document.getElementById('enderecoCliente').value.trim();
           const email = document.getElementById('emailCliente').value.trim();
 
@@ -194,7 +208,6 @@
 
           // Validação de telefone: (XX) XXXXX-XXXX, DDD obrigatório, máximo 11 dígitos, não pode conter letras
           const telefoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
-          const telefoneNumeros = telefone.replace(/\D/g, '');
           if (!telefoneRegex.test(telefone) || telefoneNumeros.length !== 11) {
             alertCliente.textContent = 'Telefone inválido. Use o formato (XX) XXXXX-XXXX.';
             alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
@@ -209,7 +222,7 @@
             return;
           }
 
-          const dados = { nome, telefone, endereco, email };
+          const dados = { nome, telefone: telefoneNumeros, endereco, email };
           // Envia para backend
           try {
             const response = await fetch('/api/clientes/', {
@@ -220,6 +233,9 @@
             if (!response.ok) throw new Error('Erro ao salvar cliente');
             alertCliente.textContent = 'Cliente cadastrado com sucesso!';
             alertCliente.className = 'bg-emerald-600/10 text-emerald-300 p-4 rounded-md mt-2';
+            form.reset();
+            await carregarClientes();
+            renderizarClientes(clientesCache);
           } catch (err) {
             alertCliente.textContent = err.message || 'Erro ao salvar cliente';
             alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
@@ -232,9 +248,17 @@
       const $btnPesquisar = document.getElementById('btn-pesquisar');
       const $tbody = document.getElementById('tbody-clientes');
       const $empty = document.getElementById('empty-state');
+      let clientesCache = [];
 
       function escapeHtml(s) {
         return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+
+      function formatarTelefoneTexto(valor = '') {
+        const v = (valor || '').replace(/\D/g, '');
+        if (v.length <= 2) return v;
+        if (v.length <= 7) return `(${v.slice(0, 2)}) ${v.slice(2)}`;
+        return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7, 11)}`;
       }
 
       async function carregarClientes() {
@@ -245,13 +269,14 @@
           });
           if (response.ok) {
             const data = await response.json();
-            return data.clientes || [];
+            clientesCache = data.clientes || [];
           } else {
-            return [];
+            clientesCache = [];
           }
         } catch (error) {
-          return [];
+          clientesCache = [];
         }
+        return clientesCache;
       }
 
       async function excluirCliente(id) {
@@ -268,26 +293,25 @@
 
       function renderizarClientes(clientes, filtro = '') {
         const filtroLower = filtro.toLowerCase();
-        let clientesFiltrados = clientes.filter(cliente => 
+        const clientesFiltrados = clientes.filter(cliente => 
           cliente.nome.toLowerCase().includes(filtroLower) ||
           (cliente.email && cliente.email.toLowerCase().includes(filtroLower)) ||
           (cliente.telefone && cliente.telefone.toLowerCase().includes(filtroLower)) ||
           (cliente.endereco && cliente.endereco.toLowerCase().includes(filtroLower))
         );
 
-        // Se há filtro, mostra apenas o primeiro cliente encontrado
-        if (filtro && clientesFiltrados.length > 0) {
-          clientesFiltrados = [clientesFiltrados[0]];
-        }
-
         $tbody.innerHTML = '';
-        $empty.classList.toggle('hidden', clientesFiltrados.length > 0);
+        const possuiResultados = clientesFiltrados.length > 0;
+        $empty.classList.toggle('hidden', possuiResultados);
 
-        if (clientesFiltrados.length === 0) {
+        if (!possuiResultados) {
+          const mensagem = filtro
+            ? `Nenhum resultado encontrado para "${escapeHtml(filtro)}"`
+            : 'Nenhum cliente cadastrado ainda.';
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td colspan="5" class="px-4 py-6 text-center text-white/60">
-              Nenhum resultado encontrado para "${escapeHtml(filtro)}"
+              ${mensagem}
             </td>
           `;
           $tbody.appendChild(tr);
@@ -298,7 +322,7 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="px-4 py-3 font-bold">${escapeHtml(cliente.nome)}</td>
-            <td class="px-4 py-3">${escapeHtml(cliente.telefone || '')}</td>
+            <td class="px-4 py-3">${escapeHtml(formatarTelefoneTexto(cliente.telefone || ''))}</td>
             <td class="px-4 py-3">${escapeHtml(cliente.endereco || '')}</td>
             <td class="px-4 py-3">${escapeHtml(cliente.email || '')}</td>
             <td class="px-4 py-3 text-right">
@@ -327,8 +351,8 @@
         btn.textContent = 'Excluindo...';
         try {
           if (await excluirCliente(id)) {
-            const clientes = await carregarClientes();
-            renderizarClientes(clientes, $busca.value);
+            await carregarClientes();
+            renderizarClientes(clientesCache, $busca.value.trim());
           }
         } finally {
           btn.disabled = false;
@@ -341,18 +365,11 @@
         }
       });
 
-      // Só mostra clientes após pesquisa
-      let clientesCache = [];
       async function buscarClientes() {
-        if (!$busca.value.trim()) {
-          $tbody.innerHTML = '';
-          $empty.classList.remove('hidden');
-          return;
-        }
         if (clientesCache.length === 0) {
-          clientesCache = await carregarClientes();
+          await carregarClientes();
         }
-        renderizarClientes(clientesCache, $busca.value);
+        renderizarClientes(clientesCache, $busca.value.trim());
       }
 
       $btnPesquisar.addEventListener('click', buscarClientes);
@@ -362,62 +379,11 @@
           buscarClientes();
         }
       });
-    </script>
-    </script>
-       
-
-       
-
-    <!-- Script de proteção de autenticação -->
-    <script src="/js/auth-protection.js"></script>
-    <script>
-      const form = document.getElementById('formCliente');
-      const alertCliente = document.getElementById('alertCliente');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        // Coleta dados
-        const nome = document.getElementById('nomeCliente').value.trim();
-        const telefone = document.getElementById('telefoneCliente').value.trim();
-        const endereco = document.getElementById('enderecoCliente').value.trim();
-        const email = document.getElementById('emailCliente').value.trim();
-
-        // Validação de telefone: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX, DDD obrigatório, máximo 15 caracteres
-        const telefoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-        if (!telefoneRegex.test(telefone)) {
-          alertCliente.textContent = 'Telefone inválido. Use o formato (XX) XXXXX-XXXX.';
-          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
-          return;
-        }
-        if (telefone.replace(/\D/g, '').length < 10 || telefone.replace(/\D/g, '').length > 11) {
-          alertCliente.textContent = 'Telefone deve conter DDD e até 11 dígitos.';
-          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
-          return;
-        }
-
-        // Validação de email: deve conter @ e formato básico
-        const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-        if (!emailRegex.test(email)) {
-          alertCliente.textContent = 'E-mail inválido. Informe um e-mail válido.';
-          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
-          return;
-        }
-
-        const dados = { nome, telefone, endereco, email };
-        // Envia para backend
-        try {
-          const response = await fetch('/api/clientes/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-          });
-          if (!response.ok) throw new Error('Erro ao salvar cliente');
-          alertCliente.textContent = 'Cliente cadastrado com sucesso!';
-          alertCliente.className = 'bg-emerald-600/10 text-emerald-300 p-4 rounded-md mt-2';
-        } catch (err) {
-          alertCliente.textContent = err.message || 'Erro ao salvar cliente';
-          alertCliente.className = 'bg-red-600/10 text-red-300 p-4 rounded-md mt-2';
-        }
-      });
+      // Inicializa listagem ao carregar a página
+      (async () => {
+        await carregarClientes();
+        renderizarClientes(clientesCache);
+      })();
     </script>
   </body>
 </html>

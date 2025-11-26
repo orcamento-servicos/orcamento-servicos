@@ -90,11 +90,12 @@
         <div class="text-right text-lg font-bold mb-4">
           Valor Total: <span id="orcamento-total"></span>
         </div>
-        <div class="flex gap-4">
+        <div class="flex flex-wrap gap-3">
           <button id="btn-aprovar" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded-lg">Aprovar</button>
           <button id="btn-recusar" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg">Recusar</button>
           <a id="btn-pdf" href="#" target="_blank" class="bg-[#1773cf] hover:bg-[#145ca1] text-white font-semibold px-6 py-2 rounded-lg">Baixar PDF</a>
           <button id="btn-email" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg">Enviar por E-mail</button>
+          <button id="btn-excluir" class="bg-red-800 hover:bg-red-900 text-white font-semibold px-6 py-2 rounded-lg">Excluir orçamento</button>
         </div>
         <div id="msg" class="mt-4 text-sm"></div>
       </div>
@@ -127,6 +128,7 @@
     // Controle do modal de e-mail
     const modalEmail = document.getElementById('modal-email');
     const btnEmail = document.getElementById('btn-email');
+    const btnExcluir = document.getElementById('btn-excluir');
     const btnCancelarEmail = document.getElementById('btn-cancelar-email');
     const btnEnviarEmail = document.getElementById('btn-enviar-email');
     const inputEmails = document.getElementById('input-emails');
@@ -196,6 +198,12 @@
       const hh = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
       return dd+' '+hh;
     }
+    function formatarTelefone(valor) {
+      const dig = String(valor || '').replace(/\D/g, '');
+      if (dig.length === 11) return `(${dig.slice(0,2)}) ${dig.slice(2,7)}-${dig.slice(7)}`;
+      if (dig.length === 10) return `(${dig.slice(0,2)}) ${dig.slice(2,6)}-${dig.slice(6)}`;
+      return valor || '-';
+    }
     // Pega ID do orçamento da URL (?id=123)
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -210,10 +218,11 @@
         if (!resp.ok) throw new Error('Erro ao buscar orçamento');
         const data = await resp.json();
         const o = data.orcamento;
-        document.getElementById('orcamento-id').textContent = '#' + o.id_orcamento;
+        const numeroExibicao = o.numero_usuario || o.id_orcamento;
+        document.getElementById('orcamento-id').textContent = '#' + numeroExibicao;
         document.getElementById('orcamento-status').textContent = 'Status: ' + o.status;
         document.getElementById('cliente-nome').textContent = o.cliente_nome || '-';
-        document.getElementById('cliente-telefone').textContent = o.cliente_telefone || '-';
+        document.getElementById('cliente-telefone').textContent = formatarTelefone(o.cliente_telefone);
         document.getElementById('cliente-email').textContent = o.cliente_email || '-';
         document.getElementById('cliente-endereco').textContent = o.cliente_endereco || '-';
         document.getElementById('orcamento-data').textContent = fmtDataHora(o.data_criacao);
@@ -235,6 +244,7 @@
         // Aprovar/Recusar
         document.getElementById('btn-aprovar').onclick = () => atualizarStatus(o.id_orcamento, 'Aprovado');
         document.getElementById('btn-recusar').onclick = () => atualizarStatus(o.id_orcamento, 'Recusado');
+        btnExcluir.onclick = () => excluirOrcamento(o.id_orcamento);
       } catch (e) {
         document.getElementById('orcamento-detalhe').innerHTML = '<p class="text-red-400">Erro ao carregar orçamento.</p>';
       }
@@ -256,6 +266,27 @@
         }
       } catch (e) {
         document.getElementById('msg').textContent = 'Erro ao atualizar status.';
+      }
+    }
+    async function excluirOrcamento(id) {
+      if (!id || !confirm('Deseja realmente excluir este orçamento?')) return;
+      btnExcluir.disabled = true;
+      const originalLabel = btnExcluir.textContent;
+      btnExcluir.textContent = 'Excluindo...';
+      try {
+        const resp = await fetch(`/api/orcamentos/${id}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        const payload = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(payload.erro || 'Erro ao excluir orçamento.');
+        alert('Orçamento excluído com sucesso.');
+        window.location.href = '/MenuPrincipal/VerHistorico.html';
+      } catch (error) {
+        alert(error.message || 'Erro ao excluir orçamento.');
+      } finally {
+        btnExcluir.disabled = false;
+        btnExcluir.textContent = originalLabel;
       }
     }
   </script>

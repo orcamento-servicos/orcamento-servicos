@@ -24,8 +24,8 @@ def listar_clientes():
     Retorna: lista com todos os clientes
     """
     try:
-        # Busca todos os clientes no banco
-        clientes = Cliente.query.all()
+        # Busca todos os clientes do usuário logado
+        clientes = Cliente.query.filter_by(id_usuario=current_user.id_usuario).all()
         
         # Converte para formato JSON
         lista_clientes = [cliente.para_dict() for cliente in clientes]
@@ -52,7 +52,7 @@ def buscar_cliente(id_cliente):
     """
     try:
         # Busca o cliente pelo ID (retorna erro 404 se não encontrar)
-        cliente = Cliente.query.get_or_404(id_cliente)
+        cliente = Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         
         return jsonify({
             'cliente': cliente.para_dict()
@@ -107,7 +107,8 @@ def cadastrar_cliente():
             nome=nome,
             telefone=telefone,
             email=email,
-            endereco=endereco
+            endereco=endereco,
+            id_usuario=current_user.id_usuario
         )
         
         # Salva no banco
@@ -147,7 +148,7 @@ def atualizar_cliente(id_cliente):
     """
     try:
         # Busca o cliente
-        cliente = Cliente.query.get_or_404(id_cliente)
+        cliente = Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         dados = request.get_json()
         
         if not dados:
@@ -217,7 +218,7 @@ def excluir_cliente(id_cliente):
     """
     try:
         # Busca o cliente
-        cliente = Cliente.query.get_or_404(id_cliente)
+        cliente = Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         nome_cliente = cliente.nome
         
         # Verifica se o cliente tem orçamentos
@@ -256,7 +257,7 @@ def excluir_cliente(id_cliente):
 @login_required
 def listar_enderecos(id_cliente):
     try:
-        cliente = Cliente.query.get_or_404(id_cliente)
+        cliente = Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         enderecos = [e.para_dict() for e in cliente.enderecos]
         return jsonify({'enderecos': enderecos, 'total': len(enderecos)}), 200
     except Exception as e:
@@ -267,7 +268,7 @@ def listar_enderecos(id_cliente):
 @login_required
 def criar_endereco(id_cliente):
     try:
-        Cliente.query.get_or_404(id_cliente)
+        Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         dados = request.get_json() or {}
 
         logradouro = (dados.get('logradouro') or '').strip()
@@ -309,6 +310,7 @@ def criar_endereco(id_cliente):
 @login_required
 def atualizar_endereco(id_cliente, id_endereco):
     try:
+        Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         end = Endereco.query.filter_by(id_cliente=id_cliente, id_endereco=id_endereco).first_or_404()
         dados = request.get_json() or {}
 
@@ -358,6 +360,7 @@ def atualizar_endereco(id_cliente, id_endereco):
 @login_required
 def excluir_endereco(id_cliente, id_endereco):
     try:
+        Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         end = Endereco.query.filter_by(id_cliente=id_cliente, id_endereco=id_endereco).first_or_404()
         db.session.delete(end)
         db.session.commit()
@@ -380,6 +383,7 @@ def excluir_endereco(id_cliente, id_endereco):
 @login_required
 def definir_endereco_padrao(id_cliente, id_endereco):
     try:
+        Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
         Endereco.query.filter_by(id_cliente=id_cliente, is_padrao=True).update({'is_padrao': False})
         end = Endereco.query.filter_by(id_cliente=id_cliente, id_endereco=id_endereco).first_or_404()
         end.is_padrao = True

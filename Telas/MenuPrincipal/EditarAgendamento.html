@@ -192,39 +192,6 @@
             <input id="inp-tecnico" type="text" placeholder="Nome do técnico..." class="form-input h-10 rounded-lg border-none bg-[#243647] text-white w-full placeholder:text-[#93adc8]" />
           </div>
 
-          <!-- LEMBRETES -->
-          <div class="rounded-lg border border-white/10 bg-white/5 p-5">
-            <h3 class="text-white font-semibold mb-4">🔔 Lembretes e Notificações</h3>
-            <div class="space-y-3">
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input id="chk-lembrete-cliente" type="checkbox" class="form-checkbox rounded" />
-                <span class="text-white text-sm">Enviar lembrete ao cliente 1 dia antes</span>
-              </label>
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input id="chk-lembrete-tecnico" type="checkbox" class="form-checkbox rounded" />
-                <span class="text-white text-sm">Enviar lembrete ao técnico 1 dia antes</span>
-              </label>
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input id="chk-confirmacao" type="checkbox" class="form-checkbox rounded" />
-                <span class="text-white text-sm">Solicitar confirmação do cliente</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- RECORRÊNCIA -->
-          <div class="rounded-lg border border-white/10 bg-white/5 p-5">
-            <h3 class="text-white font-semibold mb-4">🔁 Recorrência</h3>
-            <select id="sel-recorrencia" class="form-select h-10 rounded-lg border-none bg-[#243647] text-white w-full">
-              <option value="nenhuma">Única (sem repetição)</option>
-              <option value="semanal">Semanal</option>
-              <option value="quinzenal">Quinzenal</option>
-              <option value="mensal">Mensal</option>
-              <option value="trimestral">Trimestral</option>
-              <option value="anual">Anual</option>
-            </select>
-            <div id="recorrencia-info" class="text-xs text-white/60 mt-2 hidden">Criará um novo agendamento repetido até o final do período selecionado.</div>
-          </div>
-
           <!-- VALOR -->
           <div class="rounded-lg border border-white/10 bg-white/5 p-5">
             <div class="grid md:grid-cols-2 gap-4">
@@ -274,11 +241,6 @@
       const $inpEndereco = document.getElementById('inp-endereco');
       const $secaoEndereco = document.getElementById('secao-endereco');
       const $inpTecnico = document.getElementById('inp-tecnico');
-      const $chkLembreteCliente = document.getElementById('chk-lembrete-cliente');
-      const $chkLembreteTecnico = document.getElementById('chk-lembrete-tecnico');
-      const $chkConfirmacao = document.getElementById('chk-confirmacao');
-      const $selRecorrencia = document.getElementById('sel-recorrencia');
-      const $recorrenciaInfo = document.getElementById('recorrencia-info');
       const $infoServico = document.getElementById('info-servico');
       const $infoDescricao = document.getElementById('info-descricao');
       const $infoValor = document.getElementById('info-valor');

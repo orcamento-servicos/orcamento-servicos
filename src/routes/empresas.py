@@ -36,7 +36,7 @@ def _salvar_logo(logo_file):
 @login_required
 def listar_empresas():
     try:
-        empresas = Empresa.query.all()
+        empresas = Empresa.query.filter_by(id_usuario=current_user.id_usuario).all()
         lista_empresas = [empresa.para_dict() for empresa in empresas]
         return jsonify({
             'empresas': lista_empresas,
@@ -87,7 +87,7 @@ def cadastrar_empresa():
             return jsonify({'erro': 'E-mail é obrigatório.'}), 400
 
         # Evita duplicidade de CNPJ com mensagem amigável
-        empresa_existente = Empresa.query.filter_by(cnpj=cnpj_numeros).first()
+        empresa_existente = Empresa.query.filter(Empresa.cnpj == cnpj_numeros, Empresa.id_usuario == current_user.id_usuario).first()
         if empresa_existente:
             return jsonify({'erro': 'CNPJ já cadastrado.'}), 400
 
@@ -99,7 +99,8 @@ def cadastrar_empresa():
             telefone=telefone_numeros,
             endereco=endereco,
             email=email,
-            logo=logo_path
+            logo=logo_path,
+            id_usuario=current_user.id_usuario
         )
         db.session.add(nova_empresa)
         db.session.commit()
@@ -131,7 +132,7 @@ def cadastrar_empresa():
 @login_required
 def excluir_empresa(id_empresa):
     try:
-        empresa = Empresa.query.get_or_404(id_empresa)
+        empresa = Empresa.query.filter_by(id_empresa=id_empresa, id_usuario=current_user.id_usuario).first_or_404()
         db.session.delete(empresa)
         db.session.commit()
         log = LogsAcesso(
@@ -155,7 +156,7 @@ def excluir_empresa(id_empresa):
 @login_required
 def obter_empresa(id_empresa):
     try:
-        empresa = Empresa.query.get_or_404(id_empresa)
+        empresa = Empresa.query.filter_by(id_empresa=id_empresa, id_usuario=current_user.id_usuario).first_or_404()
         return jsonify({'empresa': empresa.para_dict()}), 200
     except Exception as e:
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
@@ -169,7 +170,7 @@ def obter_empresa(id_empresa):
 @login_required
 def atualizar_empresa(id_empresa):
     try:
-        empresa = Empresa.query.get_or_404(id_empresa)
+        empresa = Empresa.query.filter_by(id_empresa=id_empresa, id_usuario=current_user.id_usuario).first_or_404()
 
         if request.content_type and request.content_type.startswith('multipart/form-data'):
             nome = request.form.get('nome', empresa.nome)
@@ -203,7 +204,11 @@ def atualizar_empresa(id_empresa):
             return jsonify({'erro': 'E-mail é obrigatório.'}), 400
 
         if cnpj_numeros != empresa.cnpj:
-            existe = Empresa.query.filter(Empresa.cnpj == cnpj_numeros, Empresa.id_empresa != id_empresa).first()
+            existe = Empresa.query.filter(
+                Empresa.cnpj == cnpj_numeros,
+                Empresa.id_empresa != id_empresa,
+                Empresa.id_usuario == current_user.id_usuario
+            ).first()
             if existe:
                 return jsonify({'erro': 'CNPJ já cadastrado.'}), 400
 

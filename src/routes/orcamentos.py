@@ -40,6 +40,14 @@ except Exception:
 orcamentos_bp = Blueprint('orcamentos', __name__)
 
 
+def _obter_orcamento_do_usuario(id_orcamento: int):
+    """Retorna o orçamento pertencente ao usuário logado ou 404."""
+    return Orcamento.query.filter_by(
+        id_orcamento=id_orcamento,
+        id_usuario=current_user.id_usuario
+    ).first_or_404()
+
+
 # ========================================
 # ROTA: CRIAR ORÇAMENTO
 # POST /api/orcamentos/
@@ -77,9 +85,9 @@ def criar_orcamento():
         if not isinstance(itens, list) or len(itens) == 0:
             return jsonify({'erro': 'Lista de itens é obrigatória e não pode ser vazia'}), 400
 
-        # Verifica cliente e empresa
-        cliente = Cliente.query.get_or_404(id_cliente)
-        empresa = Empresa.query.get_or_404(id_empresa)
+        # Verifica cliente e empresa pertencentes ao usuário logado
+        cliente = Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
+        empresa = Empresa.query.filter_by(id_empresa=id_empresa, id_usuario=current_user.id_usuario).first_or_404()
 
         # Agrega itens duplicados somando quantidades e valida IDs e quantidades
         mapa_quantidades = {}
@@ -98,7 +106,7 @@ def criar_orcamento():
         valor_total = Decimal('0.00')
         itens_calculados = []
         for id_servico, quantidade_total in mapa_quantidades.items():
-            servico = Servico.query.get_or_404(id_servico)
+            servico = Servico.query.filter_by(id_servicos=id_servico, id_usuario=current_user.id_usuario).first_or_404()
             valor_unitario = Decimal(str(servico.valor))
             subtotal = (valor_unitario * quantidade_total)
             valor_total += subtotal
@@ -171,7 +179,7 @@ def listar_orcamentos():
     Lista todos os orçamentos com informações de cliente, data, serviços, valor total e status.
     """
     try:
-        orcamentos = Orcamento.query.order_by(Orcamento.data_criacao.desc()).all()
+        orcamentos = Orcamento.query.filter_by(id_usuario=current_user.id_usuario).order_by(Orcamento.data_criacao.desc()).all()
         resultado = []
         for o in orcamentos:
             itens = [rel.para_dict() for rel in o.orcamento_servicos]
@@ -196,7 +204,7 @@ def detalhar_orcamento(id_orcamento):
     Retorna um orçamento específico e seus itens.
     """
     try:
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = Orcamento.query.filter_by(id_orcamento=id_orcamento, id_usuario=current_user.id_usuario).first_or_404()
         itens = [rel.para_dict() for rel in orcamento.orcamento_servicos]
         return jsonify({'orcamento': orcamento.para_dict(), 'itens': itens}), 200
     except Exception as e:
@@ -226,7 +234,7 @@ def atualizar_status_orcamento(id_orcamento):
         if status_novo not in status_validos:
             return jsonify({'erro': 'Status inválido. Use: Pendente, Aprovado, Recusado, Concluído'}), 400
 
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = Orcamento.query.filter_by(id_orcamento=id_orcamento, id_usuario=current_user.id_usuario).first_or_404()
         orcamento.status = status_novo
         db.session.commit()
 
@@ -247,6 +255,36 @@ def atualizar_status_orcamento(id_orcamento):
 
 
 # ========================================
+# ROTA: EXCLUIR ORÇAMENTO
+# DELETE /api/orcamentos/<id_orcamento>
+# ========================================
+@orcamentos_bp.route('/<int:id_orcamento>', methods=['DELETE'])
+@login_required
+def excluir_orcamento(id_orcamento):
+    try:
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
+        venda = Venda.query.filter_by(id_orcamento=orcamento.id_orcamento).first()
+        if venda:
+            return jsonify({'erro': 'Não é possível excluir um orçamento que já foi convertido em venda.'}), 400
+
+        db.session.delete(orcamento)
+        db.session.commit()
+
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Orçamento excluído: {orcamento.id_orcamento}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'mensagem': 'Orçamento excluído com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+# ========================================
 # ROTA: CONVERTER ORÇAMENTO EM VENDA
 # POST /api/orcamentos/<id_orcamento>/converter-venda
 # ========================================
@@ -254,7 +292,7 @@ def atualizar_status_orcamento(id_orcamento):
 @login_required
 def converter_em_venda(id_orcamento):
     try:
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
 
         if orcamento.status != 'Aprovado':
             return jsonify({'erro': 'Apenas orçamentos Aprovados podem ser convertidos em venda'}), 400
@@ -326,10 +364,10 @@ def gerar_pdf_orcamento(id_orcamento):
     """
     try:
         # Busca dados do orçamento
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
-        empresa = orcamento.empresa or Empresa.query.first()
+        empresa = orcamento.empresa or Empresa.query.filter_by(id_usuario=current_user.id_usuario).first()
 
         def format_phone(value):
             digits = ''.join(filter(str.isdigit, str(value or '')))
@@ -360,6 +398,9 @@ def gerar_pdf_orcamento(id_orcamento):
         empresa_phone = format_phone(empresa.telefone if empresa else os.environ.get('EMPRESA_TELEFONE')) or 'Não informado'
         empresa_cnpj = format_cnpj(empresa.cnpj if empresa else os.environ.get('EMPRESA_CNPJ')) or 'Não informado'
 
+        numero_usuario = orcamento.numero_usuario()
+        numero_formatado = str(numero_usuario)
+
         cliente_nome = cliente.nome if cliente else 'Cliente'
         cliente_tel = format_phone(cliente.telefone if cliente else '')
         cliente_email = (cliente.email if cliente and cliente.email else 'Não informado')
@@ -369,15 +410,23 @@ def gerar_pdf_orcamento(id_orcamento):
         validade_data = (orcamento.data_criacao + timedelta(days=15)) if orcamento.data_criacao else None
         validade_str = validade_data.strftime('%d/%m/%Y') if validade_data else '15 dias após emissão'
 
-        base_dir = os.path.dirname(os.path.dirname(__file__))
+        # Descobre diretórios de estáticos
+        # __file__ -> src/routes/orcamentos.py
+        # raiz_projeto -> orcamento-servicos (onde fica static/logos)
+        raiz_projeto = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        static_root = os.path.join(raiz_projeto, 'static')
+        src_static_root = os.path.join(raiz_projeto, 'src', 'static')
+
         logo_absolute_path = None
         candidato_logos = []
+        # 1) Logo específica da empresa (pasta static/logos)
         if empresa and empresa.logo:
-            candidato_logos.append(os.path.join(base_dir, 'static', empresa.logo))
+            candidato_logos.append(os.path.join(static_root, empresa.logo))
+        # 2) Logos padrão em src/static (para fallback)
         candidato_logos.extend([
-            os.path.join(base_dir, 'static', 'logo.png'),
-            os.path.join(base_dir, 'static', 'logo.jpg'),
-            os.path.join(base_dir, 'static', 'logo.svg'),
+            os.path.join(src_static_root, 'logo.png'),
+            os.path.join(src_static_root, 'logo.jpg'),
+            os.path.join(src_static_root, 'logo.svg'),
         ])
         for caminho in candidato_logos:
             if caminho and os.path.exists(caminho):
@@ -445,7 +494,7 @@ def gerar_pdf_orcamento(id_orcamento):
                     table.items .desc {{ font-size:10px; color:var(--muted); margin-top:2px; }}
                     .total {{ margin-top:12px; text-align:right; font-size:14px; font-weight:700; color:var(--accent); }}
                     .notes {{ margin-top:16px; font-size:10px; color:var(--muted); }}
-                    .signature {{ display:flex; gap:40px; margin-top:30px; }}
+                    .signature {{ display:flex; gap:40px; margin-top:90px; padding-top:30px; }}
                     .signature .block {{ flex:1; text-align:center; font-size:11px; }}
                     .signature .line {{ height:1px; background:#333; margin-bottom:6px; }}
                     footer {{ margin-top:24px; font-size:10px; color:var(--muted); text-align:center; }}
@@ -464,7 +513,7 @@ def gerar_pdf_orcamento(id_orcamento):
                 <section class="info-grid">
                     <div class="panel">
                         <h2>Dados do Orçamento</h2>
-                        <p><strong>Número:</strong> #{orcamento.id_orcamento}</p>
+                        <p><strong>Número:</strong> #{numero_formatado}</p>
                         <p><strong>Emissão:</strong> {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}</p>
                         <p><strong>Validade:</strong> {validade_str}</p>
                         <p><strong>Responsável:</strong> {esc(responsavel_nome)}</p>
@@ -575,12 +624,12 @@ def gerar_pdf_orcamento(id_orcamento):
             else:
                 elements.append(Paragraph(f"<b>{esc(empresa_nome)}</b>", normal_style))
 
-            elements.append(Paragraph(f"Orçamento #{orcamento.id_orcamento}", title_style))
+            elements.append(Paragraph(f"Orçamento #{numero_formatado}", title_style))
             info_table = Table([
                 [
                     Paragraph("<b>Dados do Orçamento</b>", small_style),
                     Paragraph(
-                        f"Número: #{orcamento.id_orcamento}<br/>"
+                        f"Número: #{numero_formatado}<br/>"
                         f"Emissão: {orcamento.data_criacao.strftime('%d/%m/%Y %H:%M')}<br/>"
                         f"Validade: {validade_str}<br/>"
                         f"Responsável: {esc(responsavel_nome)}",
@@ -646,9 +695,9 @@ def gerar_pdf_orcamento(id_orcamento):
                 ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
             ]))
             elements.append(table)
-            elements.append(Spacer(1, 12))
+            elements.append(Spacer(1, 30))
             elements.append(Paragraph("Observação: Este orçamento é válido por 15 dias a partir da emissão.", small_style))
-            elements.append(Spacer(1, 24))
+            elements.append(Spacer(1, 70))
 
             assinatura_table = Table(
                 [
@@ -689,7 +738,7 @@ def gerar_pdf_orcamento(id_orcamento):
 
         response = make_response(pdf_bytes)
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename=orcamento_{orcamento.id_orcamento}.pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=orcamento_{numero_formatado}.pdf'
         return response
     except Exception as e:
         # Log de falha
@@ -737,7 +786,7 @@ def iniciar_orcamento():
             return jsonify({'erro': 'id_cliente é obrigatório'}), 400
 
         # Verifica cliente
-        cliente = Cliente.query.get_or_404(id_cliente)
+        cliente = Cliente.query.filter_by(id_cliente=id_cliente, id_usuario=current_user.id_usuario).first_or_404()
 
         # Cria orçamento temporário
         orcamento_temp = Orcamento(
@@ -798,8 +847,8 @@ def adicionar_item_orcamento(id_orcamento):
             return jsonify({'erro': 'quantidade deve ser um número inteiro maior que 0'}), 400
 
         # Busca orçamento e serviço
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
-        servico = Servico.query.get_or_404(id_servico)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
+        servico = Servico.query.filter_by(id_servicos=id_servico, id_usuario=current_user.id_usuario).first_or_404()
 
         # Verifica se é um orçamento em andamento
         if orcamento.status != 'Em Andamento':
@@ -871,7 +920,7 @@ def remover_item_orcamento(id_orcamento, id_servico):
     """
     try:
         # Busca orçamento
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
         
         if orcamento.status != 'Em Andamento':
             return jsonify({'erro': 'Apenas orçamentos em andamento podem ter itens removidos'}), 400
@@ -939,7 +988,7 @@ def atualizar_quantidade_item(id_orcamento, id_servico):
             return jsonify({'erro': 'quantidade deve ser um número inteiro maior que 0'}), 400
 
         # Busca orçamento e item
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
         
         if orcamento.status != 'Em Andamento':
             return jsonify({'erro': 'Apenas orçamentos em andamento podem ter quantidades alteradas'}), 400
@@ -997,7 +1046,7 @@ def finalizar_orcamento(id_orcamento):
     Finaliza um orçamento em andamento, definindo status como Pendente.
     """
     try:
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
         
         if orcamento.status != 'Em Andamento':
             return jsonify({'erro': 'Apenas orçamentos em andamento podem ser finalizados'}), 400
@@ -1056,7 +1105,7 @@ def enviar_email_orcamento(id_orcamento):
             return jsonify({'erro': 'Informe uma lista de emails válida'}), 400
 
         # Busca o orçamento
-        orcamento = Orcamento.query.get_or_404(id_orcamento)
+        orcamento = _obter_orcamento_do_usuario(id_orcamento)
         cliente = orcamento.cliente
         itens = orcamento.orcamento_servicos
 

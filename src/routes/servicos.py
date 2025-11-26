@@ -26,7 +26,7 @@ def listar_servicos():
     """
     try:
         # Busca todos os serviços no banco
-        servicos = Servico.query.all()
+        servicos = Servico.query.filter_by(id_usuario=current_user.id_usuario).all()
         
         # Converte para formato JSON
         lista_servicos = [servico.para_dict() for servico in servicos]
@@ -53,7 +53,7 @@ def buscar_servico(id_servico):
     """
     try:
         # Busca o serviço pelo ID
-        servico = Servico.query.get_or_404(id_servico)
+        servico = Servico.query.filter_by(id_servicos=id_servico, id_usuario=current_user.id_usuario).first_or_404()
         
         return jsonify({
             'servico': servico.para_dict()
@@ -111,7 +111,8 @@ def cadastrar_servico():
         novo_servico = Servico(
             nome=nome,
             descricao=descricao,
-            valor=valor_decimal
+            valor=valor_decimal,
+            id_usuario=current_user.id_usuario
         )
         
         # Salva no banco
@@ -151,7 +152,7 @@ def atualizar_servico(id_servico):
     """
     try:
         # Busca o serviço
-        servico = Servico.query.get_or_404(id_servico)
+        servico = Servico.query.filter_by(id_servicos=id_servico, id_usuario=current_user.id_usuario).first_or_404()
         dados = request.get_json()
         
         if not dados:
@@ -219,7 +220,7 @@ def excluir_servico(id_servico):
     """
     try:
         # Busca o serviço
-        servico = Servico.query.get_or_404(id_servico)
+        servico = Servico.query.filter_by(id_servicos=id_servico, id_usuario=current_user.id_usuario).first_or_404()
         nome_servico = servico.nome
         
         # Verifica se o serviço está sendo usado em orçamentos
