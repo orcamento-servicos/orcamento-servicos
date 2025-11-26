@@ -101,33 +101,32 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Cria as tabelas se não existirem
-def garantir_coluna_logo_empresas():
-    """Garante que a coluna logo exista mesmo em bancos antigos sem migração."""
+def garantir_schema_atualizado():
+    """Garante que colunas novas existam na tabela empresas, corrigindo o banco automaticamente."""
     try:
         inspector = inspect(db.engine)
-        colunas = [col['name'] for col in inspector.get_columns('empresas')]
-        if 'logo' not in colunas:
+        # Verifica se a tabela existe antes de tentar ler colunas
+        if 'empresas' in inspector.get_table_names():
+            colunas = [col['name'] for col in inspector.get_columns('empresas')]
+            
             with db.engine.connect() as conn:
-                conn.execute(text("ALTER TABLE empresas ADD COLUMN logo VARCHAR(255)"))
-            print("Coluna 'logo' adicionada na tabela empresas.")
-    except Exception as e:
-        print(f"Aviso: não foi possível sincronizar coluna 'logo' em empresas: {e}")
+                # --- CORREÇÃO 1: id_usuario (O erro que você está enfrentando) ---
+                if 'id_usuario' not in colunas:
+                    print("⚠️ Detectada falta de 'id_usuario'. Tentando corrigir...")
+                    # Adiciona a coluna. Nota: Se já existirem empresas, elas ficarão com id_usuario=NULL inicialmente
+                    conn.execute(text("ALTER TABLE empresas ADD COLUMN id_usuario INTEGER REFERENCES usuario(id_usuario)"))
+                    conn.commit()
+                    print("✅ Coluna 'id_usuario' adicionada com sucesso!")
 
-
-with app.app_context():
-    try:
-        # Garante que o diretório para o arquivo SQLite exista (útil em execução local)
-        db_dir = os.path.dirname(caminho_banco_fallback)
-        if not os.path.exists(db_dir):
-            os.makedirs(db_dir, exist_ok=True)
-            print(f"Diretório do banco criado: {db_dir}")
-        db.create_all()
-        garantir_coluna_logo_empresas()
-        print("Banco de dados inicializado!")
+                # --- CORREÇÃO 2: logo (Sua correção original) ---
+                if 'logo' not in colunas:
+                    print("⚠️ Detectada falta de 'logo'. Tentando corrigir...")
+                    conn.execute(text("ALTER TABLE empresas ADD COLUMN logo VARCHAR(255)"))
+                    conn.commit()
+                    print("✅ Coluna 'logo' adicionada com sucesso!")
+                    
     except Exception as e:
-        # Se a criação falhar (por exemplo; banco não disponível), apenas logamos a mensagem.
-        # O entrypoint do Docker irá aguardar o banco antes de iniciar o Gunicorn.
-        print(f"Aviso: falha ao criar tabelas no momento: {e}")
+        print(f"❌ Aviso: Não foi possível sincronizar colunas manualmente: {e}")
 
 # ========================================
 # ROTA PRINCIPAL DA API
@@ -259,10 +258,22 @@ def avatar_file(filename):
 # INICIALIZAÇÃO DO SERVIDOR
 # ========================================
 
+# No final do arquivo, atualize o bloco de inicialização:
+if __name__ != '__main__':
+    # Este bloco roda quando o Gunicorn inicia (Produção no Render)
+    with app.app_context():
+        try:
+            db.create_all()
+            garantir_schema_atualizado() # <--- Chama a nova função de correção aqui
+            print("Banco de dados verificado e inicializado!")
+        except Exception as e:
+            print(f"Erro na inicialização do banco: {e}")
+
 if __name__ == '__main__':
     print("Acesse pelo link: http://localhost:5000")
+    # Este bloco roda apenas em desenvolvimento local
+    with app.app_context():
+        db.create_all()
+        garantir_schema_atualizado()
     
-    # Inicia o servidor Flask
-    # host='0.0.0.0' permite acesso de outros computadores na rede
-    # debug=True reinicia automaticamente quando o código muda
     app.run(host='0.0.0.0', port=5000, debug=True)
