@@ -98,7 +98,6 @@
   <script>
     const params = new URLSearchParams(location.search);
     const idServico = params.get('id');
-    const API_BASE_URL = '/api';
     if (!idServico) {
       alert('ID do serviço não fornecido');
       location.href = '/MenuPrincipal/RegistrarServico.html';

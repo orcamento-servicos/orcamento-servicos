@@ -510,6 +510,13 @@
                    Cancelar
                  </button>`
           }
+          <!-- Excluir definitivamente -->
+          <button data-del="${a.id_agendamento}" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-red-600/80 hover:bg-red-700 text-white text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor">
+              <path d="M216,56H168V40a24,24,0,0,0-24-24H112A24,24,0,0,0,88,40V56H40a8,8,0,0,0,0,16h8V208a24,24,0,0,0,24,24H184a24,24,0,0,0,24-24V72h8a8,8,0,0,0,0-16ZM104,40a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8V56H104ZM192,208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V72H192Z"/>
+            </svg>
+            Excluir
+          </button>
         </td>
       `;
       $tbody.appendChild(tr);
@@ -563,13 +570,16 @@
     }
   });
 
-  // ====== TOGGLES: CONCLUIR / CANCELAR ======
+  // ====== TOGGLES: CONCLUIR / CANCELAR / EXCLUIR ======
   $tbody.addEventListener('click', async (e) => {
     const btnComplete = e.target.closest('button[data-complete]');
     const btnCancel = e.target.closest('button[data-cancel]');
-    if (!btnComplete && !btnCancel) return;
+    const btnDelete = e.target.closest('button[data-del]');
+    if (!btnComplete && !btnCancel && !btnDelete) return;
 
-    const id = (btnComplete || btnCancel).getAttribute('data-complete') || (btnCancel && btnCancel.getAttribute('data-cancel'));
+    const id = (btnComplete || btnCancel || btnDelete).getAttribute('data-complete')
+              || (btnCancel && btnCancel.getAttribute('data-cancel'))
+              || (btnDelete && btnDelete.getAttribute('data-del'));
 
     try {
       if (btnComplete) {
@@ -590,6 +600,18 @@
         const novoStatus = isCanceled ? 'Agendado' : 'Cancelado';
         await atualizarStatusAgendamento(id, novoStatus);
         showMsg(`Status alterado para ${novoStatus} com sucesso!`);
+      }
+
+      if (btnDelete) {
+        const ok = confirm('Deseja excluir este agendamento de forma definitiva?');
+        if (!ok) return;
+        const resp = await fetch(`/api/agendamentos/${id}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        const payload = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(payload.erro || 'Erro ao excluir agendamento.');
+        showMsg('Agendamento excluído com sucesso!');
       }
 
       carregarAgendamentos();

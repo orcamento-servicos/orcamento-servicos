@@ -206,8 +206,8 @@ def atualizar_status_agendamento(id_agendamento):
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
 
 # ========================================
-# ROTA: OBTER DETALHES DO AGENDAMENTO
-# GET /api/agendamentos/<id>
+# ROTA: OBTER DETALHES DO AGENDAMENTO / ATUALIZAR / EXCLUIR
+# /api/agendamentos/<id_agendamento>
 # ========================================
 @agendamentos_bp.route('/<int:id_agendamento>', methods=['GET'])
 @login_required
@@ -217,7 +217,6 @@ def obter_agendamento(id_agendamento):
     Retorna: dados do agendamento ou erro
     """
     try:
-        # Busca o agendamento
         agendamento = Agendamento.query.filter_by(
             id_agendamento=id_agendamento,
             id_usuario=current_user.id_usuario
@@ -226,17 +225,12 @@ def obter_agendamento(id_agendamento):
         if not agendamento:
             return jsonify({'erro': 'Agendamento não encontrado'}), 404
         
-        return jsonify({
-            'agendamento': agendamento.para_dict()
-        }), 200
+        return jsonify({'agendamento': agendamento.para_dict()}), 200
         
     except Exception as e:
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
 
-# ========================================
-# ROTA: ATUALIZAR AGENDAMENTO (COMPLETO)
-# PUT /api/agendamentos/<id>
-# ========================================
+
 @agendamentos_bp.route('/<int:id_agendamento>', methods=['PUT'])
 @login_required
 def atualizar_agendamento(id_agendamento):
@@ -309,6 +303,41 @@ def atualizar_agendamento(id_agendamento):
             'agendamento': agendamento.para_dict()
         }), 200
         
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500
+
+
+@agendamentos_bp.route('/<int:id_agendamento>', methods=['DELETE'])
+@login_required
+def excluir_agendamento(id_agendamento):
+    """
+    Exclui definitivamente um agendamento do usuário logado.
+    """
+    try:
+        agendamento = Agendamento.query.filter_by(
+            id_agendamento=id_agendamento,
+            id_usuario=current_user.id_usuario
+        ).first()
+
+        if not agendamento:
+            return jsonify({'erro': 'Agendamento não encontrado'}), 404
+
+        servico_nome = agendamento.servico.nome if agendamento.servico else None
+
+        db.session.delete(agendamento)
+        db.session.commit()
+
+        # Loga a exclusão
+        log = LogsAcesso(
+            id_usuario=current_user.id_usuario,
+            acao=f'Agendamento excluído: {servico_nome or agendamento.id_agendamento}',
+            data_hora=datetime.utcnow()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'mensagem': 'Agendamento excluído com sucesso!'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'erro': f'Erro no servidor: {str(e)}'}), 500

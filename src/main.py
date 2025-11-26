@@ -100,10 +100,10 @@ db.init_app(app)
 # Inicializa o Flask-Migrate
 migrate = Migrate(app, db)
 
-# --- SUBSTITUA A FUNÇÃO 'garantir_schema_atualizado' POR ESTA VERSÃO MAIS COMPLETA ---
+# --- FUNÇÃO DE CORREÇÃO DO BANCO DE DADOS ---
 def garantir_schema_atualizado():
     """
-    Verifica e cria colunas faltantes (id_usuario, logo) nas tabelas principais 
+    Verifica e cria colunas faltantes (id_usuario, logo, id_empresa) nas tabelas principais 
     para evitar erros de migração no Render.
     """
     try:
@@ -134,6 +134,16 @@ def garantir_schema_atualizado():
                     conn.execute(text("ALTER TABLE empresas ADD COLUMN logo VARCHAR(255)"))
                     conn.commit()
                     print("✅ Coluna 'logo' adicionada!")
+
+            # 3. Correção específica da tabela 'orcamento' (coluna id_empresa) - CORREÇÃO NOVA
+            if 'orcamento' in tabelas_existentes:
+                colunas_orcamento = [col['name'] for col in inspector.get_columns('orcamento')]
+                if 'id_empresa' not in colunas_orcamento:
+                    print("⚠️ Corrigindo tabela 'orcamento': faltando id_empresa...")
+                    # Cria a coluna e já vincula com a tabela empresas (Foreign Key)
+                    conn.execute(text("ALTER TABLE orcamento ADD COLUMN id_empresa INTEGER REFERENCES empresas(id_empresa)"))
+                    conn.commit()
+                    print("✅ Coluna 'id_empresa' adicionada em orcamento!")
 
     except Exception as e:
         print(f"❌ Erro ao tentar corrigir schema manualmente: {e}")
@@ -268,7 +278,7 @@ def avatar_file(filename):
 # INICIALIZAÇÃO DO SERVIDOR
 # ========================================
 
-# --- ATUALIZE O BLOCO FINAL DE INICIALIZAÇÃO ---
+# --- BLOCO FINAL DE INICIALIZAÇÃO ATUALIZADO ---
 if __name__ != '__main__':
     # Gunicorn (Produção)
     with app.app_context():
