@@ -100,33 +100,43 @@ db.init_app(app)
 # Inicializa o Flask-Migrate
 migrate = Migrate(app, db)
 
-# Cria as tabelas se não existirem
+# --- SUBSTITUA A FUNÇÃO 'garantir_schema_atualizado' POR ESTA VERSÃO MAIS COMPLETA ---
 def garantir_schema_atualizado():
-    """Garante que colunas novas existam na tabela empresas, corrigindo o banco automaticamente."""
+    """
+    Verifica e cria colunas faltantes (id_usuario, logo) nas tabelas principais 
+    para evitar erros de migração no Render.
+    """
     try:
         inspector = inspect(db.engine)
-        # Verifica se a tabela existe antes de tentar ler colunas
-        if 'empresas' in inspector.get_table_names():
-            colunas = [col['name'] for col in inspector.get_columns('empresas')]
-            
-            with db.engine.connect() as conn:
-                # --- CORREÇÃO 1: id_usuario (O erro que você está enfrentando) ---
-                if 'id_usuario' not in colunas:
-                    print("⚠️ Detectada falta de 'id_usuario'. Tentando corrigir...")
-                    # Adiciona a coluna. Nota: Se já existirem empresas, elas ficarão com id_usuario=NULL inicialmente
-                    conn.execute(text("ALTER TABLE empresas ADD COLUMN id_usuario INTEGER REFERENCES usuario(id_usuario)"))
-                    conn.commit()
-                    print("✅ Coluna 'id_usuario' adicionada com sucesso!")
+        tabelas_existentes = inspector.get_table_names()
+        
+        # Lista de tabelas que PRECISAM ter o id_usuario
+        tabelas_com_usuario = ['empresas', 'clientes', 'servicos', 'orcamento', 'agendamentos']
 
-                # --- CORREÇÃO 2: logo (Sua correção original) ---
-                if 'logo' not in colunas:
-                    print("⚠️ Detectada falta de 'logo'. Tentando corrigir...")
+        with db.engine.connect() as conn:
+            
+            # 1. Adicionar id_usuario em todas as tabelas necessárias
+            for tabela in tabelas_com_usuario:
+                if tabela in tabelas_existentes:
+                    colunas = [col['name'] for col in inspector.get_columns(tabela)]
+                    if 'id_usuario' not in colunas:
+                        print(f"⚠️ Corrigindo tabela '{tabela}': faltando id_usuario...")
+                        # Adiciona a coluna e cria a chave estrangeira
+                        conn.execute(text(f"ALTER TABLE {tabela} ADD COLUMN id_usuario INTEGER REFERENCES usuario(id_usuario)"))
+                        conn.commit()
+                        print(f"✅ Tabela '{tabela}' corrigida com sucesso!")
+
+            # 2. Correção específica da tabela 'empresas' (coluna logo)
+            if 'empresas' in tabelas_existentes:
+                colunas_empresa = [col['name'] for col in inspector.get_columns('empresas')]
+                if 'logo' not in colunas_empresa:
+                    print("⚠️ Corrigindo tabela 'empresas': faltando logo...")
                     conn.execute(text("ALTER TABLE empresas ADD COLUMN logo VARCHAR(255)"))
                     conn.commit()
-                    print("✅ Coluna 'logo' adicionada com sucesso!")
-                    
+                    print("✅ Coluna 'logo' adicionada!")
+
     except Exception as e:
-        print(f"❌ Aviso: Não foi possível sincronizar colunas manualmente: {e}")
+        print(f"❌ Erro ao tentar corrigir schema manualmente: {e}")
 
 # ========================================
 # ROTA PRINCIPAL DA API
@@ -258,20 +268,20 @@ def avatar_file(filename):
 # INICIALIZAÇÃO DO SERVIDOR
 # ========================================
 
-# No final do arquivo, atualize o bloco de inicialização:
+# --- ATUALIZE O BLOCO FINAL DE INICIALIZAÇÃO ---
 if __name__ != '__main__':
-    # Este bloco roda quando o Gunicorn inicia (Produção no Render)
+    # Gunicorn (Produção)
     with app.app_context():
         try:
             db.create_all()
-            garantir_schema_atualizado() # <--- Chama a nova função de correção aqui
-            print("Banco de dados verificado e inicializado!")
+            garantir_schema_atualizado() # <--- Roda a correção ampliada
+            print("Banco de dados verificado e atualizado!")
         except Exception as e:
             print(f"Erro na inicialização do banco: {e}")
 
 if __name__ == '__main__':
+    # Local (Desenvolvimento)
     print("Acesse pelo link: http://localhost:5000")
-    # Este bloco roda apenas em desenvolvimento local
     with app.app_context():
         db.create_all()
         garantir_schema_atualizado()
